@@ -11,6 +11,7 @@ BaselineOfSendersChainTransformer >> baseline: spec [
 	<baseline>
 	spec for: #common do: [
 		"Packages"
+		spec package: 'SendersChainTransformer'.
 		spec package: 'SendersChainTransformer-Tests' with: [ spec requires: #( 'SendersChainTransformer' ) ].
 
 		"External dependencies"

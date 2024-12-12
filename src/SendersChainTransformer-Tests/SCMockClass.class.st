@@ -4,8 +4,8 @@ Class {
 	#instVars : [
 		'anotherFakeClass'
 	],
-	#category : 'Senders-Chain-Transformer-Tests',
-	#package : 'Senders-Chain-Transformer-Tests'
+	#category : 'SendersChainTransformer-Tests',
+	#package : 'SendersChainTransformer-Tests'
 }
 
 { #category : 'accessing' }

@@ -6,8 +6,8 @@ Class {
 		'originalSenders',
 		'selectorMaker'
 	],
-	#category : 'Senders-Chain-Transformer-Core',
-	#package : 'Senders-Chain-Transformer',
+	#category : 'SendersChainTransformer-Core',
+	#package : 'SendersChainTransformer',
 	#tag : 'Core'
 }
 

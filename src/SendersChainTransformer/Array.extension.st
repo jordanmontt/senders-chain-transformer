@@ -1,6 +1,6 @@
 Extension { #name : 'Array' }
 
-{ #category : '*Senders-Chain-Transformer' }
+{ #category : '*SendersChainTransformer' }
 Array class >> newTenured: sizeRequested [
 	"Answer an instance of this class with the number of indexable
 	variables specified by the argument, sizeRequested.

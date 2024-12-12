@@ -8,6 +8,6 @@ A tool that modifies the execution path for a given context while leaving other 
 EpMonitor disableDuring: [
 	Metacello new
 		baseline: 'SendersChainTransformer';
-		repository: 'github://jordanmontt/senders-chain-transformer/:main';
+		repository: 'github://jordanmontt/senders-chain-transformer:main';
 		load ].
 ```

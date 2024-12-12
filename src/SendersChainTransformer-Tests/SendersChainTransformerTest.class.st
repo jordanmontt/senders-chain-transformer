@@ -5,9 +5,8 @@ Class {
 	#name : 'SendersChainTransformerTest',
 	#superclass : 'TestCase',
 	#instVars : [
-		'rewriter',
-		'senders',
-		'initialCaller'
+		'codeTransformer',
+		'fixture'
 	],
 	#category : 'SendersChainTransformer-Tests',
 	#package : 'SendersChainTransformer-Tests'
@@ -18,20 +17,15 @@ SendersChainTransformerTest >> setUp [
 
 	super setUp.
 
-	rewriter := SendersChainTransformer new.
-	initialCaller := MethodWithOffset method: SCMockClass >> #foo offset: 45.
-	senders := {
-		           (MethodWithOffset method: SCAnotherMockClass >> #bar offset: 36).
-		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
-		           (MethodWithOffset method: Association class >> #key:value: offset: 42) }.
-
-	rewriter backupSenders: senders caller: initialCaller
+	fixture := SCDefaultFixture new.
+	codeTransformer := SendersChainTransformer new.
+	codeTransformer backupSenders: fixture senders caller: fixture initialCaller
 ]
 
 { #category : 'running' }
 SendersChainTransformerTest >> tearDown [
 
-	rewriter restoreOriginalState.
+	codeTransformer restoreOriginalState.
 
 	super tearDown
 ]
@@ -40,15 +34,15 @@ SendersChainTransformerTest >> tearDown [
 SendersChainTransformerTest >> testCloneMethodWithNewSelector [
 
 	| illSender tenuredNewSelector clonedCompiledMethod |
-	illSender := senders first.
-	tenuredNewSelector := rewriter makeNewSelector: #bar.
+	illSender := fixture senders first.
+	tenuredNewSelector := codeTransformer makeNewSelector: #bar.
 
 	"Make sure the method does not exist yet"
 	self should: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
 	self deny: (SCAnotherMockClass includesSelector: tenuredNewSelector).
 
-	clonedCompiledMethod := rewriter cloneMethodWithNewSelector: illSender.
-	rewriter installMethod: clonedCompiledMethod.
+	clonedCompiledMethod := codeTransformer cloneMethodWithNewSelector: illSender.
+	codeTransformer installMethod: clonedCompiledMethod.
 
 	self shouldnt: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
 	self assert: clonedCompiledMethod selector equals: tenuredNewSelector.
@@ -60,22 +54,22 @@ SendersChainTransformerTest >> testCloneMethodWithNewSelector [
 SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 	
 	"Make sure methods do not exist"
-	self should: [ SCAnotherMockClass new perform: (rewriter makeNewSelector: #bar) ] raise: MessageNotUnderstood.
+	self should: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ] raise: MessageNotUnderstood.
 	self
-		should: [ Dictionary new perform: (rewriter makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		should: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [ Association perform: (rewriter makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		should: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
-	rewriter transformCallingSenders: senders initialCaller: initialCaller.
+	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
 
-	self shouldnt: [ SCAnotherMockClass new perform: (rewriter makeNewSelector: #bar) ] raise: MessageNotUnderstood.
+	self shouldnt: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ] raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Dictionary new perform: (rewriter makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		shouldnt: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Association perform: (rewriter makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		shouldnt: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood
 ]
 
@@ -83,16 +77,16 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 SendersChainTransformerTest >> testTransformMessageSendOffset [
 
 	| illSender tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector offset methodToTenure |
-	illSender := senders second. "Dictionary >> #at:put:"
+	illSender := fixture senders second. "Dictionary >> #at:put:"
 	methodToTenure := illSender method.
 	offset := illSender offset.
-	expectedSelector := rewriter makeNewSelector: (illSender method sourceNodeForPC: offset) selector.
+	expectedSelector := codeTransformer makeNewSelector: (illSender method sourceNodeForPC: offset) selector.
 
 	self
 		shouldnt: [ methodToTenure valueWithReceiver: methodToTenure methodClass new arguments: #( #key #value ) ]
 		raise: PrimitiveFailed.
 
-	tenuredCompiledMethod := rewriter transformMessageSend: methodToTenure clone offset: offset.
+	tenuredCompiledMethod := codeTransformer transformMessageSend: methodToTenure clone offset: offset.
 
 	symbolicMessageSendBytecode := tenuredCompiledMethod symbolicBytecodes detect: [ :e |
 		                               e bytes includes: illSender bytecode ].

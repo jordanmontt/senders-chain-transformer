@@ -49,6 +49,13 @@ MethodWithOffset >> offset: anInt [
 	offset := anInt
 ]
 
+{ #category : 'printing' }
+MethodWithOffset >> printOn: aStream [
+
+	aStream << method name << ' offset '.
+	offset printOn: aStream
+]
+
 { #category : 'accessing' }
 MethodWithOffset >> selector [
 

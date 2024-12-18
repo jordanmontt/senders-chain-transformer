@@ -59,7 +59,6 @@ SendersChainTransformer >> restoreOriginalState [
 SendersChainTransformer >> transformCallingSenders: senders initialCaller: initialCaller [
 
 	| clonedMethod |
-	self backupSenders: senders caller: initialCaller.
 
 	initialCaller method methodClass methodDict
 		at: initialCaller selector

@@ -8,7 +8,8 @@ Class {
 		'p3',
 		'p4',
 		'fixture',
-		'proxies'
+		'proxies',
+		'codeTransformer'
 	],
 	#category : 'SendersChainTransformer-Tests',
 	#package : 'SendersChainTransformer-Tests'
@@ -27,7 +28,9 @@ IntercepMessageCallsTest >> setUp [
 
 	super setUp.
 
-	fixture := SCDefaultFixture new
+	fixture := SCDefaultFixture new.
+	codeTransformer := SendersChainTransformer new.
+	codeTransformer backupSenders: fixture senders caller: fixture initialCaller
 ]
 
 { #category : 'running' }
@@ -45,6 +48,7 @@ IntercepMessageCallsTest >> setUpMethodProxies [
 IntercepMessageCallsTest >> tearDown [
 
 	self uninstallInstrumentation.
+	codeTransformer restoreOriginalState.
 	super tearDown
 ]
 
@@ -68,14 +72,11 @@ IntercepMessageCallsTest >> testAllMessagesGetCalledWithoutTransformation [
 { #category : 'tests' }
 IntercepMessageCallsTest >> testInitialCallerActuallyCallsTransformedMethods [
 
-	| codeTransformer |
-	codeTransformer := SendersChainTransformer new.
 	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
 
 	self installInstrumentation.
 	SCMockClass new foo.
 	self uninstallInstrumentation.
-	codeTransformer restoreOriginalState.
 
 	self assert: handler calledMethods size equals: 1.
 	self assert: handler calledMethods first equals: #foo

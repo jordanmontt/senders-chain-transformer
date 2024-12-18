@@ -27,7 +27,7 @@ SCDefaultFixture >> initialize [
 	super initialize.
 	initialCaller := MethodWithOffset method: SCMockClass >> #foo offset: 45.
 	senders := {
-		           (MethodWithOffset method: SCAnotherMockClass >> #bar offset: 36).
+		           (MethodWithOffset method: SCAnotherMockClass >> #bar offset: 47).
 		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
 		           (MethodWithOffset method: Association class >> #key:value: offset: 42) }
 ]

@@ -11,6 +11,7 @@ Class {
 { #category : 'accessing - token' }
 SCAnotherMockClass >> bar [
 
+	SCDefaultFixture new.
 	aDictionary at: 1 put: 3
 ]
 

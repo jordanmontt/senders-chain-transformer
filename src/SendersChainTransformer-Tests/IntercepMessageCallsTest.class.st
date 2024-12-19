@@ -60,9 +60,9 @@ IntercepMessageCallsTest >> testAllMessagesGetCalledWithoutTransformation [
 	SCMockClass new foo.
 	self uninstallInstrumentation.
 	
-	reversedStack := handler calledMethods reversed.
-	self assert: reversedStack first equals: fixture initialCaller selector.
-	reversedStack removeFirst.
+	reversedStack := handler calledMethods.
+	self assert: reversedStack last equals: fixture initialCaller selector.
+	reversedStack removeLast.
 
 	reversedStack
 		with: fixture senders

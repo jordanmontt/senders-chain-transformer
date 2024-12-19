@@ -64,7 +64,7 @@ SendersChainTransformer >> transformCallingSenders: senders initialCaller: initi
 		at: initialCaller selector
 		put: (self transformMessageSend: initialCaller method offset: initialCaller offset).
 
-	senders do: [ :anIllSender |
+	senders reversed "the stack is top to bottom" do: [ :anIllSender |
 		clonedMethod := self cloneMethodWithNewSelector: anIllSender.
 		clonedMethod := self transformMessageSend: clonedMethod offset: anIllSender offset.
 		self installMethod: clonedMethod ]

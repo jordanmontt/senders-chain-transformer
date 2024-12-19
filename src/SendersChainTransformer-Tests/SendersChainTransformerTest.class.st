@@ -34,7 +34,7 @@ SendersChainTransformerTest >> tearDown [
 SendersChainTransformerTest >> testCloneMethodWithNewSelector [
 
 	| illSender tenuredNewSelector clonedCompiledMethod |
-	illSender := fixture senders first.
+	illSender := fixture senders last.
 	tenuredNewSelector := codeTransformer makeNewSelector: #bar.
 
 	"Make sure the method does not exist yet"

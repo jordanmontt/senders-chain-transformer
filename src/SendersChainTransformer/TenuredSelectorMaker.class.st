@@ -24,11 +24,16 @@ TenuredSelectorMaker >> initialize [
 
 { #category : 'api' }
 TenuredSelectorMaker >> makeSelector: aByteSymbol [
-
+	
+	"Allocator methods"
 	aByteSymbol = #new ifTrue: [ ^ #newTenured ].
 	aByteSymbol = #new: ifTrue: [ ^ #newTenured: ].
 	aByteSymbol = #basicNew ifTrue: [ ^ #basicNewTenured ].
 	aByteSymbol = #basicNew: ifTrue: [ ^ #basicNewTenured: ].
+
+	"Special selector"
+	aByteSymbol = #'->' ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrow ].
+
 	^ self defaultTenuredSelector: aByteSymbol
 ]
 

@@ -52,24 +52,32 @@ SendersChainTransformerTest >> testCloneMethodWithNewSelector [
 
 { #category : 'tests' }
 SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
-	
 	"Make sure methods do not exist"
-	self should: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ] raise: MessageNotUnderstood.
+
 	self
-		should: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		should: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		should: [
+		Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		raise: MessageNotUnderstood.
+	self
+		should: [
+		Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
 	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
 
-	self shouldnt: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ] raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		shouldnt: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		shouldnt: [
+		Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		raise: MessageNotUnderstood.
+	self
+		shouldnt: [
+		Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood
 ]
 

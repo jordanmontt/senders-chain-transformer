@@ -58,16 +58,15 @@ SendersChainTransformer >> restoreOriginalState [
 { #category : 'api' }
 SendersChainTransformer >> transformCallingSenders: senders initialCaller: initialCaller [
 
-	| clonedMethod |
-
+	senders reversed "the stack is top to bottom" do: [ :anIllSender |
+		| clonedMethod |
+		clonedMethod := self cloneMethodWithNewSelector: anIllSender.
+		clonedMethod := self transformMessageSend: clonedMethod offset: anIllSender offset.
+		self installMethod: clonedMethod ].
+	
 	initialCaller method methodClass methodDict
 		at: initialCaller selector
 		put: (self transformMessageSend: initialCaller method offset: initialCaller offset).
-
-	senders reversed "the stack is top to bottom" do: [ :anIllSender |
-		clonedMethod := self cloneMethodWithNewSelector: anIllSender.
-		clonedMethod := self transformMessageSend: clonedMethod offset: anIllSender offset.
-		self installMethod: clonedMethod ]
 ]
 
 { #category : 'method manipulation' }

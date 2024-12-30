@@ -14,8 +14,8 @@ Class {
 { #category : 'backup' }
 SendersChainTransformer >> backupSenders: senders caller: initialCaller [
 
-	originalCaller := initialCaller method copy.
-	originalSenders := senders collect: [ :illSender | illSender method copy ]
+	originalCaller := initialCaller method method "method method for blocks" copy.
+	originalSenders := senders collect: [ :illSender | illSender method method copy ]
 ]
 
 { #category : 'method manipulation' }

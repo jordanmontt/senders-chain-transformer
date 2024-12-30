@@ -11,5 +11,6 @@ SCMockWithBlockclosureClass >> theMethod [
 
 	| tmp1 |
 	1 = tmp1 something: [ OrderedCollection new ].
+	tmp1 anotherThing: [ Dictionary new ].
 	^ self
 ]

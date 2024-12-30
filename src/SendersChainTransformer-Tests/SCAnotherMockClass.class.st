@@ -4,8 +4,9 @@ Class {
 	#instVars : [
 		'aDictionary'
 	],
-	#category : 'SendersChainTransformer-Tests',
-	#package : 'SendersChainTransformer-Tests'
+	#category : 'SendersChainTransformer-Tests-Mocking',
+	#package : 'SendersChainTransformer-Tests',
+	#tag : 'Mocking'
 }
 
 { #category : 'accessing - token' }

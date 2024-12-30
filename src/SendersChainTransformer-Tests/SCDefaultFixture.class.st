@@ -5,8 +5,9 @@ Class {
 		'senders',
 		'initialCaller'
 	],
-	#category : 'SendersChainTransformer-Tests',
-	#package : 'SendersChainTransformer-Tests'
+	#category : 'SendersChainTransformer-Tests-Fixtures',
+	#package : 'SendersChainTransformer-Tests',
+	#tag : 'Fixtures'
 }
 
 { #category : 'accessing' }

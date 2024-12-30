@@ -5,8 +5,9 @@ Class {
 		'senders',
 		'initialCaller'
 	],
-	#category : 'SendersChainTransformer-Tests',
-	#package : 'SendersChainTransformer-Tests'
+	#category : 'SendersChainTransformer-Tests-Fixtures',
+	#package : 'SendersChainTransformer-Tests',
+	#tag : 'Fixtures'
 }
 
 { #category : 'accessing' }
@@ -26,7 +27,9 @@ SCFullBlockClosureFixture >> initialize [
 
 	super initialize.
 
-	initialCaller := MethodWithOffset method: SCMockWithBlockclosureClass >> #theMethod offset: 26.
+	initialCaller := MethodWithOffset
+		                 method: (SCMockWithBlockclosureClass >> #theMethod) literals first "the block closure"
+		                 offset: 26.
 	senders := {
 		           (MethodWithOffset method: OrderedCollection class >> #new: offset: 50).
 		           (MethodWithOffset method: OrderedCollection class >> #new offset: 35) }

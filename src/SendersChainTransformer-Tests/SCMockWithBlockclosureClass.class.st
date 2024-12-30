@@ -1,8 +1,9 @@
 Class {
 	#name : 'SCMockWithBlockclosureClass',
 	#superclass : 'Object',
-	#category : 'SendersChainTransformer-Tests',
-	#package : 'SendersChainTransformer-Tests'
+	#category : 'SendersChainTransformer-Tests-Mocking',
+	#package : 'SendersChainTransformer-Tests',
+	#tag : 'Mocking'
 }
 
 { #category : 'as yet unclassified' }

@@ -74,7 +74,7 @@ SendersChainTransformer >> transformCallingSenders: senders initialCaller: initi
 SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: offset [
 
 	| oldSelector newSelector irSendNode ir irSequences sourceNodeForPC |
-	sourceNodeForPC := compiledMethodOrBlock sourceNode sourceNodeForPC: offset.
+	sourceNodeForPC := (compiledMethodOrBlock sourceNode sourceNodeForPC: offset) copy.
 	oldSelector := sourceNodeForPC selector.
 	newSelector := self makeNewSelector: oldSelector.
 

@@ -13,8 +13,9 @@ Class {
 
 { #category : 'backup' }
 SendersChainTransformer >> backupSenders: senders caller: initialCaller [
+	"method method for blocks"
 
-	originalCaller := initialCaller method method "method method for blocks" copy.
+	originalCaller := initialCaller method method copy.
 	originalSenders := senders collect: [ :illSender | illSender method method copy ]
 ]
 
@@ -51,8 +52,8 @@ SendersChainTransformer >> restoreOriginalState [
 
 	self installMethod: originalCaller.
 	originalSenders do: [ :aCompiledMethod | self installMethod: aCompiledMethod ].
-	originalSenders do: [ :illSender |
-		illSender method methodClass removeSelector: (self makeNewSelector: illSender selector) ]
+	originalSenders do: [ :aCompiledMethod |
+		aCompiledMethod methodClass removeSelector: (self makeNewSelector: aCompiledMethod selector) ]
 ]
 
 { #category : 'api' }

@@ -42,3 +42,15 @@ SendersChainTransformerWithBlockClosureTest >> testTransformCallingSendersInitia
 		shouldnt: [ SCMockWithBlockclosureClass new perform: (codeTransformer makeNewSelector: #theMethod) ]
 		raise: MessageNotUnderstood
 ]
+
+{ #category : 'tests' }
+SendersChainTransformerWithBlockClosureTest >> testTransformMessageSendOffsetWithBlock [
+
+	1 halt.
+	codeTransformer transformMessageSend: fixture initialCaller method offset: fixture initialCaller offset.
+
+
+	self
+		shouldnt: [ SCMockWithBlockclosureClass new perform: (codeTransformer makeNewSelector: #theMethod) ]
+		raise: MessageNotUnderstood
+]

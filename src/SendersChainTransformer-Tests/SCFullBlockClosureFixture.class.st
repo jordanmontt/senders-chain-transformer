@@ -28,8 +28,9 @@ SCFullBlockClosureFixture >> initialize [
 	super initialize.
 
 	initialCaller := MethodWithOffset
-		                 method: (SCMockWithBlockclosureClass >> #theMethod) literals first "the block closure"
-		                 offset: 26.
+		                 method: (SCMockWithBlockclosureClass >> #theMethod) literals third
+										"the desired block closure"
+		                 offset: 37.
 	senders := {
 		           (MethodWithOffset method: OrderedCollection class >> #new: offset: 50).
 		           (MethodWithOffset method: OrderedCollection class >> #new offset: 35) }

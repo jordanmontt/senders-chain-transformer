@@ -73,18 +73,13 @@ SendersChainTransformer >> transformCallingSenders: senders initialCaller: initi
 { #category : 'method manipulation' }
 SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: offset [
 
-	| oldSelector newSelector irSendNode ir irSequences sourceNodeForPC |
-	sourceNodeForPC := (compiledMethodOrBlock sourceNode sourceNodeForPC: offset) copy.
-	oldSelector := sourceNodeForPC selector.
+	| oldSelector newSelector transformedMessageNode ast |
+	ast := compiledMethodOrBlock ast copy.
+	transformedMessageNode := (ast sourceNodeForPC: offset) "copy".
+	oldSelector := transformedMessageNode selector.
 	newSelector := self makeNewSelector: oldSelector.
 
-	^ (sourceNodeForPC selector: newSelector) methodNode generateIR generate
-
-	"ir := compiledMethodOrBlock ir copy.
-	irSequences := ir allSequences flatCollect: #children.
-	irSendNode := (irSequences select: #isSend) detect: [ :e | e selector = oldSelector ].
-	irSendNode selector: newSelector.
-	^ ir generate
-		  selector: compiledMethodOrBlock selector;
-		  yourself"
+	transformedMessageNode selector: newSelector.
+	ast replaceNode: (ast sourceNodeForPC: offset) withNode: transformedMessageNode.
+	^ ast methodNode generateIR generate
 ]

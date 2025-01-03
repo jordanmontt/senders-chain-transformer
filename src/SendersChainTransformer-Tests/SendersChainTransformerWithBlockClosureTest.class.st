@@ -46,11 +46,12 @@ SendersChainTransformerWithBlockClosureTest >> testTransformCallingSendersInitia
 { #category : 'tests' }
 SendersChainTransformerWithBlockClosureTest >> testTransformMessageSendOffsetWithBlock [
 
-	1 halt.
-	codeTransformer transformMessageSend: fixture initialCaller method offset: fixture initialCaller offset.
+	| transformedMethod |
+	transformedMethod := codeTransformer
+		                     transformMessageSend: fixture initialCaller method
+		                     offset: fixture initialCaller offset.
+	self assertCollection: transformedMethod sourceCode includesAll: 'newTenured'.
 
-
-	self
-		shouldnt: [ SCMockWithBlockclosureClass new perform: (codeTransformer makeNewSelector: #theMethod) ]
-		raise: MessageNotUnderstood
+	codeTransformer restoreOriginalState.
+	self denyCollection: (SCMockWithBlockclosureClass >> #theMethod) sourceCode includesAll: 'newTenured'
 ]

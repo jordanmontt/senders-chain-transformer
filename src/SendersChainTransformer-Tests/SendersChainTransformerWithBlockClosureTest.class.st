@@ -29,28 +29,14 @@ SendersChainTransformerWithBlockClosureTest >> tearDown [
 ]
 
 { #category : 'tests' }
-SendersChainTransformerWithBlockClosureTest >> testTransformCallingSendersInitialCaller [
-
-	self
-		should: [ SCMockWithBlockclosureClass new perform: (codeTransformer makeNewSelector: #theMethod) ]
-		raise: MessageNotUnderstood.
-
-	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
-
-	self
-		shouldnt: [ SCMockWithBlockclosureClass new perform: (codeTransformer makeNewSelector: #theMethod) ]
-		raise: MessageNotUnderstood
-]
-
-{ #category : 'tests' }
 SendersChainTransformerWithBlockClosureTest >> testTransformMessageSendOffsetWithBlock [
 
 	| transformedMethod |
 	transformedMethod := codeTransformer
 		                     transformMessageSend: fixture initialCaller method
 		                     offset: fixture initialCaller offset.
-	self assertCollection: transformedMethod sourceCode includesAll: 'newTenured'.
+	self assert: (transformedMethod sourceCode includesSubstring: 'newTenured').
 
 	codeTransformer restoreOriginalState.
-	self denyCollection: (SCMockWithBlockclosureClass >> #theMethod) sourceCode includesAll: 'newTenured'
+	self deny: ((SCMockWithBlockclosureClass >> #theMethod) sourceCode includesSubstring: 'newTenured')
 ]

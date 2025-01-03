@@ -13,6 +13,6 @@ SCMockWithBlockclosureClass >> theMethod [
 	tmp1 anotherThing: [ Dictionary new ].
 	1 = tmp1 something: [
 		Object new. "Do not change this"
-		OrderedCollection new "this is the selector to change" ].
+		SCMockWithBlockclosureClass new "this is the selector to change" ].
 	^ self
 ]

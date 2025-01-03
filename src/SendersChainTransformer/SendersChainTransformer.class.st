@@ -75,7 +75,7 @@ SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: o
 
 	| oldSelector newSelector transformedMessageNode ast |
 	ast := compiledMethodOrBlock ast copy.
-	ast selector: compiledMethodOrBlock selector. "to keep the new selector that was changed but not yet installed"
+	ast methodNode selector: compiledMethodOrBlock selector. "to keep the new selector that was changed but not yet installed"
 
 	transformedMessageNode := (ast sourceNodeForPC: offset) "copy".
 	oldSelector := transformedMessageNode selector.

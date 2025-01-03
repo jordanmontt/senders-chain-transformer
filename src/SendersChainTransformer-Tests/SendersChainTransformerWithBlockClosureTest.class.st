@@ -37,7 +37,6 @@ SendersChainTransformerWithBlockClosureTest >> testTransformCallingSendersInitia
 
 	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
 
-	1 halt.
 	self
 		shouldnt: [ SCMockWithBlockclosureClass new perform: (codeTransformer makeNewSelector: #theMethod) ]
 		raise: MessageNotUnderstood

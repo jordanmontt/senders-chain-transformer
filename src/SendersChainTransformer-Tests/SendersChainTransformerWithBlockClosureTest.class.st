@@ -36,6 +36,7 @@ SendersChainTransformerWithBlockClosureTest >> testTransformMessageSendOffsetWit
 		                     transformMessageSend: fixture initialCaller method
 		                     offset: fixture initialCaller offset.
 	self assert: (transformedMethod sourceCode includesSubstring: 'newTenured').
+	self assert: (transformedMethod sourceCode includesSubstring: 'myVar').
 
 	codeTransformer restoreOriginalState.
 	self deny: ((SCMockWithBlockclosureClass >> #theMethod) sourceCode includesSubstring: 'newTenured')

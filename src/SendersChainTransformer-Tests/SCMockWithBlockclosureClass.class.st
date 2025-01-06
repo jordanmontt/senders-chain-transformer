@@ -9,9 +9,9 @@ Class {
 { #category : 'as yet unclassified' }
 SCMockWithBlockclosureClass >> theMethod [
 
-	| tmp1 |
-	tmp1 anotherThing: [ Dictionary new ].
-	1 = tmp1 something: [
+	| myVar |
+	myVar anotherThing: [ Dictionary new ].
+	1 = myVar something: [
 		Object new. "Do not change this"
 		SCMockWithBlockclosureClass new "this is the selector to change" ].
 	^ self

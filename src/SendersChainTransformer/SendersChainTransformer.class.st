@@ -73,15 +73,22 @@ SendersChainTransformer >> transformCallingSenders: senders initialCaller: initi
 { #category : 'method manipulation' }
 SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: offset [
 
-	| oldSelector newSelector transformedMessageNode ast |
-	ast := compiledMethodOrBlock ast copy.
+	| oldSelector newSelector messageNodeToTransform ast compiledMethod |
+	compiledMethodOrBlock isCompiledBlock
+		ifTrue: [
+			ast := compiledMethodOrBlock method parseTree.
+			messageNodeToTransform := (ast sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
+		ifFalse: [
+			ast := compiledMethodOrBlock parseTree.
+			messageNodeToTransform := ast sourceNodeForPC: offset ].
+
 	ast methodNode selector: compiledMethodOrBlock selector. "to keep the new selector that was changed but not yet installed"
 
-	transformedMessageNode := (ast sourceNodeForPC: offset) "copy".
-	oldSelector := transformedMessageNode selector.
+	oldSelector := messageNodeToTransform selector.
 	newSelector := self makeNewSelector: oldSelector.
 
-	transformedMessageNode selector: newSelector.
-	ast replaceNode: (ast sourceNodeForPC: offset) withNode: transformedMessageNode.
-	^ ast methodNode generateIR generate
+	messageNodeToTransform selector: newSelector.
+	compiledMethod := ast methodNode generateIR generate.
+	compiledMethod propertyAt: #source put: ast formattedCode.
+	^ compiledMethod
 ]

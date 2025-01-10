@@ -23,8 +23,12 @@ SendersChainTransformer >> backupSenders: senders caller: initialCaller [
 SendersChainTransformer >> cloneMethodWithNewSelector: anIllSender [
 
 	| clonedMethod |
-	clonedMethod := anIllSender method copy.
-	clonedMethod selector: (self makeNewSelector: clonedMethod selector).
+	clonedMethod := anIllSender method isCompiledBlock
+		ifTrue: [ | tempMethod |
+			tempMethod := anIllSender method method copy.
+			tempMethod literals detect: [ :e | e = anIllSender method ] ]
+		ifFalse: [ anIllSender method copy ].
+	clonedMethod method selector: (self makeNewSelector: clonedMethod selector).
 	^ clonedMethod
 ]
 

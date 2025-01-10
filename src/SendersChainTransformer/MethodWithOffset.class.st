@@ -74,7 +74,8 @@ MethodWithOffset >> offset: anInt [
 { #category : 'printing' }
 MethodWithOffset >> printOn: aStream [
 
-	aStream << method method "in case of blocks" name << ' offset '.
+	method printOn: aStream.
+	aStream << ' offset '.
 	offset printOn: aStream
 ]
 

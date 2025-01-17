@@ -58,9 +58,6 @@ SendersChainTransformer >> makeNewSelector: aByteSymbol [
 { #category : 'method manipulation' }
 SendersChainTransformer >> mergeTransformedSenders [
 	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
-	
-	(transformedSenders collect: #name as: Set) size = originalSenders size ifTrue: [ ^ transformedSenders "no repetitions" ].
-
 	transformedSenders := CodeTransformationMerger new mergeCompiledMethods: transformedSenders.
 	^ transformedSenders
 ]

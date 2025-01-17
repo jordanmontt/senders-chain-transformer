@@ -35,7 +35,9 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> testTransformationsFo
 	self deny: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').
 	self assert: (transformedInitialCaller sourceNodeForPC: fixture initialCaller offset) selector equals: #at:ifAbsentPut:.
 
-	pretenurator pretenureAllocations: fixture toPretenureAllocationSites.
+	pretenurator
+		pretenureAllocations: fixture toPretenureAllocationSites;
+		installPretenuredMethods.
 
 	transformedInitialCaller := SCTransformationsForTwoAllocationSitesInSameMethodMock >> #addOccupant:.
 	self assert: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').

@@ -45,6 +45,12 @@ CodeTransformationMerger >> calculateDiffFromNew: new toOld: old [
 	^ StringChangeDiff start: i length: old_len - i change: (new copyFrom: i to: new_len)
 ]
 
+{ #category : 'api' }
+CodeTransformationMerger >> isThereMethodRepetitionsBetween: anArrayOfCompiledMethods and: anotherArrayOfCompiledMethods [
+
+	^ (anArrayOfCompiledMethods collect: #name as: Set) size ~= anotherArrayOfCompiledMethods size
+]
+
 { #category : 'internals' }
 CodeTransformationMerger >> mergeCodeTransformations: transformedMethodsSourceCode in: targetString [
 
@@ -55,7 +61,8 @@ CodeTransformationMerger >> mergeCodeTransformations: transformedMethodsSourceCo
 
 { #category : 'api' }
 CodeTransformationMerger >> mergeCompiledMethods: transformedSenders [
-	
+	"If there are no repetitions, there is no merging so the same collection gets returned"
+
 	| repetitions |	
 	repetitions := Dictionary new.
 	transformedSenders do: [ :aCompiledMethod |
@@ -78,9 +85,6 @@ CodeTransformationMerger >> mergeCompiledMethods: transformedSenders [
 			yourself.
 		"Put the merged method"
 		repetitions at: methodName put: { mergedCompiledMethod } ].
-
-	"There were at least one repetition that got merged"
-	self assert: (repetitions values sum: #size) < transformedSenders size.
 
 	^ repetitions values flattened.
 ]

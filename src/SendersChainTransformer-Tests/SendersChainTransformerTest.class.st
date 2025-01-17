@@ -68,7 +68,9 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 		Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
-	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
+	codeTransformer
+		transformCallingSenders: fixture senders initialCaller: fixture initialCaller;
+		installTransformations.
 
 	self
 		shouldnt: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ]

@@ -21,6 +21,29 @@ CodeTransformationMergerTest >> setUp [
 ]
 
 { #category : 'tests' }
+CodeTransformationMergerTest >> testCormasMethdos [
+
+	| originalString modification1 modification2 result |
+	originalString := 
+'addOccupant: anObject
+
+	(self theOccupants at: anObject class name ifAbsentPut: [ OrderedCollection new ]) add: anObject'.
+	modification1 :=
+'addOccupant: anObject
+
+	(self theOccupants _pretenured_94905_at: anObject class name ifAbsentPut: [ OrderedCollection new ]) add: anObject'.
+	modification2 :=
+'addOccupant: anObject
+
+	(self theOccupants at: anObject class name ifAbsentPut: [ OrderedCollection newTenured ]) add: anObject'.
+
+	result := codeTransformationMerger mergeCodeTransformations: { modification1 . modification2 } in: originalString.
+	self assert: result equals: 'addOccupant: anObject
+
+	(self theOccupants _pretenured_94905_at: anObject class name ifAbsentPut: [ OrderedCollection newTenured ]) add: anObject'
+]
+
+{ #category : 'tests' }
 CodeTransformationMergerTest >> testMergeCodeTransformationsIn [
 
 	| modification1 modification2 result originalString |

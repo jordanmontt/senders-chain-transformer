@@ -48,7 +48,6 @@ IllPretenurator >> pretenureAllocationChainForInitialCaller: initialCaller sende
 { #category : 'api' }
 IllPretenurator >> pretenureAllocations: toPretenureSitesArray [
 
-
 	toPretenureSitesArray do: [ :methodsWithOffsets |
 		self pretenureAllocationChainForInitialCaller: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
 	self mergeInitialCallers

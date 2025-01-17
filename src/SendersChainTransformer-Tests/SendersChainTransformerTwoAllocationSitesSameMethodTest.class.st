@@ -3,8 +3,7 @@ Class {
 	#superclass : 'TestCase',
 	#instVars : [
 		'fixture',
-		'codeTransformer2',
-		'codeTransformer1'
+		'pretenurator'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -17,18 +16,13 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> setUp [
 	super setUp.
 
 	fixture := SCTwoAllocationSitesInSameMethodFixture new.
-	codeTransformer1 := SendersChainTransformer new.
-	codeTransformer2 := SendersChainTransformer new.
-
-	codeTransformer1 backupSenders: fixture senders caller: fixture initialCaller.
-	codeTransformer2 backupSenders: fixture senders2 caller: fixture initialCaller2
+	pretenurator := IllPretenurator new
 ]
 
 { #category : 'running' }
 SendersChainTransformerTwoAllocationSitesSameMethodTest >> tearDown [
 
-	codeTransformer1 restoreOriginalState.
-	codeTransformer2 restoreOriginalState.
+	pretenurator restoreOriginalState.
 
 	super tearDown
 ]
@@ -41,8 +35,7 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> testTransformationsFo
 	self deny: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').
 	self assert: (transformedInitialCaller sourceNodeForPC: fixture initialCaller offset) selector equals: #at:ifAbsentPut:.
 
-	codeTransformer1 transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
-	codeTransformer2 transformCallingSenders: fixture senders2 initialCaller: fixture initialCaller2.
+	pretenurator pretenureAllocations: fixture toPretenureAllocationSites.
 
 	transformedInitialCaller := SCTransformationsForTwoAllocationSitesInSameMethodMock >> #addOccupant:.
 	self assert: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').

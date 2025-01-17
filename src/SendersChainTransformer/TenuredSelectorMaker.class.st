@@ -31,8 +31,11 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 	aByteSymbol = #basicNew ifTrue: [ ^ #basicNewTenured ].
 	aByteSymbol = #basicNew: ifTrue: [ ^ #basicNewTenured: ].
 
+	"Primitives"
+	aByteSymbol = #value ifTrue: [ ^ #value ].
+
 	"Special selector"
-	aByteSymbol = #'->' ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrow ].
+	aByteSymbol = #'->' ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrow: ].
 
 	^ self defaultTenuredSelector: aByteSymbol
 ]

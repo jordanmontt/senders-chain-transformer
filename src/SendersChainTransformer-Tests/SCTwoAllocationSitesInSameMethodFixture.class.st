@@ -58,3 +58,11 @@ SCTwoAllocationSitesInSameMethodFixture >> senders2 [
 
 	^ senders2
 ]
+
+{ #category : 'initialization' }
+SCTwoAllocationSitesInSameMethodFixture >> toPretenureAllocationSites [
+
+	^ {
+		  (senders , { initialCaller }).
+		  (senders2 , { initialCaller2 }) }
+]

@@ -7,9 +7,9 @@ Class {
 	#instVars : [
 		'codeTransformationMerger'
 	],
-	#category : 'SendersChainTransformer-Tests-Core',
+	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
-	#tag : 'Core'
+	#tag : 'Tests'
 }
 
 { #category : 'running' }

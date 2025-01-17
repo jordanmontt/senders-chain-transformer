@@ -7,12 +7,6 @@ Class {
 }
 
 { #category : 'internals' }
-CodeTransformationMerger >> applyChange: change toOld: oldString [
-
-	^ oldString copyReplaceFrom: change start to: change start + change length with: change change
-]
-
-{ #category : 'internals' }
 CodeTransformationMerger >> applyChanges: changes toOld: old [
 
 	| result changeSize |
@@ -51,10 +45,42 @@ CodeTransformationMerger >> calculateDiffFromNew: new toOld: old [
 	^ StringChangeDiff start: i length: old_len - i change: (new copyFrom: i to: new_len)
 ]
 
-{ #category : 'api' }
+{ #category : 'internals' }
 CodeTransformationMerger >> mergeCodeTransformations: transformedMethodsSourceCode in: targetString [
 
 	| diffs |
 	diffs := transformedMethodsSourceCode collect: [ :aSourceCode | self calculateDiffFromNew: aSourceCode toOld: targetString ].
 	^ self applyChanges: diffs toOld: targetString
+]
+
+{ #category : 'api' }
+CodeTransformationMerger >> mergeCompiledMethods: transformedSenders [
+	
+	| repetitions |	
+	repetitions := Dictionary new.
+	transformedSenders do: [ :aCompiledMethod |
+		repetitions
+			at: aCompiledMethod name
+			ifPresent: [ :col | col add: aCompiledMethod ]
+			ifAbsentPut: [ OrderedCollection with: aCompiledMethod  ] ].
+	
+	(repetitions select: [ :col | col size > 1 ]) keysAndValuesDo: [ :methodName :collection |
+		"Merge the modifications on the same method"
+		| originalSourceCode mergedCode mergedCompiledMethod |
+		originalSourceCode := (OpalCompiler new source: methodName; evaluate) parseTree formattedCode 
+		"As the merger manipulates strings, we need to make sure that the source code has the same structure.
+		That's why we ask the formatted code".
+		mergedCode := self
+							mergeCodeTransformations: (collection collect: [ :m | m parseTree formattedCode ])
+							in: originalSourceCode.
+		mergedCompiledMethod := (OpalCompiler new compile: mergedCode)
+			classBinding: collection anyOne methodClass;
+			yourself.
+		"Put the merged method"
+		repetitions at: methodName put: { mergedCompiledMethod } ].
+
+	"There were at least one repetition that got merged"
+	self assert: (repetitions values sum: #size) < transformedSenders size.
+
+	^ repetitions values flattened.
 ]

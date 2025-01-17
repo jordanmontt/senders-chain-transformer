@@ -74,6 +74,7 @@ IntercepMessageCallsTest >> testAllMessagesGetCalledWithoutTransformation [
 IntercepMessageCallsTest >> testInitialCallerActuallyCallsTransformedMethods [
 
 	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
+	codeTransformer installTransformations.
 
 	self installInstrumentation.
 	SCMockClass new foo.

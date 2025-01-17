@@ -4,7 +4,9 @@ Class {
 	#instVars : [
 		'originalCaller',
 		'originalSenders',
-		'selectorMaker'
+		'selectorMaker',
+		'transformedSenders',
+		'transformedInitialCaller'
 	],
 	#category : 'SendersChainTransformer-Core',
 	#package : 'SendersChainTransformer',
@@ -12,24 +14,19 @@ Class {
 }
 
 { #category : 'backup' }
-SendersChainTransformer >> backupSenders: senders caller: initialCaller [
+SendersChainTransformer >> backupSenders: senders caller: caller [
 	"method method for blocks"
 
-	originalCaller := initialCaller method method copy.
+	originalCaller := caller method method copy.
 	originalSenders := senders collect: [ :illSender | illSender method method copy ]
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> cloneMethodWithNewSelector: anIllSender [
+SendersChainTransformer >> cloneCompiledCode: anIllSender [
 
-	| clonedMethod |
-	clonedMethod := anIllSender method isCompiledBlock
-		ifTrue: [ | tempMethod |
-			tempMethod := anIllSender method method copy.
-			tempMethod literals detect: [ :e | e = anIllSender method ] ]
-		ifFalse: [ anIllSender method copy ].
-	clonedMethod method selector: (self makeNewSelector: clonedMethod selector).
-	^ clonedMethod
+	^ anIllSender method isCompiledBlock
+		  ifTrue: [  anIllSender method ]
+		  ifFalse: [ anIllSender method copy ]
 ]
 
 { #category : 'initialization' }
@@ -46,9 +43,32 @@ SendersChainTransformer >> installMethod: aCompiledMethod [
 ]
 
 { #category : 'method manipulation' }
+SendersChainTransformer >> installTransformations [
+
+	transformedSenders do: [ :aCompiledMethod | self installMethod: aCompiledMethod ].
+	self installMethod: transformedInitialCaller
+]
+
+{ #category : 'method manipulation' }
 SendersChainTransformer >> makeNewSelector: aByteSymbol [
 
 	^ selectorMaker makeSelector: aByteSymbol
+]
+
+{ #category : 'method manipulation' }
+SendersChainTransformer >> mergeTransformedSenders [
+	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
+	
+	(transformedSenders collect: #name as: Set) size = originalSenders size ifTrue: [ ^ transformedSenders "no repetitions" ].
+
+	transformedSenders := CodeTransformationMerger new mergeCompiledMethods: transformedSenders.
+	^ transformedSenders
+]
+
+{ #category : 'method manipulation' }
+SendersChainTransformer >> renameSendersSelectors [
+
+	transformedSenders do: [ :aCompiledMethod | aCompiledMethod selector: (self makeNewSelector: aCompiledMethod selector) ]
 ]
 
 { #category : 'backup' }
@@ -62,22 +82,21 @@ SendersChainTransformer >> restoreOriginalState [
 
 { #category : 'api' }
 SendersChainTransformer >> transformCallingSenders: senders initialCaller: initialCaller [
+	"the stack is top to bottom so we need to reverse it"
 
-	senders reversed "the stack is top to bottom" do: [ :anIllSender |
-		| clonedMethod |
-		clonedMethod := self cloneMethodWithNewSelector: anIllSender.
-		clonedMethod := self transformMessageSend: clonedMethod offset: anIllSender offset.
-		self installMethod: clonedMethod ].
+	transformedSenders := senders reversed collect: [ :anIllSender |
+		                      self transformMessageSend: (self cloneCompiledCode: anIllSender) offset: anIllSender offset ].
+	transformedSenders := self mergeTransformedSenders.
+	transformedInitialCaller := self transformMessageSend: initialCaller method offset: initialCaller offset.
 	
-	initialCaller method methodClass methodDict
-		at: initialCaller selector
-		put: (self transformMessageSend: initialCaller method offset: initialCaller offset).
+	self renameSendersSelectors.
+	^ transformedSenders
 ]
 
 { #category : 'method manipulation' }
 SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: offset [
 
-	| oldSelector newSelector messageNodeToTransform ast compiledMethod |
+	| messageNodeToTransform ast transformedCompiledMethod |
 	compiledMethodOrBlock isCompiledBlock
 		ifTrue: [
 			ast := compiledMethodOrBlock method parseTree.
@@ -86,13 +105,27 @@ SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: o
 			ast := compiledMethodOrBlock parseTree.
 			messageNodeToTransform := ast sourceNodeForPC: offset ].
 
-	ast methodNode selector: compiledMethodOrBlock selector. "to keep the new selector that was changed but not yet installed"
+	messageNodeToTransform selector: (self makeNewSelector: messageNodeToTransform selector).
 
-	oldSelector := messageNodeToTransform selector.
-	newSelector := self makeNewSelector: oldSelector.
+	transformedCompiledMethod := ast methodNode generateIR generate.
+	transformedCompiledMethod propertyAt: #source put: ast formattedCode.
+	^ transformedCompiledMethod
+]
 
-	messageNodeToTransform selector: newSelector.
-	compiledMethod := ast methodNode generateIR generate.
-	compiledMethod propertyAt: #source put: ast formattedCode.
-	^ compiledMethod
+{ #category : 'accessing' }
+SendersChainTransformer >> transformedInitialCaller [
+
+	^ transformedInitialCaller
+]
+
+{ #category : 'accessing' }
+SendersChainTransformer >> transformedSenders [
+
+	^ transformedSenders
+]
+
+{ #category : 'accessing' }
+SendersChainTransformer >> transformedSendersChain [
+
+	^ ({ transformedInitialCaller } , transformedSenders) reversed
 ]

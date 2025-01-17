@@ -32,7 +32,7 @@ SendersChainTransformerTest >> tearDown [
 ]
 
 { #category : 'tests' }
-SendersChainTransformerTest >> testCloneMethodWithNewSelector [
+SendersChainTransformerTest >> testInstallMethodWithNewSelector [
 
 	| illSender tenuredNewSelector clonedCompiledMethod |
 	illSender := fixture senders last.
@@ -42,7 +42,8 @@ SendersChainTransformerTest >> testCloneMethodWithNewSelector [
 	self should: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
 	self deny: (SCAnotherMockClass includesSelector: tenuredNewSelector).
 
-	clonedCompiledMethod := codeTransformer cloneMethodWithNewSelector: illSender.
+	clonedCompiledMethod := codeTransformer cloneCompiledCode: illSender.
+	clonedCompiledMethod selector: tenuredNewSelector.
 	codeTransformer installMethod: clonedCompiledMethod.
 
 	self shouldnt: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.

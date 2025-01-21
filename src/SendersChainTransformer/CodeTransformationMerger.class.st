@@ -88,3 +88,17 @@ CodeTransformationMerger >> mergeCompiledMethods: transformedSenders [
 
 	^ repetitions values flattened.
 ]
+
+{ #category : 'api' }
+CodeTransformationMerger >> newMergeCompiledMethods: aListOfMethodsWithOffset [
+
+	| first |
+	first := aListOfMethodsWithOffset first.
+	first method: (self ).
+	aListOfMethodsWithOffset do: [ :aMetodWithOffset |
+		(aMetodWithOffset method sourceNodeForPC: aMetodWithOffset offset) isMessage
+			ifTrue: [ aMetodWithOffset method sourceNodeForPC: aMetodWithOffset offset ]
+			ifFalse: [
+				(aMetodWithOffset method literals select: #isCompiledBlock) detect: [ :block |
+					(block sourceNodeForPC: 55) isMessage ] ] ]
+]

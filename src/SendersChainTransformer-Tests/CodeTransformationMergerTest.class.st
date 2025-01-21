@@ -140,3 +140,17 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInSeveralChanges [
 	self assert: result equals: 'at: key ifAbsentPut: aBlock
 	^ self _pretenured_76688_at: key ifAbsent: [ self _pretenured_76688_at: key put: aBlock value ifAbsent: [ self _pretenured_76688_doSomething ] ]'
 ]
+
+{ #category : 'tests' }
+CodeTransformationMergerTest >> testNew [
+
+	| transformation1 transformation2 originalMethod |
+	codeTransformationMerger := SendersChainTransformer new.
+	
+	originalMethod := CodeMergerFixture >> #addOccupant:.
+	transformation1 := codeTransformationMerger transformMessageSend:
+				(MethodWithOffset method: CodeMergerFixture >> #addOccupant: offset: 81).
+	transformation2 := codeTransformationMerger transformMessageSend:
+				(MethodWithOffset method: ((CodeMergerFixture >> #addOccupant:) literals detect: #isCompiledBlock) offset: 26).
+	codeTransformationMerger newMergeCompiledMethods: { transformation1 . transformation2 } into: originalMethod
+]

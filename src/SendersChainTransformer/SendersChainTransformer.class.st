@@ -25,8 +25,8 @@ SendersChainTransformer >> backupSenders: senders caller: caller [
 SendersChainTransformer >> cloneCompiledCode: anIllSender [
 
 	^ anIllSender method isCompiledBlock
-		  ifTrue: [  anIllSender method ]
-		  ifFalse: [ anIllSender method copy ]
+		  ifTrue: [ MethodWithOffset method: anIllSender method offset: anIllSender offset ]
+		  ifFalse: [ MethodWithOffset method: anIllSender method copy offset: anIllSender offset ]
 ]
 
 { #category : 'initialization' }
@@ -45,8 +45,8 @@ SendersChainTransformer >> installMethod: aCompiledMethod [
 { #category : 'method manipulation' }
 SendersChainTransformer >> installTransformations [
 
-	transformedSenders do: [ :aCompiledMethod | self installMethod: aCompiledMethod ].
-	self installMethod: transformedInitialCaller
+	transformedSenders do: [ :aMEthodWithOffset | self installMethod: aMEthodWithOffset method ].
+	self installMethod: transformedInitialCaller method
 ]
 
 { #category : 'method manipulation' }
@@ -62,10 +62,49 @@ SendersChainTransformer >> mergeTransformedSenders [
 	^ transformedSenders
 ]
 
+{ #category : 'instance creation' }
+SendersChainTransformer >> newMergeCompiledMethods: aListOfMethodsWithOffset [
+
+	| mergedMethod |
+	mergedMethod := aListOfMethodsWithOffset first method.
+
+	aListOfMethodsWithOffset allButFirst do: [ :aMetodWithOffset |
+		(aMetodWithOffset method sourceNodeForPC: aMetodWithOffset offset) isMessage
+			ifTrue: [ self transformMessageSend: (MethodWithOffset method: mergedMethod offset: aMetodWithOffset offset) ]
+			ifFalse: [
+				| block |
+				block := (mergedMethod literals select: #isCompiledBlock) detect: [ :aBlock |
+					         (aBlock sourceNodeForPC: 55) isMessage ].
+				self transformMessageSend: (MethodWithOffset method: block offset: aMetodWithOffset offset) ] ]
+]
+
+{ #category : 'instance creation' }
+SendersChainTransformer >> newMergeCompiledMethods: aListOfMethodsWithOffset into: aCompiledMethod [
+
+	| astToTransform nodeWithChanges nodeToTransform |
+	astToTransform := aCompiledMethod parseTree.
+	aListOfMethodsWithOffset do: [ :aMetodWithOffset |
+
+		aMetodWithOffset isForCompiledBlock
+			ifTrue: [ 
+				1 halt.
+				nodeWithChanges := (aMetodWithOffset method sourceNodeForPC: aMetodWithOffset pcInOuter)
+					sourceNodeForPC: aMetodWithOffset offset.
+				nodeToTransform := (astToTransform sourceNodeForPC: aMetodWithOffset pcInOuter)
+					sourceNodeForPC: aMetodWithOffset offset ]
+			ifFalse: [ 
+				nodeWithChanges := aMetodWithOffset method sourceNodeForPC: aMetodWithOffset offset.
+				nodeToTransform := astToTransform sourceNodeForPC: aMetodWithOffset offset ]. 
+		
+		nodeToTransform selector: nodeWithChanges selector ].
+	1 halt
+]
+
 { #category : 'method manipulation' }
 SendersChainTransformer >> renameSendersSelectors [
 
-	transformedSenders do: [ :aCompiledMethod | aCompiledMethod selector: (self makeNewSelector: aCompiledMethod selector) ]
+	transformedSenders do: [ :aMethodWithOffset |
+		aMethodWithOffset method selector: (self makeNewSelector: aMethodWithOffset selector) ]
 ]
 
 { #category : 'backup' }
@@ -81,19 +120,22 @@ SendersChainTransformer >> restoreOriginalState [
 SendersChainTransformer >> transformCallingSenders: senders initialCaller: initialCaller [
 	"the stack is top to bottom so we need to reverse it"
 
-	transformedSenders := senders reversed collect: [ :anIllSender |
-		                      self transformMessageSend: (self cloneCompiledCode: anIllSender) offset: anIllSender offset ].
+	transformedSenders := senders reversed collect: [ :aMethodWithOffset |
+		                      self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
 	transformedSenders := self mergeTransformedSenders.
-	transformedInitialCaller := self transformMessageSend: initialCaller method offset: initialCaller offset.
+	transformedInitialCaller := self transformMessageSend: initialCaller.
 	
 	self renameSendersSelectors.
 	^ transformedSenders
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: offset [
+SendersChainTransformer >> transformMessageSend: methodWithOffset [
 
-	| messageNodeToTransform ast transformedCompiledMethod |
+	| compiledMethodOrBlock offset messageNodeToTransform ast transformedCompiledMethod |
+	compiledMethodOrBlock := methodWithOffset method.
+	offset := methodWithOffset offset.
+
 	compiledMethodOrBlock isCompiledBlock
 		ifTrue: [
 			ast := compiledMethodOrBlock method parseTree.
@@ -106,7 +148,10 @@ SendersChainTransformer >> transformMessageSend: compiledMethodOrBlock offset: o
 
 	transformedCompiledMethod := ast methodNode generateIR generate.
 	transformedCompiledMethod propertyAt: #source put: ast formattedCode.
-	^ transformedCompiledMethod
+	
+	^ compiledMethodOrBlock isCompiledBlock
+		ifTrue: [ MethodWithOffset method: transformedCompiledMethod offset: offset pcInOuter: compiledMethodOrBlock pcInOuter ]
+		ifFalse: [ MethodWithOffset method: transformedCompiledMethod offset: offset ]
 ]
 
 { #category : 'accessing' }
@@ -119,10 +164,4 @@ SendersChainTransformer >> transformedInitialCaller [
 SendersChainTransformer >> transformedSenders [
 
 	^ transformedSenders
-]
-
-{ #category : 'accessing' }
-SendersChainTransformer >> transformedSendersChain [
-
-	^ ({ transformedInitialCaller } , transformedSenders) reversed
 ]

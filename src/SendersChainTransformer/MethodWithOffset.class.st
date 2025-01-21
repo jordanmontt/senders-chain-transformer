@@ -3,7 +3,8 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'method',
-		'offset'
+		'offset',
+		'pcInOuter'
 	],
 	#category : 'SendersChainTransformer-Core',
 	#package : 'SendersChainTransformer',
@@ -16,6 +17,16 @@ MethodWithOffset class >> method: aCompiledMethod offset: anInteger [
 	^ self new
 		  method: aCompiledMethod;
 		  offset: anInteger;
+		  yourself
+]
+
+{ #category : 'instance creation' }
+MethodWithOffset class >> method: aCompiledMethod offset: anInteger pcInOuter: anInt [
+
+	^ self new
+		  method: aCompiledMethod;
+		  offset: anInteger;
+		  pcInOuter: anInt;
 		  yourself
 ]
 
@@ -64,6 +75,12 @@ MethodWithOffset >> inspectorPresenter [
 ]
 
 { #category : 'accessing' }
+MethodWithOffset >> isForCompiledBlock [
+
+	^ pcInOuter isNotNil
+]
+
+{ #category : 'accessing' }
 MethodWithOffset >> method [
 
 	^ method
@@ -92,6 +109,17 @@ MethodWithOffset >> offset [
 MethodWithOffset >> offset: anInt [
 
 	offset := anInt
+]
+
+{ #category : 'accessing' }
+MethodWithOffset >> pcInOuter [
+	^ pcInOuter
+]
+
+{ #category : 'accessing' }
+MethodWithOffset >> pcInOuter: anInt [
+
+	pcInOuter := anInt
 ]
 
 { #category : 'printing' }

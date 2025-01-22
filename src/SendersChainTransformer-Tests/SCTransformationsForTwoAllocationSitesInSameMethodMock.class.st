@@ -1,9 +1,9 @@
 Class {
 	#name : 'SCTransformationsForTwoAllocationSitesInSameMethodMock',
 	#superclass : 'Object',
-	#category : 'SendersChainTransformer-Tests-Mocking',
+	#category : 'SendersChainTransformer-Tests-Fixtures',
 	#package : 'SendersChainTransformer-Tests',
-	#tag : 'Mocking'
+	#tag : 'Fixtures'
 }
 
 { #category : 'adding' }

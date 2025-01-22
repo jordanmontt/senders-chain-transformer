@@ -63,7 +63,7 @@ CodeTransformationMerger >> mergeCodeTransformations: transformedMethodsSourceCo
 CodeTransformationMerger >> mergeCompiledMethods: transformedSenders [
 	"If there are no repetitions, there is no merging so the same collection gets returned"
 
-	| repetitions |	
+	"| repetitions |	
 	repetitions := Dictionary new.
 	transformedSenders do: [ :aCompiledMethod |
 		repetitions
@@ -72,21 +72,22 @@ CodeTransformationMerger >> mergeCompiledMethods: transformedSenders [
 			ifAbsentPut: [ OrderedCollection with: aCompiledMethod  ] ].
 	
 	(repetitions select: [ :col | col size > 1 ]) keysAndValuesDo: [ :methodName :collection |
-		"Merge the modifications on the same method"
+		""Merge the modifications on the same method""
 		| originalSourceCode mergedCode mergedCompiledMethod |
 		originalSourceCode := (OpalCompiler new source: methodName; evaluate) parseTree formattedCode 
-		"As the merger manipulates strings, we need to make sure that the source code has the same structure.
-		That's why we ask the formatted code".
+		""As the merger manipulates strings, we need to make sure that the source code has the same structure.
+		That's why we ask the formatted code"".
 		mergedCode := self
 							mergeCodeTransformations: (collection collect: [ :m | m parseTree formattedCode ])
 							in: originalSourceCode.
 		mergedCompiledMethod := (OpalCompiler new compile: mergedCode)
 			classBinding: collection anyOne methodClass;
 			yourself.
-		"Put the merged method"
+		""Put the merged method""
 		repetitions at: methodName put: { mergedCompiledMethod } ].
 
-	^ repetitions values flattened.
+	^ repetitions values flattened."
+	^ transformedSenders
 ]
 
 { #category : 'api' }
@@ -101,4 +102,20 @@ CodeTransformationMerger >> newMergeCompiledMethods: aListOfMethodsWithOffset [
 			ifFalse: [
 				(aMetodWithOffset method literals select: #isCompiledBlock) detect: [ :block |
 					(block sourceNodeForPC: 55) isMessage ] ] ]
+]
+
+{ #category : 'internals' }
+CodeTransformationMerger >> newMergeCompiledMethods: aListOfMethodsWithOffset into: aCompiledMethod [
+
+	| astToTransform mergedCompiledMethod |
+	astToTransform := aCompiledMethod parseTree.
+	aListOfMethodsWithOffset do: [ :aMethodWithOffset |
+		(astToTransform allChildren select: #isMessage)
+			with: (aMethodWithOffset method parseTree allChildren select: #isMessage)
+			do: [ :nodeToTransform :nodeWithChanges |
+				(nodeWithChanges selector includesSubstring: 'tenured' caseSensitive: false) ifTrue: [
+					nodeToTransform selector: nodeWithChanges selector ] ] ].
+	mergedCompiledMethod := astToTransform methodNode generateIR generate.
+	mergedCompiledMethod propertyAt: #source put: astToTransform formattedCode.
+	^ mergedCompiledMethod
 ]

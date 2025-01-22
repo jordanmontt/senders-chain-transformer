@@ -144,13 +144,28 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInSeveralChanges [
 { #category : 'tests' }
 CodeTransformationMergerTest >> testNew [
 
-	| transformation1 transformation2 originalMethod |
+	| transformation1 transformation2 originalMethod transformedMethod expectedMethod |
 	codeTransformationMerger := SendersChainTransformer new.
-	
+
 	originalMethod := CodeMergerFixture >> #addOccupant:.
 	transformation1 := codeTransformationMerger transformMessageSend:
-				(MethodWithOffset method: CodeMergerFixture >> #addOccupant: offset: 81).
+		                   (MethodWithOffset method: CodeMergerFixture >> #addOccupant: offset: 81).
 	transformation2 := codeTransformationMerger transformMessageSend:
-				(MethodWithOffset method: ((CodeMergerFixture >> #addOccupant:) literals detect: #isCompiledBlock) offset: 26).
-	codeTransformationMerger newMergeCompiledMethods: { transformation1 . transformation2 } into: originalMethod
+		                   (MethodWithOffset
+			                    method: ((CodeMergerFixture >> #addOccupant:) literals detect: #isCompiledBlock)
+			                    offset: 26).
+
+	transformedMethod := codeTransformationMerger
+		                     newMergeCompiledMethods: { transformation1. transformation2 }
+		                     into: originalMethod.
+
+	expectedMethod := String streamContents: [ :aStream |
+		                  aStream << 'addOccupant: anObject
+		(self theOccupants _pretenured_' << codeTransformationMerger selectorMaker randomPrefix asString
+		                  << '_at: anObject class name
+		ifAbsentPut: [ OrderedCollection newTenured ])
+	add: anObject' ].
+	expectedMethod := OpalCompiler new source: expectedMethod; compile.
+
+	self assert: expectedMethod parseTree equals: transformedMethod parseTree
 ]

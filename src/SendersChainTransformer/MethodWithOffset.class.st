@@ -2,9 +2,8 @@ Class {
 	#name : 'MethodWithOffset',
 	#superclass : 'Object',
 	#instVars : [
-		'method',
 		'offset',
-		'pcInOuter'
+		'compiledMethodOrBlock'
 	],
 	#category : 'SendersChainTransformer-Core',
 	#package : 'SendersChainTransformer',
@@ -20,34 +19,24 @@ MethodWithOffset class >> method: aCompiledMethod offset: anInteger [
 		  yourself
 ]
 
-{ #category : 'instance creation' }
-MethodWithOffset class >> method: aCompiledMethod offset: anInteger pcInOuter: anInt [
-
-	^ self new
-		  method: aCompiledMethod;
-		  offset: anInteger;
-		  pcInOuter: anInt;
-		  yourself
-]
-
 { #category : 'comparing' }
 MethodWithOffset >> = anObj [
 
 	self class = anObj class ifFalse: [ ^ false ].
-	^ method = anObj method and: [ offset = anObj offset ]
+	^ compiledMethodOrBlock = anObj compiledMethodOrBlock and: [ offset = anObj offset ]
 ]
 
 { #category : 'accessing' }
 MethodWithOffset >> bytecode [
 
-	^ method at: offset
+	^ compiledMethodOrBlock at: offset
 ]
 
 { #category : 'comparing' }
 MethodWithOffset >> hash [
 
 	| hash |
-	hash := method hash.
+	hash := compiledMethodOrBlock hash.
 	hash := hash * 486187739 + offset hash.
 	^ hash
 ]
@@ -63,10 +52,10 @@ MethodWithOffset >> inspector: aBuilder [
 MethodWithOffset >> inspectorPresenter [
 
 	| interval |
-	interval := (method sourceNode sourceNodeForPC: offset) sourceInterval.
+	interval := (compiledMethodOrBlock sourceNode sourceNodeForPC: offset) sourceInterval.
 	^ SpCodePresenter new
-		  beForBehavior: method methodClass;
-		  text: method sourceCode;
+		  beForBehavior: compiledMethodOrBlock methodClass;
+		  text: compiledMethodOrBlock sourceCode;
 		  addTextSegmentDecoration: (SpTextPresenterDecorator forHighlight
 				   interval: (interval first to: interval last + 1);
 				   yourself);
@@ -75,28 +64,28 @@ MethodWithOffset >> inspectorPresenter [
 ]
 
 { #category : 'accessing' }
-MethodWithOffset >> isForCompiledBlock [
-
-	^ pcInOuter isNotNil
-]
-
-{ #category : 'accessing' }
 MethodWithOffset >> method [
 
-	^ method
+	^ compiledMethodOrBlock
 ]
 
 { #category : 'accessing' }
-MethodWithOffset >> method: aCompiledMethod [
+MethodWithOffset >> method: aCompiledCode [
 
-	method := aCompiledMethod
+	compiledMethodOrBlock := aCompiledCode
+]
+
+{ #category : 'accessing' }
+MethodWithOffset >> methodClass [
+
+	^ compiledMethodOrBlock methodClass
 ]
 
 { #category : 'accessing' }
 MethodWithOffset >> name [
 	"Double method due to blocks"
 
-	^ method method name
+	^ compiledMethodOrBlock method name
 ]
 
 { #category : 'accessing' }
@@ -112,20 +101,17 @@ MethodWithOffset >> offset: anInt [
 ]
 
 { #category : 'accessing' }
-MethodWithOffset >> pcInOuter [
-	^ pcInOuter
-]
+MethodWithOffset >> parseTree [
 
-{ #category : 'accessing' }
-MethodWithOffset >> pcInOuter: anInt [
-
-	pcInOuter := anInt
+	^ compiledMethodOrBlock isCompiledBlock
+		  ifTrue: [ compiledMethodOrBlock method parseTree ]
+		  ifFalse: [ compiledMethodOrBlock parseTree ]
 ]
 
 { #category : 'printing' }
 MethodWithOffset >> printOn: aStream [
 
-	method printOn: aStream.
+	compiledMethodOrBlock printOn: aStream.
 	aStream << ' offset '.
 	offset printOn: aStream
 ]
@@ -133,5 +119,13 @@ MethodWithOffset >> printOn: aStream [
 { #category : 'accessing' }
 MethodWithOffset >> selector [
 
-	^ method selector
+	^ compiledMethodOrBlock selector
+]
+
+{ #category : 'accessing' }
+MethodWithOffset >> sourceNodeForPC [
+
+	^ compiledMethodOrBlock isCompiledBlock
+		  ifTrue: [ (self parseTree sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
+		  ifFalse: [ self parseTree sourceNodeForPC: offset ]
 ]

@@ -32,9 +32,7 @@ SendersChainTransformerWithBlockClosureTest >> tearDown [
 SendersChainTransformerWithBlockClosureTest >> testTransformMessageSendOffsetWithBlock [
 
 	| transformedMethod |
-	transformedMethod := codeTransformer
-		                     transformMessageSend: fixture initialCaller method
-		                     offset: fixture initialCaller offset.
+	transformedMethod := codeTransformer transformMessageSend: fixture initialCaller.
 	self assert: (transformedMethod sourceCode includesSubstring: 'newTenured').
 	self assert: (transformedMethod sourceCode includesSubstring: 'myVar').
 

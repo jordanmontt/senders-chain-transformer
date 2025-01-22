@@ -34,22 +34,22 @@ SendersChainTransformerTest >> tearDown [
 { #category : 'tests' }
 SendersChainTransformerTest >> testInstallMethodWithNewSelector [
 
-	| illSender tenuredNewSelector clonedCompiledMethod |
-	illSender := fixture senders last.
+	| aMethodWithOffset tenuredNewSelector clonedCompiledMethod |
+	aMethodWithOffset := fixture senders last.
 	tenuredNewSelector := codeTransformer makeNewSelector: #bar.
 
 	"Make sure the method does not exist yet"
 	self should: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
 	self deny: (SCAnotherMockClass includesSelector: tenuredNewSelector).
 
-	clonedCompiledMethod := codeTransformer cloneCompiledCode: illSender.
+	clonedCompiledMethod := (codeTransformer cloneCompiledCode: aMethodWithOffset) method.
 	clonedCompiledMethod selector: tenuredNewSelector.
 	codeTransformer installMethod: clonedCompiledMethod.
 
 	self shouldnt: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
 	self assert: clonedCompiledMethod selector equals: tenuredNewSelector.
 	self assert: (SCAnotherMockClass methodDict at: tenuredNewSelector) equals: clonedCompiledMethod.
-	self assert: clonedCompiledMethod bytecodes equals: illSender method bytecodes
+	self assert: clonedCompiledMethod bytecodes equals: aMethodWithOffset method bytecodes
 ]
 
 { #category : 'tests' }
@@ -88,25 +88,23 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 { #category : 'tests' }
 SendersChainTransformerTest >> testTransformMessageSendOffset [
 
-	| illSender tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector offset methodToTenure |
-	illSender := fixture senders second. "Dictionary >> #at:put:"
-	methodToTenure := illSender method.
-	offset := illSender offset.
-	expectedSelector := codeTransformer makeNewSelector: (illSender method sourceNodeForPC: offset) selector.
+	| aMethodWithOffset tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
+	aMethodWithOffset := fixture senders second. "Dictionary >> #at:put:"
+	expectedSelector := codeTransformer makeNewSelector: (aMethodWithOffset method sourceNodeForPC: aMethodWithOffset offset) selector.
 
 	self
-		shouldnt: [ methodToTenure valueWithReceiver: methodToTenure methodClass new arguments: #( #key #value ) ]
+		shouldnt: [ aMethodWithOffset method valueWithReceiver: aMethodWithOffset methodClass new arguments: #( #key #value ) ]
 		raise: PrimitiveFailed.
 
-	tenuredCompiledMethod := codeTransformer transformMessageSend: methodToTenure clone offset: offset.
+	tenuredCompiledMethod := codeTransformer transformMessageSend: aMethodWithOffset.
 
 	symbolicMessageSendBytecode := tenuredCompiledMethod symbolicBytecodes detect: [ :e |
-		                               e bytes includes: illSender bytecode ].
+		                               e bytes includes: aMethodWithOffset bytecode ].
 	self assert: symbolicMessageSendBytecode description equals: 'send: ' , expectedSelector.
 	"Method's selector remaine unchanged"
-	self assert: tenuredCompiledMethod selector equals: illSender selector.
+	self assert: tenuredCompiledMethod selector equals: aMethodWithOffset selector.
 	"We pretenure one message send to a method that does not exists"
 	self
-		should: [ tenuredCompiledMethod valueWithReceiver: methodToTenure methodClass new arguments: #( #key #value ) ]
+		should: [ tenuredCompiledMethod valueWithReceiver: aMethodWithOffset methodClass new arguments: #( #key #value ) ]
 		raise: MessageNotUnderstood
 ]

@@ -117,15 +117,16 @@ SendersChainTransformer >> transformMessageSend: methodWithOffset [
 	| compiledMethodOrBlock offset messageNodeToTransform ast transformedCompiledMethod |
 	compiledMethodOrBlock := methodWithOffset method.
 	offset := methodWithOffset offset.
-
 	ast := methodWithOffset parseTree.
-	messageNodeToTransform := methodWithOffset sourceNodeForPC.
+
+	messageNodeToTransform := compiledMethodOrBlock isCompiledBlock
+		ifTrue: [ (ast sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
+		ifFalse: [ ast sourceNodeForPC: offset ].
 
 	messageNodeToTransform selector: (self makeNewSelector: messageNodeToTransform selector).
 
 	transformedCompiledMethod := ast methodNode generateIR generate.
 	transformedCompiledMethod propertyAt: #source put: ast formattedCode.
-
 	^ transformedCompiledMethod
 ]
 

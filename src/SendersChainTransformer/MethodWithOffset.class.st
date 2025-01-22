@@ -23,7 +23,7 @@ MethodWithOffset class >> method: aCompiledMethod offset: anInteger [
 MethodWithOffset >> = anObj [
 
 	self class = anObj class ifFalse: [ ^ false ].
-	^ compiledMethodOrBlock = anObj compiledMethodOrBlock and: [ offset = anObj offset ]
+	^ compiledMethodOrBlock = anObj method and: [ offset = anObj offset ]
 ]
 
 { #category : 'accessing' }
@@ -103,9 +103,7 @@ MethodWithOffset >> offset: anInt [
 { #category : 'accessing' }
 MethodWithOffset >> parseTree [
 
-	^ compiledMethodOrBlock isCompiledBlock
-		  ifTrue: [ compiledMethodOrBlock method parseTree ]
-		  ifFalse: [ compiledMethodOrBlock parseTree ]
+	^ compiledMethodOrBlock method parseTree
 ]
 
 { #category : 'printing' }
@@ -120,12 +118,4 @@ MethodWithOffset >> printOn: aStream [
 MethodWithOffset >> selector [
 
 	^ compiledMethodOrBlock selector
-]
-
-{ #category : 'accessing' }
-MethodWithOffset >> sourceNodeForPC [
-
-	^ compiledMethodOrBlock isCompiledBlock
-		  ifTrue: [ (self parseTree sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
-		  ifFalse: [ self parseTree sourceNodeForPC: offset ]
 ]

@@ -86,7 +86,7 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 ]
 
 { #category : 'tests' }
-SendersChainTransformerTest >> testTransformMessageSendOffset [
+SendersChainTransformerTest >> testTransformMessageSend [
 
 	| aMethodWithOffset tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
 	aMethodWithOffset := fixture senders second. "Dictionary >> #at:put:"

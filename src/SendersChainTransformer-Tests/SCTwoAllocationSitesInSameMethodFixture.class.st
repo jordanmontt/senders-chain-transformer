@@ -42,9 +42,7 @@ SCTwoAllocationSitesInSameMethodFixture >> initialize [
 	initialCaller2 := MethodWithOffset
 		                  method: (SCTransformationsForTwoAllocationSitesInSameMethodMock >> #addOccupant: literalsAt: 4)
 		                  offset: 26.
-	senders2 := {
-		            (MethodWithOffset method: OrderedCollection class >> #new: offset: 50).
-		            (MethodWithOffset method: OrderedCollection class >> #new offset: 35) }
+	senders2 := { }
 ]
 
 { #category : 'accessing' }

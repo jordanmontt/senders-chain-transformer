@@ -4,9 +4,9 @@ Class {
 	#instVars : [
 		'calledMethods'
 	],
-	#category : 'SendersChainTransformer-Tests-Tests',
+	#category : 'SendersChainTransformer-Tests-Utilities',
 	#package : 'SendersChainTransformer-Tests',
-	#tag : 'Tests'
+	#tag : 'Utilities'
 }
 
 { #category : 'evaluating' }

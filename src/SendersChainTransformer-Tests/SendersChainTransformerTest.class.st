@@ -6,7 +6,8 @@ Class {
 	#superclass : 'TestCase',
 	#instVars : [
 		'codeTransformer',
-		'fixture'
+		'initialCaller',
+		'senders'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -18,9 +19,14 @@ SendersChainTransformerTest >> setUp [
 
 	super setUp.
 
-	fixture := SCDefaultFixture new.
+	initialCaller := MethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
+	senders := {
+		           (MethodWithOffset method: Association class >> #key:value: offset: 42).
+		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
+		           (MethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
+
 	codeTransformer := SendersChainTransformer new.
-	codeTransformer backupSenders: fixture senders caller: fixture initialCaller
+	codeTransformer backupSenders: senders caller: initialCaller
 ]
 
 { #category : 'running' }
@@ -35,20 +41,20 @@ SendersChainTransformerTest >> tearDown [
 SendersChainTransformerTest >> testInstallMethodWithNewSelector [
 
 	| aMethodWithOffset tenuredNewSelector clonedCompiledMethod |
-	aMethodWithOffset := fixture senders last.
+	aMethodWithOffset := senders last "SCAnotherMockClass >> #bar".
 	tenuredNewSelector := codeTransformer makeNewSelector: #bar.
 
 	"Make sure the method does not exist yet"
-	self should: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
-	self deny: (SCAnotherMockClass includesSelector: tenuredNewSelector).
+	self should: [ SCMockClassWithDumbMethods new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
+	self deny: (SCMockClassWithDumbMethods includesSelector: tenuredNewSelector).
 
 	clonedCompiledMethod := (codeTransformer cloneCompiledCode: aMethodWithOffset) method.
 	clonedCompiledMethod selector: tenuredNewSelector.
 	codeTransformer installMethod: clonedCompiledMethod.
 
-	self shouldnt: [ SCAnotherMockClass new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
+	self shouldnt: [ SCMockClassWithDumbMethods new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
 	self assert: clonedCompiledMethod selector equals: tenuredNewSelector.
-	self assert: (SCAnotherMockClass methodDict at: tenuredNewSelector) equals: clonedCompiledMethod.
+	self assert: (SCMockClassWithDumbMethods methodDict at: tenuredNewSelector) equals: clonedCompiledMethod.
 	self assert: clonedCompiledMethod bytecodes equals: aMethodWithOffset method bytecodes
 ]
 
@@ -57,7 +63,7 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 	"Make sure methods do not exist"
 
 	self
-		should: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ]
+		should: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
 		should: [
@@ -69,11 +75,11 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 		raise: MessageNotUnderstood.
 
 	codeTransformer
-		transformCallingSenders: fixture senders initialCaller: fixture initialCaller;
+		transformCallingSenders: senders initialCaller: initialCaller;
 		installTransformations.
 
 	self
-		shouldnt: [ SCAnotherMockClass new perform: (codeTransformer makeNewSelector: #bar) ]
+		shouldnt: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
 		shouldnt: [
@@ -89,7 +95,7 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 SendersChainTransformerTest >> testTransformMessageSend [
 
 	| aMethodWithOffset tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
-	aMethodWithOffset := fixture senders second. "Dictionary >> #at:put:"
+	aMethodWithOffset := senders second. "Dictionary >> #at:put:"
 	expectedSelector := codeTransformer makeNewSelector: (aMethodWithOffset method sourceNodeForPC: aMethodWithOffset offset) selector.
 
 	self

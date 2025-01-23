@@ -56,15 +56,8 @@ SendersChainTransformer >> makeNewSelector: aByteSymbol [
 	^ selectorMaker makeSelector: aByteSymbol
 ]
 
-{ #category : 'method manipulation' }
-SendersChainTransformer >> mergeTransformedSenders [
-	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
-	transformedSenders := CodeTransformationMerger new mergeCompiledMethods: transformedSenders.
-	^ transformedSenders
-]
-
 { #category : 'instance creation' }
-SendersChainTransformer >> newMergeCompiledMethods: aListOfMethodsWithOffset into: aCompiledMethod [
+SendersChainTransformer >> mergeCompiledMethods: aListOfMethodsWithOffset into: aCompiledMethod [
 
 	| astToTransform mergedCompiledMethod |
 	astToTransform := aCompiledMethod parseTree.
@@ -77,6 +70,13 @@ SendersChainTransformer >> newMergeCompiledMethods: aListOfMethodsWithOffset int
 	mergedCompiledMethod := astToTransform methodNode generateIR generate.
 	mergedCompiledMethod propertyAt: #source put: astToTransform formattedCode.
 	^ mergedCompiledMethod
+]
+
+{ #category : 'method manipulation' }
+SendersChainTransformer >> mergeTransformedSenders [
+	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
+	transformedSenders := CodeTransformationMerger new mergeTransformedCompiledMethods: transformedSenders.
+	^ transformedSenders
 ]
 
 { #category : 'method manipulation' }

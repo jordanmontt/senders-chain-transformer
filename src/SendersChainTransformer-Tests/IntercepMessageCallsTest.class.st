@@ -7,9 +7,10 @@ Class {
 		'p2',
 		'p3',
 		'p4',
-		'fixture',
 		'proxies',
-		'codeTransformer'
+		'codeTransformer',
+		'initialCaller',
+		'senders'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -29,17 +30,22 @@ IntercepMessageCallsTest >> setUp [
 
 	super setUp.
 
-	fixture := SCDefaultFixture new.
+	initialCaller := MethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
+	senders := {
+		           (MethodWithOffset method: Association class >> #key:value: offset: 42).
+		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
+		           (MethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
+
 	codeTransformer := SendersChainTransformer new.
-	codeTransformer backupSenders: fixture senders caller: fixture initialCaller
+	codeTransformer backupSenders: senders caller: initialCaller
 ]
 
 { #category : 'running' }
 IntercepMessageCallsTest >> setUpMethodProxies [
 
 	handler := SCHandler new.
-	p1 := MpMethodProxy onMethod: SCMockClass >> #foo handler: handler.
-	p2 := MpMethodProxy onMethod: SCAnotherMockClass >> #bar handler: handler.
+	p1 := MpMethodProxy onMethod: SCMockClassWithDumbMethods >> #foo handler: handler.
+	p2 := MpMethodProxy onMethod: SCMockClassWithDumbMethods >> #bar handler: handler.
 	p3 := MpMethodProxy onMethod: Dictionary >> #at:put: handler: handler.
 	p4 := MpMethodProxy onMethod: Association class >> #key:value: handler: handler.
 	proxies := { p1. p2. p3. p4 }.
@@ -58,26 +64,26 @@ IntercepMessageCallsTest >> testAllMessagesGetCalledWithoutTransformation [
 
 	| reversedStack |
 	self installInstrumentation.
-	SCMockClass new foo.
+	SCMockClassWithDumbMethods new foo.
 	self uninstallInstrumentation.
 	
 	reversedStack := handler calledMethods.
-	self assert: reversedStack last equals: fixture initialCaller selector.
+	self assert: reversedStack last equals: initialCaller selector.
 	reversedStack removeLast.
 
 	reversedStack
-		with: fixture senders
+		with: senders
 		do: [ :actualSelector :expectedSender | self assert: actualSelector equals: expectedSender selector ]
 ]
 
 { #category : 'tests' }
 IntercepMessageCallsTest >> testInitialCallerActuallyCallsTransformedMethods [
 
-	codeTransformer transformCallingSenders: fixture senders initialCaller: fixture initialCaller.
+	codeTransformer transformCallingSenders: senders initialCaller: initialCaller.
 	codeTransformer installTransformations.
 
 	self installInstrumentation.
-	SCMockClass new foo.
+	SCMockClassWithDumbMethods new foo.
 	self uninstallInstrumentation.
 
 	self assert: handler calledMethods size equals: 1.

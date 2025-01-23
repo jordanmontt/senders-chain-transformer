@@ -32,7 +32,7 @@ IllPretenurator >> mergeInitialCallers [
 	 "It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 
 	transformedInitialCallers := codeTransformers collect: [ :codeTransformer | codeTransformer transformedInitialCaller ].
-	transformedInitialCallers := CodeTransformationMerger new mergeCompiledMethods: transformedInitialCallers
+	transformedInitialCallers := CodeTransformationMerger new mergeTransformedCompiledMethods: transformedInitialCallers
 ]
 
 { #category : 'internals' }

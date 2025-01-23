@@ -3,7 +3,7 @@ Class {
 	#superclass : 'TestCase',
 	#instVars : [
 		'codeTransformer',
-		'fixture'
+		'initialCaller'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -15,9 +15,12 @@ SendersChainTransformerWithBlockClosureTest >> setUp [
 
 	super setUp.
 
-	fixture := SCFullBlockClosureFixture new.
+	initialCaller := MethodWithOffset
+		method: (SCMockClassWithDumbMethods >> #theMethodWithBlock) literals third "the desired block closure"
+		offset: 37.
+
 	codeTransformer := SendersChainTransformer new.
-	codeTransformer backupSenders: fixture senders caller: fixture initialCaller
+	codeTransformer backupSenders: {  } caller: initialCaller
 ]
 
 { #category : 'running' }
@@ -32,10 +35,10 @@ SendersChainTransformerWithBlockClosureTest >> tearDown [
 SendersChainTransformerWithBlockClosureTest >> testTransformMessageSendOffsetWithBlock [
 
 	| transformedMethod |
-	transformedMethod := codeTransformer transformMessageSend: fixture initialCaller.
+	transformedMethod := codeTransformer transformMessageSend: initialCaller.
 	self assert: (transformedMethod sourceCode includesSubstring: 'newTenured').
 	self assert: (transformedMethod sourceCode includesSubstring: 'myVar').
 
 	codeTransformer restoreOriginalState.
-	self deny: ((SCMockWithBlockclosureClass >> #theMethod) sourceCode includesSubstring: 'newTenured')
+	self deny: ((SCMockClassWithDumbMethods >> #theMethodWithBlock) sourceCode includesSubstring: 'newTenured')
 ]

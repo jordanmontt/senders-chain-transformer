@@ -25,7 +25,7 @@ SendersChainTransformerTest >> setUp [
 		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
 		           (MethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
 
-	codeTransformer := SendersChainTransformer new.
+	codeTransformer := CallSiteTransformer new.
 	codeTransformer backupSenders: senders caller: initialCaller
 ]
 
@@ -61,33 +61,28 @@ SendersChainTransformerTest >> testInstallMethodWithNewSelector [
 { #category : 'tests' }
 SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 	"Make sure methods do not exist"
-
 	self
 		should: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [
-		Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		should: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [
-		Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		should: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
 	codeTransformer
-		transformCallingSenders: senders initialCaller: initialCaller;
+		transformCallSite: initialCaller senders: senders;
 		installTransformations.
 
 	self
 		shouldnt: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [
-		Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		shouldnt: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [
-		Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		shouldnt: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood
 ]
 

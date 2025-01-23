@@ -19,7 +19,7 @@ SendersChainTransformerWithBlockClosureTest >> setUp [
 		method: (SCMockClassWithDumbMethods >> #theMethodWithBlock) literals third "the desired block closure"
 		offset: 37.
 
-	codeTransformer := SendersChainTransformer new.
+	codeTransformer := CallSiteTransformer new.
 	codeTransformer backupSenders: {  } caller: initialCaller
 ]
 

@@ -1,12 +1,12 @@
 Class {
-	#name : 'SendersChainTransformer',
+	#name : 'CallSiteTransformer',
 	#superclass : 'Object',
 	#instVars : [
 		'originalCaller',
 		'originalSenders',
 		'selectorMaker',
 		'transformedSenders',
-		'transformedInitialCaller'
+		'transformedCallSite'
 	],
 	#category : 'SendersChainTransformer-Core',
 	#package : 'SendersChainTransformer',
@@ -14,7 +14,7 @@ Class {
 }
 
 { #category : 'backup' }
-SendersChainTransformer >> backupSenders: senders caller: caller [
+CallSiteTransformer >> backupSenders: senders caller: caller [
 	"method method for blocks"
 
 	originalCaller := caller method method copy.
@@ -22,7 +22,7 @@ SendersChainTransformer >> backupSenders: senders caller: caller [
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> cloneCompiledCode: anIllSender [
+CallSiteTransformer >> cloneCompiledCode: anIllSender [
 
 	^ anIllSender method isCompiledBlock
 		  ifTrue: [ "Do not copy blocks as it does not work"
@@ -31,33 +31,33 @@ SendersChainTransformer >> cloneCompiledCode: anIllSender [
 ]
 
 { #category : 'initialization' }
-SendersChainTransformer >> initialize [
+CallSiteTransformer >> initialize [
 
 	super initialize.
 	selectorMaker := TenuredSelectorMaker new
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> installMethod: aCompiledMethod [
+CallSiteTransformer >> installMethod: aCompiledMethod [
 
 	aCompiledMethod methodClass methodDict at: aCompiledMethod selector put: aCompiledMethod
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> installTransformations [
+CallSiteTransformer >> installTransformations [
 
 	transformedSenders do: [ :aMethodWithOffset | self installMethod: aMethodWithOffset method ].
-	self installMethod: transformedInitialCaller method
+	self installMethod: transformedCallSite method
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> makeNewSelector: aByteSymbol [
+CallSiteTransformer >> makeNewSelector: aByteSymbol [
 
 	^ selectorMaker makeSelector: aByteSymbol
 ]
 
 { #category : 'instance creation' }
-SendersChainTransformer >> mergeCompiledMethods: aListOfMethodsWithOffset into: aCompiledMethod [
+CallSiteTransformer >> mergeCompiledMethods: aListOfMethodsWithOffset into: aCompiledMethod [
 
 	| astToTransform mergedCompiledMethod |
 	astToTransform := aCompiledMethod parseTree.
@@ -73,20 +73,20 @@ SendersChainTransformer >> mergeCompiledMethods: aListOfMethodsWithOffset into: 
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> mergeTransformedSenders [
+CallSiteTransformer >> mergeTransformedSenders [
 	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 	transformedSenders := CodeTransformationMerger new mergeTransformedCompiledMethods: transformedSenders.
 	^ transformedSenders
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> renameSendersSelectors [
+CallSiteTransformer >> renameSendersSelectors [
 
 	transformedSenders do: [ :aCompiledMethod | aCompiledMethod selector: (self makeNewSelector: aCompiledMethod selector) ]
 ]
 
 { #category : 'backup' }
-SendersChainTransformer >> restoreOriginalState [
+CallSiteTransformer >> restoreOriginalState [
 
 	self installMethod: originalCaller.
 	originalSenders do: [ :aCompiledMethod | self installMethod: aCompiledMethod ].
@@ -95,24 +95,25 @@ SendersChainTransformer >> restoreOriginalState [
 ]
 
 { #category : 'accessing' }
-SendersChainTransformer >> selectorMaker [
+CallSiteTransformer >> selectorMaker [
 
 	^ selectorMaker
 ]
 
 { #category : 'api' }
-SendersChainTransformer >> transformCallingSenders: senders initialCaller: initialCaller [
+CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 	"the stack is top to bottom so we need to reverse it"
 
-	transformedSenders := senders reversed collect: [ :aMethodWithOffset | self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
+	transformedSenders := senders reversed collect: [ :aMethodWithOffset | 
+			self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
 	transformedSenders := self mergeTransformedSenders.
-	transformedInitialCaller := self transformMessageSend: initialCaller.
+	transformedCallSite := self transformMessageSend: initialCaller.
 	self renameSendersSelectors.
 	^ transformedSenders
 ]
 
 { #category : 'method manipulation' }
-SendersChainTransformer >> transformMessageSend: methodWithOffset [
+CallSiteTransformer >> transformMessageSend: methodWithOffset [
 
 	| compiledMethodOrBlock offset messageNodeToTransform ast transformedCompiledMethod |
 	compiledMethodOrBlock := methodWithOffset method.
@@ -131,13 +132,19 @@ SendersChainTransformer >> transformMessageSend: methodWithOffset [
 ]
 
 { #category : 'accessing' }
-SendersChainTransformer >> transformedInitialCaller [
+CallSiteTransformer >> transformedCallSite [
 
-	^ transformedInitialCaller
+	^ transformedCallSite
 ]
 
 { #category : 'accessing' }
-SendersChainTransformer >> transformedSenders [
+CallSiteTransformer >> transformedCallSite: anObject [
+
+	transformedCallSite := anObject
+]
+
+{ #category : 'accessing' }
+CallSiteTransformer >> transformedSenders [
 
 	^ transformedSenders
 ]

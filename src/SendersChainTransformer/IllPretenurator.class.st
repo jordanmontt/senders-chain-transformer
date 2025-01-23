@@ -2,8 +2,8 @@ Class {
 	#name : 'IllPretenurator',
 	#superclass : 'Object',
 	#instVars : [
-		'codeTransformers',
-		'transformedInitialCallers'
+		'transformedCallSites',
+		'callSiteTransformer'
 	],
 	#category : 'SendersChainTransformer',
 	#package : 'SendersChainTransformer'
@@ -13,48 +13,48 @@ Class {
 IllPretenurator >> initialize [
 
 	super initialize.
-	codeTransformers := OrderedCollection new
+	callSiteTransformer := OrderedCollection new
 ]
 
 { #category : 'api' }
 IllPretenurator >> installPretenuredMethods [
 
 	| installer |
-	installer := codeTransformers anyOne.
-	transformedInitialCallers do: [ :aCompiledMethod | installer installMethod: aCompiledMethod ].
-	codeTransformers do: [ :codeTransformer |
+	installer := callSiteTransformer anyOne.
+	transformedCallSites do: [ :aCompiledMethod | installer installMethod: aCompiledMethod ].
+	callSiteTransformer do: [ :codeTransformer |
 		codeTransformer transformedSenders do: [ :aCompiledMethod | 
 			installer installMethod: aCompiledMethod ] ]
 ]
 
 { #category : 'internals' }
-IllPretenurator >> mergeInitialCallers [
+IllPretenurator >> mergeCallSites [
 	 "It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 
-	transformedInitialCallers := codeTransformers collect: [ :codeTransformer | codeTransformer transformedInitialCaller ].
-	transformedInitialCallers := CodeTransformationMerger new mergeTransformedCompiledMethods: transformedInitialCallers
+	transformedCallSites := callSiteTransformer collect: [ :codeTransformer | codeTransformer transformedInitialCaller ].
+	transformedCallSites := CodeTransformationMerger new mergeTransformedCompiledMethods: transformedCallSites
 ]
 
 { #category : 'internals' }
-IllPretenurator >> pretenureAllocationChainForInitialCaller: initialCaller senders: sendersToTransform [
+IllPretenurator >> pretenureAllocationCallSiter: allocationCallSite senders: sendersToTransform [
 
 	| sct |
-	sct := SendersChainTransformer new.
-	codeTransformers add: sct.
-	sct backupSenders: sendersToTransform caller: initialCaller.
-	sct transformCallingSenders: sendersToTransform initialCaller: initialCaller
+	sct := CallSiteTransformer new.
+	callSiteTransformer add: sct.
+	sct backupSenders: sendersToTransform caller: allocationCallSite.
+	sct transformCallSite: allocationCallSite senders: sendersToTransform
 ]
 
 { #category : 'api' }
-IllPretenurator >> pretenureAllocations: toPretenureSitesArray [
+IllPretenurator >> pretenureAllocations: toPretenureCallSitesArray [
 
-	toPretenureSitesArray do: [ :methodsWithOffsets |
-		self pretenureAllocationChainForInitialCaller: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
-	self mergeInitialCallers
+	toPretenureCallSitesArray do: [ :methodsWithOffsets |
+		self pretenureAllocationCallSiter: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
+	self mergeCallSites
 ]
 
 { #category : 'api' }
 IllPretenurator >> restoreOriginalState [
 
-	codeTransformers do: #restoreOriginalState
+	callSiteTransformer do: #restoreOriginalState
 ]

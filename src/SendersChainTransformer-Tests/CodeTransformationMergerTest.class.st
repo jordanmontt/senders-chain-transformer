@@ -179,7 +179,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInSeveralChanges [
 CodeTransformationMergerTest >> testNew [
 
 	| transformation1 transformation2 originalMethod transformedMethod expectedMethod |
-	codeTransformationMerger := SendersChainTransformer new.
+	codeTransformationMerger := CallSiteTransformer new.
 
 	originalMethod := SCMockClassWithDumbMethods >> #addOccupant:.
 	transformation1 := codeTransformationMerger transformMessageSend:

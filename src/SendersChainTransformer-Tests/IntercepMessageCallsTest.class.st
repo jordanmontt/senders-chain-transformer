@@ -36,7 +36,7 @@ IntercepMessageCallsTest >> setUp [
 		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
 		           (MethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
 
-	codeTransformer := SendersChainTransformer new.
+	codeTransformer := CallSiteTransformer new.
 	codeTransformer backupSenders: senders caller: initialCaller
 ]
 
@@ -79,7 +79,7 @@ IntercepMessageCallsTest >> testAllMessagesGetCalledWithoutTransformation [
 { #category : 'tests' }
 IntercepMessageCallsTest >> testInitialCallerActuallyCallsTransformedMethods [
 
-	codeTransformer transformCallingSenders: senders initialCaller: initialCaller.
+	codeTransformer transformCallSite: initialCaller senders: senders.
 	codeTransformer installTransformations.
 
 	self installInstrumentation.

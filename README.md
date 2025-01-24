@@ -17,10 +17,15 @@ EpMonitor disableDuring: [
                       +-------------------------------------+
                       |           Allocation site           |
                       +-------------------------------------+
-                      |            #addOccupant:            |
+                      |            #allocSite:              |
                       |                                     |
+                      |allocSite: anObject                  |
+                      |   (self theOccupants                |
+                      |       at: anObject class name       |
+                      |       ifAbsentPut:                  |
+                      |           [ OrderedCollection new ])|
+                      |    add: anObject                    |
                       +-------------------------------------+
-                                        |
                                         |
                                         |
                                     	|
@@ -28,77 +33,74 @@ EpMonitor disableDuring: [
                       +-------------------------------------+
                       |   Sender 1                          |
                       +-------------------------------------+
-                      | Association >> #key:value:          |
-					  | at offset: 42                       |
-					  |                                     |
-
-```Smalltalk
-                  |	key: newKey value: newValue         |
-                  |    	^ self basicNew key: newKey     |
-				  |			value: newValue             |
-```                               
+                      |   Dictionary >> #at:ifAbsentPut:    |
+                      |                                     |
+                      |                                     |
+                      | at: key ifAbsentPut: aBlock         |
+                      |    ^ self at: key                   |
+                      |       ifAbsent: [ self at: key      |	
+                      |               put: aBlock value]    |
                       +-------------------------------------+
                                         |
-                                    	|
+                                        |
                                         v
                       +-------------------------------------+
                       |   Sender 2                          |
                       +-------------------------------------+
-                      |  Dictionary >> #at:put:             |
-                      | at offfset: **82**                  |
+                      |   Dictionary >> #at:ifAbsent:       |
                       |                                     |
-```smalltalk
-                  |at: key put: anObject                |
-                  | | index assoc |                     |
-                  | index := self findElementOrNil: key.|
-                  | assoc := array at: index.           |
-                  | assoc ifNil: [self atNewIndex: index|
-				  |     put: (Association key: key      |
-				  |  	  value: anObject)]             |
-                  |   ifNotNil: [assoc value: anObject].|
-                  | ^ anObject                          |
-```
+                      |                                     |
+                      | at: key ifAbsent: aBlock            |
+                      |    ^ (array at: (self               |
+                      |       findElementOrNil: key))       |
+                      |         ifNil: [aBlock]             |
+                      |         ifNotNil: [:assoc | assoc]) |
+                      |    value                            |
                       +-------------------------------------+
                                         |
-                                    	|
+                                        |
                                         v
                       +-------------------------------------+
                       |   Sender 3                          |
                       +-------------------------------------+
-                      | Dictionary >> #at:ifAbsentPut:|     |
-                      | at offset: **21**                   |
+                      | Dictionary >> #at:put:              |
                       |                                     |
-```Smalltalk
-                  |at: key ifAbsentPut: aBlock          |
-                  | ^ self                              |
-				  |    at: key                          |
-				  |    ifAbsent: [ self at: key         |
-				  |                put: aBlock value]   |
-```
-                      +-------------------------------------+
-                                   |
-                                   |
-                                   v
-                      +-------------------------------------+
-                      |   4. Dictionary >> #at:ifAbsent:   |
-                      |      Offset: **54**                 |
                       |                                     |
-                      |   ```smalltalk                     |
-                      |   at: key ifAbsent: aBlock          |
-                      |       ^ <((array at: (self findElementOrNil: key)) |
-                      |           ifNil: [aBlock]           |
-                      |           ifNotNil: [:assoc | assoc]) value> |
-                      |   ```                               |
+                      |at: key put: anObject                |
+                      | | index assoc |                     |
+                      | index := self findElementOrNil: key.|
+                      | assoc := array at: index.           |
+                      | assoc ifNil: [self atNewIndex: index|
+                      |     put: (Association key: key      |
+                      |           value: anObject)]         |
+                      |   ifNotNil: [assoc value: anObject].|
+                      | ^ anObject                          |
                       +-------------------------------------+
-                                   |
-                                   |
-                                   v
+                                        |
+                                        |
+                                        v
                       +-------------------------------------+
-                      |   5. Dictionary >> #at:ifAbsentPut:|
-                      |      Offset: **48**                 |
+                      |   Sender 4                          |
+                      +-------------------------------------+
+                      |   Dictionary >> #at:ifAbsentPut:    |
                       |                                     |
-                      |   ```smalltalk                     |
-                      |   at: key ifAbsentPut: aBlock       |
-                      |       ^ <self at: key ifAbsent: [self at: key put: aBlock value]> |
-                      |   ```                               |
+                      |                                     |
+                      | at: key ifAbsentPut: aBlock         |
+                      |   ^ self                            |
+                      |       at: key                       |
+                      |       ifAbsent: [ self at: key      |
+                      |                put: aBlock value]   |
+                      +-------------------------------------+
+                                        |
+                                        |
+                                        v
+                      +-------------------------------------+
+                      |   Sender 5                          |
+                      +-------------------------------------+
+                      | Association >> #key:value:          |
+                      |                                     |
+                      |                                     |
+                      | key: newKey value: newValue         |
+                      |     ^ self basicNew key: newKey     |
+                      |                  value: newValue    |
                       +-------------------------------------+

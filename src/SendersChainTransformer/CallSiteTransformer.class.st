@@ -64,6 +64,18 @@ CallSiteTransformer >> mergeTransformedSenders [
 ]
 
 { #category : 'method manipulation' }
+CallSiteTransformer >> removeAlreadyImplemented: senders [
+	"These methods are already implemented as extension methods as they are methods that require special treatment. So we need to ignore them because we will transform incorrectly the method."
+	| toBan |
+	toBan := #( 'Bag class>>#new:' 'Bag class>>#new' 'Heap class>>#new:' 'Heap class>>#new' 'Array class>>#new:'
+	            'HashedCollection class>>#new:' 'HashedCollection class>>#new' 'Interval class>>#new'
+	            'OrderedDictionary class>>#new:' 'OrderedDictionary>>#initializeTenured:'
+	            'OrderedDictionary class>>#new' 'HashedCollection>>#initialize:' 'WeakValueAssociation class>>#new'
+	            'OrderedCollection class>>#new:' 'OrderedCollection class>>#new' 'ArrayedCollection class>>#new' ).
+	^ senders reject: [ :aMethodWithOffset | toBan includes: aMethodWithOffset name ]
+]
+
+{ #category : 'method manipulation' }
 CallSiteTransformer >> renameSendersSelectors [
 
 	transformedSenders do: [ :aCompiledMethod | aCompiledMethod selector: (self makeNewSelector: aCompiledMethod selector) ]
@@ -74,8 +86,7 @@ CallSiteTransformer >> restoreOriginalState [
 
 	self installMethod: originalCaller.
 	originalSenders do: [ :aCompiledMethod | self installMethod: aCompiledMethod ].
-	originalSenders do: [ :aCompiledMethod |
-		aCompiledMethod methodClass removeSelector: (self makeNewSelector: aCompiledMethod selector) ]
+	transformedSenders do: [ :aCompiledMethod | aCompiledMethod methodClass removeSelector: aCompiledMethod selector ]
 ]
 
 { #category : 'accessing' }
@@ -86,12 +97,13 @@ CallSiteTransformer >> selectorMaker [
 
 { #category : 'api' }
 CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
-	"the stack is top to bottom so we need to reverse it"
 
-	transformedSenders := senders reversed collect: [ :aMethodWithOffset | 
-			self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
+	transformedSenders := self removeAlreadyImplemented: senders.
+	transformedSenders := transformedSenders reversed "the stack is top to bottom so we need to reverse it" collect: [
+				:aMethodWithOffset | self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
 	transformedSenders := self mergeTransformedSenders.
 	transformedCallSite := self transformMessageSend: initialCaller.
+
 	self renameSendersSelectors.
 	^ transformedSenders
 ]

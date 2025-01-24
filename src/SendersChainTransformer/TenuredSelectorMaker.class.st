@@ -19,7 +19,7 @@ TenuredSelectorMaker >> defaultTenuredSelector: aByteSymbol [
 TenuredSelectorMaker >> initialize [
 
 	super initialize.
-	randomPrefix := (Random new nextInteger: 99999) asString
+	randomPrefix := (Random new nextInteger: 1000000000) asString
 ]
 
 { #category : 'api' }

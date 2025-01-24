@@ -56,22 +56,6 @@ CallSiteTransformer >> makeNewSelector: aByteSymbol [
 	^ selectorMaker makeSelector: aByteSymbol
 ]
 
-{ #category : 'instance creation' }
-CallSiteTransformer >> mergeCompiledMethods: aListOfMethodsWithOffset into: aCompiledMethod [
-
-	| astToTransform mergedCompiledMethod |
-	astToTransform := aCompiledMethod parseTree.
-	aListOfMethodsWithOffset do: [ :aMethodWithOffset |
-		(astToTransform allChildren select: #isMessage)
-			with: (aMethodWithOffset method parseTree allChildren select: #isMessage)
-			do: [ :nodeToTransform :nodeWithChanges |
-				(nodeWithChanges selector includesSubstring: 'tenured' caseSensitive: false) ifTrue: [
-					nodeToTransform selector: nodeWithChanges selector ] ] ].
-	mergedCompiledMethod := astToTransform methodNode generateIR generate.
-	mergedCompiledMethod propertyAt: #source put: astToTransform formattedCode.
-	^ mergedCompiledMethod
-]
-
 { #category : 'method manipulation' }
 CallSiteTransformer >> mergeTransformedSenders [
 	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"

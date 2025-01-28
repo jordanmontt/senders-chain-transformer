@@ -33,7 +33,7 @@ AllocationSiteIdentificationStrategy >> identifyAllocationSites: objectAllocatio
 { #category : 'api' }
 AllocationSiteIdentificationStrategy >> removeMisclassifiedSites: aDictionary [
 
-	^ aDictionary
+	^ aDictionary reject: [ :illAllocationSiteBin | illAllocationSiteBin allocationSite methodClass = UndefinedObject ]
 ]
 
 { #category : 'internal' }

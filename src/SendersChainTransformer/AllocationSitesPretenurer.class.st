@@ -51,7 +51,8 @@ AllocationSitesPretenurer >> pretenureAllocations: toPretenureCallSitesArray [
 
 	toPretenureCallSitesArray do: [ :methodsWithOffsets |
 		self pretenureAllocationCallSiter: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
-	self mergeCallSites
+	self mergeCallSites.
+	self installPretenuredMethods
 ]
 
 { #category : 'api' }

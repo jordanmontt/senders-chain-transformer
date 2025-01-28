@@ -46,7 +46,9 @@ SendersChainTransformerTest >> testInstallMethodWithNewSelector [
 	self shouldnt: [ SCMockClassWithDumbMethods new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
 	self assert: clonedCompiledMethod selector equals: tenuredNewSelector.
 	self assert: (SCMockClassWithDumbMethods methodDict at: tenuredNewSelector) equals: clonedCompiledMethod.
-	self assert: clonedCompiledMethod bytecodes equals: aMethodWithOffset method bytecodes
+	self assert: clonedCompiledMethod bytecodes equals: aMethodWithOffset method bytecodes.
+	
+	clonedCompiledMethod methodClass removeSelector: clonedCompiledMethod selector
 ]
 
 { #category : 'tests' }

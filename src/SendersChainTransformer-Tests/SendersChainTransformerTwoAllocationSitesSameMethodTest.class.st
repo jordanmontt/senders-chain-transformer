@@ -19,7 +19,7 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> setUp [
 
 	super setUp.
 
-	pretenurator := IllPretenurator new.
+	pretenurator := AllocationSitesPretenurer new.
 
 	initialCaller := MethodWithOffset
 		                 method: SCMockClassWithDumbMethods >> #addOccupant:

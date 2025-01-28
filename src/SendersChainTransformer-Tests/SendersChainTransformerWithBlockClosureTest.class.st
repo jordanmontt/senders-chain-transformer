@@ -19,16 +19,7 @@ SendersChainTransformerWithBlockClosureTest >> setUp [
 		method: (SCMockClassWithDumbMethods >> #theMethodWithBlock) literals third "the desired block closure"
 		offset: 37.
 
-	codeTransformer := CallSiteTransformer new.
-	codeTransformer backupSenders: {  } caller: initialCaller
-]
-
-{ #category : 'running' }
-SendersChainTransformerWithBlockClosureTest >> tearDown [
-
-	codeTransformer restoreOriginalState.
-
-	super tearDown
+	codeTransformer := CallSiteTransformer new
 ]
 
 { #category : 'tests' }
@@ -36,9 +27,9 @@ SendersChainTransformerWithBlockClosureTest >> testTransformMessageSendOffsetWit
 
 	| transformedMethod |
 	transformedMethod := codeTransformer transformMessageSend: initialCaller.
+	
 	self assert: (transformedMethod sourceCode includesSubstring: 'newTenured').
 	self assert: (transformedMethod sourceCode includesSubstring: 'myVar').
 
-	codeTransformer restoreOriginalState.
 	self deny: ((SCMockClassWithDumbMethods >> #theMethodWithBlock) sourceCode includesSubstring: 'newTenured')
 ]

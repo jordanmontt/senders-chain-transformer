@@ -1,5 +1,5 @@
 Class {
-	#name : 'IllPretenurator',
+	#name : 'AllocationSitesPretenurer',
 	#superclass : 'Object',
 	#instVars : [
 		'transformedCallSites',
@@ -11,14 +11,14 @@ Class {
 }
 
 { #category : 'initialization' }
-IllPretenurator >> initialize [
+AllocationSitesPretenurer >> initialize [
 
 	super initialize.
 	callSiteTransformers := OrderedCollection new
 ]
 
 { #category : 'api' }
-IllPretenurator >> installPretenuredMethods [
+AllocationSitesPretenurer >> installPretenuredMethods [
 
 	| installer |
 	installer := callSiteTransformers anyOne.
@@ -29,15 +29,15 @@ IllPretenurator >> installPretenuredMethods [
 ]
 
 { #category : 'internals' }
-IllPretenurator >> mergeCallSites [
+AllocationSitesPretenurer >> mergeCallSites [
 	 "It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 
 	transformedCallSites := callSiteTransformers collect: [ :codeTransformer | codeTransformer transformedCallSite ].
-	transformedCallSites := CodeTransformationMerger new mergeTransformedCompiledMethods: transformedCallSites
+	transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites
 ]
 
 { #category : 'internals' }
-IllPretenurator >> pretenureAllocationCallSiter: allocationCallSite senders: sendersToTransform [
+AllocationSitesPretenurer >> pretenureAllocationCallSiter: allocationCallSite senders: sendersToTransform [
 
 	| sct |
 	sct := CallSiteTransformer new.
@@ -47,7 +47,7 @@ IllPretenurator >> pretenureAllocationCallSiter: allocationCallSite senders: sen
 ]
 
 { #category : 'api' }
-IllPretenurator >> pretenureAllocations: toPretenureCallSitesArray [
+AllocationSitesPretenurer >> pretenureAllocations: toPretenureCallSitesArray [
 
 	toPretenureCallSitesArray do: [ :methodsWithOffsets |
 		self pretenureAllocationCallSiter: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
@@ -55,7 +55,7 @@ IllPretenurator >> pretenureAllocations: toPretenureCallSitesArray [
 ]
 
 { #category : 'api' }
-IllPretenurator >> restoreOriginalState [
+AllocationSitesPretenurer >> restoreOriginalState [
 
 	callSiteTransformers do: #restoreOriginalState
 ]

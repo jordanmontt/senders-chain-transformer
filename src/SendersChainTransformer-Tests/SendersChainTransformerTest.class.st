@@ -25,16 +25,7 @@ SendersChainTransformerTest >> setUp [
 		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
 		           (MethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
 
-	codeTransformer := CallSiteTransformer new.
-	codeTransformer backupSenders: senders caller: initialCaller
-]
-
-{ #category : 'running' }
-SendersChainTransformerTest >> tearDown [
-
-	codeTransformer restoreOriginalState.
-
-	super tearDown
+	codeTransformer := CallSiteTransformer new
 ]
 
 { #category : 'tests' }
@@ -72,6 +63,7 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 		raise: MessageNotUnderstood.
 
 	codeTransformer
+		backupSenders: senders caller: initialCaller;
 		transformCallSite: initialCaller senders: senders;
 		installTransformations.
 
@@ -83,7 +75,9 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 		raise: MessageNotUnderstood.
 	self
 		shouldnt: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
-		raise: MessageNotUnderstood
+		raise: MessageNotUnderstood.
+		
+	codeTransformer restoreOriginalState
 ]
 
 { #category : 'tests' }

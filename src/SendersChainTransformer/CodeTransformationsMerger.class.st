@@ -1,5 +1,5 @@
 Class {
-	#name : 'CodeTransformationMerger',
+	#name : 'CodeTransformationsMerger',
 	#superclass : 'Object',
 	#category : 'SendersChainTransformer-Core',
 	#package : 'SendersChainTransformer',
@@ -7,13 +7,13 @@ Class {
 }
 
 { #category : 'api' }
-CodeTransformationMerger >> hasDuplicateMethodTransformations: anArrayOfCompiledMethods [
+CodeTransformationsMerger >> hasDuplicateMethodTransformations: anArrayOfCompiledMethods [
 
 	^ (anArrayOfCompiledMethods collect: #name as: Set) size ~= anArrayOfCompiledMethods size
 ]
 
 { #category : 'internals' }
-CodeTransformationMerger >> mergeCompiledMethods: compiledMethodsWithTransformations into: originalCompiledMethod [
+CodeTransformationsMerger >> mergeCompiledMethods: compiledMethodsWithTransformations into: originalCompiledMethod [
 
 	| astToTransform mergedCompiledMethod |
 	astToTransform := originalCompiledMethod parseTree.
@@ -29,7 +29,7 @@ CodeTransformationMerger >> mergeCompiledMethods: compiledMethodsWithTransformat
 ]
 
 { #category : 'api' }
-CodeTransformationMerger >> mergeTransformedCompiledMethods: compiledMethods [
+CodeTransformationsMerger >> mergeTransformedCompiledMethods: compiledMethods [
 
 	| repetitions |	
 	(self hasDuplicateMethodTransformations: compiledMethods) ifFalse: [ ^ compiledMethods ].

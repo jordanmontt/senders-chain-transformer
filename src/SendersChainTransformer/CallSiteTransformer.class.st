@@ -59,7 +59,7 @@ CallSiteTransformer >> makeNewSelector: aByteSymbol [
 { #category : 'method manipulation' }
 CallSiteTransformer >> mergeTransformedSenders [
 	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
-	transformedSenders := CodeTransformationMerger new mergeTransformedCompiledMethods: transformedSenders.
+	transformedSenders := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedSenders.
 	^ transformedSenders
 ]
 

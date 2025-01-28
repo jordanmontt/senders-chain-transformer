@@ -36,8 +36,7 @@ IntercepMessageCallsTest >> setUp [
 		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
 		           (MethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
 
-	codeTransformer := CallSiteTransformer new.
-	codeTransformer backupSenders: senders caller: initialCaller
+	codeTransformer := CallSiteTransformer new
 ]
 
 { #category : 'running' }
@@ -55,7 +54,7 @@ IntercepMessageCallsTest >> setUpMethodProxies [
 IntercepMessageCallsTest >> tearDown [
 
 	self uninstallInstrumentation.
-	codeTransformer restoreOriginalState.
+
 	super tearDown
 ]
 
@@ -79,12 +78,16 @@ IntercepMessageCallsTest >> testAllMessagesGetCalledWithoutTransformation [
 { #category : 'tests' }
 IntercepMessageCallsTest >> testInitialCallerActuallyCallsTransformedMethods [
 
-	codeTransformer transformCallSite: initialCaller senders: senders.
-	codeTransformer installTransformations.
+	codeTransformer
+		backupSenders: senders caller: initialCaller;
+		transformCallSite: initialCaller senders: senders;
+		installTransformations.
 
 	self installInstrumentation.
 	SCMockClassWithDumbMethods new foo.
 	self uninstallInstrumentation.
+	
+	codeTransformer restoreOriginalState.
 
 	self assert: handler calledMethods size equals: 1.
 	self assert: handler calledMethods first equals: #foo

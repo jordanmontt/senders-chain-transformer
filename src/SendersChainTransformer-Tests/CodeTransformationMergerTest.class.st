@@ -5,7 +5,7 @@ Class {
 	#name : 'CodeTransformationMergerTest',
 	#superclass : 'TestCase',
 	#instVars : [
-		'codeTransformationMerger'
+		'codeMerger'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -17,7 +17,7 @@ CodeTransformationMergerTest >> setUp [
 
 	super setUp.
 
-	codeTransformationMerger := CodeTransformationMerger new
+	codeMerger := CodeTransformationsMerger new
 ]
 
 { #category : 'tests' }
@@ -37,7 +37,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsIn [
 	^ self _pretenured_76688_at: key ifAbsent: [ self at: key put: aBlock value ]';
 			compile.
 
-	result := codeTransformationMerger
+	result := codeMerger
 			mergeCompiledMethods: { modification2. modification1 }
 			into: originalCompiledMethod.
 	expected := (OpalCompiler new
@@ -59,7 +59,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsIn2 [
 			source: 'at: key ifAbsentPut: aBlock
 	^ self at: key ifAbsent: [ self _pretenured_76688_at: key put: aBlock value ifAbsent: [ self doSomething ] ]';
 			compile.
-	result := codeTransformationMerger mergeCompiledMethods: { modification1 } into: originalCompiledMethod.
+	result := codeMerger mergeCompiledMethods: { modification1 } into: originalCompiledMethod.
 	self assert: result parseTree equals: modification1 parseTree
 ]
 
@@ -75,7 +75,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsIn3 [
 			source: 'at: key ifAbsentPut: aBlock
 	^ self _pretenured_76688_at: key ifAbsent: [ self at: key put: aBlock value ifAbsent: [ self doSomething ] ]';
 			compile.
-	result := codeTransformationMerger mergeCompiledMethods: { modification2 } into: originalCompiledMethod.
+	result := codeMerger mergeCompiledMethods: { modification2 } into: originalCompiledMethod.
 	self assert: result parseTree equals: modification2 parseTree
 ]
 
@@ -91,7 +91,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsIn4 [
 			source: 'at: key ifAbsentPut: aBlock
 	^ self at: key ifAbsent: [ self at: key put: aBlock value ifAbsent: [ self _pretenured_76688_doSomething ] ]';
 			compile.
-	result := codeTransformationMerger mergeCompiledMethods: { modification3 } into: originalCompiledMethod.
+	result := codeMerger mergeCompiledMethods: { modification3 } into: originalCompiledMethod.
 	self assert: result parseTree equals: modification3 parseTree
 ]
 
@@ -111,7 +111,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInOtherExample [
 			source: 'at: key ifAbsentPut: aBlock
 	^ self _pretenured_76688_at: key ifAbsent: [ self at: key put: aBlock value ifAbsent: [ self doSomething ] ]';
 			compile.
-	result := codeTransformationMerger mergeCompiledMethods: { modification1. modification2 } into: originalCompiledMethod.
+	result := codeMerger mergeCompiledMethods: { modification1. modification2 } into: originalCompiledMethod.
 	expected := OpalCompiler new
 			source: 'at: key ifAbsentPut: aBlock
 	^ self _pretenured_76688_at: key ifAbsent: [ self _pretenured_76688_at: key put: aBlock value ifAbsent: [ self doSomething ] ]';
@@ -136,7 +136,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInOtherLongerExample
 	^ self at: key ifAbsent: [ self at: key put: aBlock value ifAbsent: [ self _pretenured_76688_doSomething ] ]';
 			compile.
 	
-	result := codeTransformationMerger mergeCompiledMethods: { modification2. modification3 } into: originalCompiledMethod.
+	result := codeMerger mergeCompiledMethods: { modification2. modification3 } into: originalCompiledMethod.
 	expected := OpalCompiler new
 			source: 'at: key ifAbsentPut: aBlock
 	^ self _pretenured_76688_at: key ifAbsent: [ self at: key put: aBlock value ifAbsent: [ self _pretenured_76688_doSomething ] ]';
@@ -166,7 +166,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInSeveralChanges [
 	^ self at: key ifAbsent: [ self at: key put: aBlock value ifAbsent: [ self _pretenured_76688_doSomething ] ]';
 			compile.
 	
-	result := codeTransformationMerger mergeCompiledMethods: { modification1 . modification2 . modification3 } into: originalCompiledMethod.
+	result := codeMerger mergeCompiledMethods: { modification1 . modification2 . modification3 } into: originalCompiledMethod.
 	expected := OpalCompiler new
 			compile: 'at: key ifAbsentPut: aBlock
 	^ self _pretenured_76688_at: key ifAbsent: [ self _pretenured_76688_at: key put: aBlock value ifAbsent: [ self _pretenured_76688_doSomething ] ]';
@@ -178,22 +178,23 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInSeveralChanges [
 { #category : 'tests' }
 CodeTransformationMergerTest >> testNew [
 
-	| transformation1 transformation2 originalMethod transformedMethod expectedMethod |
-	codeTransformationMerger := CallSiteTransformer new.
+	| transformation1 transformation2 originalMethod transformedMethod expectedMethod codeTransformer |
 
+	codeTransformer := CallSiteTransformer new.
+	
 	originalMethod := SCMockClassWithDumbMethods >> #addOccupant:.
-	transformation1 := codeTransformationMerger transformMessageSend:
+	transformation1 := codeTransformer transformMessageSend:
 		                   (MethodWithOffset method: SCMockClassWithDumbMethods >> #addOccupant: offset: 81).
-	transformation2 := codeTransformationMerger transformMessageSend:
+	transformation2 := codeTransformer transformMessageSend:
 		                   (MethodWithOffset
 			                    method: ((SCMockClassWithDumbMethods >> #addOccupant:) literals detect: #isCompiledBlock)
 			                    offset: 26).
 
-	transformedMethod := codeTransformationMerger mergeCompiledMethods: { transformation1. transformation2 } into: originalMethod.
+	transformedMethod := codeMerger mergeCompiledMethods: { transformation1. transformation2 } into: originalMethod.
 
 	expectedMethod := String streamContents: [ :aStream |
 		                  aStream << 'addOccupant: anObject
-		(self theOccupants _pretenured_' << codeTransformationMerger selectorMaker randomPrefix asString
+		(self theOccupants _pretenured_' << codeTransformer selectorMaker randomPrefix asString
 		                  << '_at: anObject class name
 		ifAbsentPut: [ OrderedCollection newTenured ])
 	add: anObject' ].

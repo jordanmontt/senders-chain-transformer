@@ -83,7 +83,8 @@ IllAllocationsAnalyzer >> removeKernelAllocations [
 			Context.
 			Deprecation.
 			Process.
-			WeakArray } includes: illEphemeron allocatedObjectClass ]
+			WeakArray.
+			MouseMoveEvent } includes: illEphemeron allocatedObjectClass ]
 ]
 
 { #category : 'calculating' }

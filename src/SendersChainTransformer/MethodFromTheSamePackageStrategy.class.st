@@ -17,6 +17,14 @@ MethodFromTheSamePackageStrategy class >> classesToMatch: aCol [
 		  yourself
 ]
 
+{ #category : 'instance creation' }
+MethodFromTheSamePackageStrategy class >> packagesToMatch: aCol [
+
+	^ self new
+		  packages: aCol;
+		  yourself
+]
+
 { #category : 'accessing' }
 MethodFromTheSamePackageStrategy >> classesToMatch [
 

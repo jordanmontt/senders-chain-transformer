@@ -37,6 +37,10 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 
 	"Special selector"
 	aByteSymbol = #'->' ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrow: ].
+	aByteSymbol = #, ifTrue: [ ^ #_pretenured_ , randomPrefix , #_comma: ].
+	aByteSymbol = #/ ifTrue: [ ^ #_pretenured_ , randomPrefix , #_slash: ].
+	aByteSymbol = #==> ifTrue: [ ^ #_pretenured_ , randomPrefix , #_super_arrow: ].
+	aByteSymbol = #@ ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrobase: ].
 
 	^ self defaultTenuredSelector: aByteSymbol
 ]

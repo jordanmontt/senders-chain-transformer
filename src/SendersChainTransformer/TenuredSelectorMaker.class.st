@@ -30,6 +30,7 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 	aByteSymbol = #new: ifTrue: [ ^ #newTenured: ].
 	aByteSymbol = #basicNew ifTrue: [ ^ #basicNewTenured ].
 	aByteSymbol = #basicNew: ifTrue: [ ^ #basicNewTenured: ].
+	aByteSymbol = #@ ifTrue: [ ^ #@ ].
 
 	"Primitives"
 	aByteSymbol = #value ifTrue: [ ^ #value ].

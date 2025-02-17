@@ -30,7 +30,9 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 	aByteSymbol = #new: ifTrue: [ ^ #newTenured: ].
 	aByteSymbol = #basicNew ifTrue: [ ^ #basicNewTenured ].
 	aByteSymbol = #basicNew: ifTrue: [ ^ #basicNewTenured: ].
-	aByteSymbol = #@ ifTrue: [ ^ #@ ].
+	
+	"Methods called from the allocator methods"
+	aByteSymbol = #initialize ifTrue: [ ^ #initialize ].
 
 	"Primitives"
 	aByteSymbol = #value ifTrue: [ ^ #value ].

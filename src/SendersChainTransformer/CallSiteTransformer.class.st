@@ -99,8 +99,9 @@ CallSiteTransformer >> selectorMaker [
 CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 
 	transformedSenders := self removeAlreadyImplemented: senders.
-	transformedSenders := transformedSenders reversed "the stack is top to bottom so we need to reverse it" collect: [
-				:aMethodWithOffset | self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
+	"the stack is top to bottom so we need to reverse it"
+	transformedSenders := transformedSenders reversed collect: [ :aMethodWithOffset |
+				self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
 	transformedSenders := self mergeTransformedSenders.
 	transformedCallSite := self transformMessageSend: initialCaller.
 

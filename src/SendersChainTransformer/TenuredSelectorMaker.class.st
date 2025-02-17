@@ -36,6 +36,7 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 
 	"Primitives"
 	aByteSymbol = #value ifTrue: [ ^ #value ].
+	aByteSymbol = #valueNoContextSwitch ifTrue: [ ^ #valueNoContextSwitch ].
 
 	"Special selector"
 	aByteSymbol = #'->' ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrow: ].

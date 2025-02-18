@@ -39,12 +39,15 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 	aByteSymbol = #valueNoContextSwitch ifTrue: [ ^ #valueNoContextSwitch ].
 	aByteSymbol = #critical: ifTrue: [ ^ #critical: ].
 
-	"Special selector"
-	aByteSymbol = #'->' ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrow: ].
-	aByteSymbol = #, ifTrue: [ ^ #_pretenured_ , randomPrefix , #_comma: ].
-	aByteSymbol = #/ ifTrue: [ ^ #_pretenured_ , randomPrefix , #_slash: ].
-	aByteSymbol = #==> ifTrue: [ ^ #_pretenured_ , randomPrefix , #_super_arrow: ].
-	aByteSymbol = #@ ifTrue: [ ^ #_pretenured_ , randomPrefix , #_arrobase: ].
+	"Special selectors"
+	aByteSymbol = #'->' ifTrue: [ ^ #'---->>>' ].
+	aByteSymbol = #, ifTrue: [ ^ #,,, ].
+	aByteSymbol = #/ ifTrue: [ ^ #///// ].
+	aByteSymbol = #==> ifTrue: [ ^ #====>>> ].
+	aByteSymbol = #@ ifTrue: [ ^ #@@@@ ].
+	"This is necesary to not alter the message precedence"
+	self flag: 'This is a hack. The real problem is that we will convert the binary to a keyword message this changing the evaluation order and breaking the code geeration.'.
+	aByteSymbol isBinary ifTrue: [ ^ aByteSymbol , aByteSymbol , aByteSymbol , aByteSymbol ].
 
 	^ self defaultTenuredSelector: aByteSymbol
 ]

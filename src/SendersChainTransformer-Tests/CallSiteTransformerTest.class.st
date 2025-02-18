@@ -2,7 +2,7 @@
 An IllRewriterTest is a test class for testing the behavior of IllRewriter
 "
 Class {
-	#name : 'SendersChainTransformerTest',
+	#name : 'CallSiteTransformerTest',
 	#superclass : 'TestCase',
 	#instVars : [
 		'codeTransformer',
@@ -15,7 +15,7 @@ Class {
 }
 
 { #category : 'running' }
-SendersChainTransformerTest >> setUp [
+CallSiteTransformerTest >> setUp [
 
 	super setUp.
 
@@ -29,7 +29,7 @@ SendersChainTransformerTest >> setUp [
 ]
 
 { #category : 'tests' }
-SendersChainTransformerTest >> testInstallMethodWithNewSelector [
+CallSiteTransformerTest >> testInstallMethodWithNewSelector [
 
 	| aMethodWithOffset tenuredNewSelector clonedCompiledMethod |
 	aMethodWithOffset := senders last "SCAnotherMockClass >> #bar".
@@ -52,7 +52,7 @@ SendersChainTransformerTest >> testInstallMethodWithNewSelector [
 ]
 
 { #category : 'tests' }
-SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
+CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 	"Make sure methods do not exist"
 	self
 		should: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelector: #bar) ]
@@ -83,7 +83,7 @@ SendersChainTransformerTest >> testTransformCallingSendersInitialCaller [
 ]
 
 { #category : 'tests' }
-SendersChainTransformerTest >> testTransformMessageSend [
+CallSiteTransformerTest >> testTransformMessageSend [
 
 	| aMethodWithOffset tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
 	aMethodWithOffset := senders second. "Dictionary >> #at:put:"
@@ -104,4 +104,20 @@ SendersChainTransformerTest >> testTransformMessageSend [
 	self
 		should: [ tenuredCompiledMethod valueWithReceiver: aMethodWithOffset methodClass new arguments: #( #key #value ) ]
 		raise: MessageNotUnderstood
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTest >> testTransformMessageSendWithBinarySelector [
+
+	| aMethodWithOffset tenuredCompiledMethod expectedSourceCode |
+	aMethodWithOffset := MethodWithOffset
+			method: SCMockClassWithDumbMethods >> #binaryMethod
+			offset: 44.
+	expectedSourceCode:= 'binaryMethod
+
+	self foo: self ,,,,,,,, 1 andBar: 0'.
+
+	tenuredCompiledMethod := codeTransformer transformMessageSend: aMethodWithOffset.
+
+	self assert: tenuredCompiledMethod sourceCode equals: expectedSourceCode
 ]

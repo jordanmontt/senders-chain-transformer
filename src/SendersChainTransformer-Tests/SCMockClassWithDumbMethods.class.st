@@ -30,6 +30,12 @@ SCMockClassWithDumbMethods >> bar [
 ]
 
 { #category : 'api' }
+SCMockClassWithDumbMethods >> binaryMethod [
+
+	self foo: self ,, 1 andBar: 0
+]
+
+{ #category : 'api' }
 SCMockClassWithDumbMethods >> foo [
 
 	anotherFakeClass := SCMockClassWithDumbMethods new.

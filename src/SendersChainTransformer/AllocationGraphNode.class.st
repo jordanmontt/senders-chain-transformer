@@ -30,6 +30,18 @@ AllocationGraphNode >> beLeaf [
 	isLeaf := true
 ]
 
+{ #category : 'accessing' }
+AllocationGraphNode >> edges [
+
+	^ edges
+]
+
+{ #category : 'accessing' }
+AllocationGraphNode >> edges: anObject [
+
+	edges := anObject
+]
+
 { #category : 'initialization' }
 AllocationGraphNode >> initialize [
 
@@ -49,4 +61,26 @@ AllocationGraphNode >> inspector [
 { #category : 'accessing' }
 AllocationGraphNode >> isLeaf [
 	^ isLeaf
+]
+
+{ #category : 'accessing' }
+AllocationGraphNode >> method [
+	^ method
+]
+
+{ #category : 'accessing' }
+AllocationGraphNode >> method: aCollection [ 
+	method := aCollection
+]
+
+{ #category : 'printing' }
+AllocationGraphNode >> printOn: aStream [
+
+	aStream
+		nextPutAll: self class name;
+		nextPut: $(;
+		print: method methodClass;
+		nextPutAll: '>>';
+		print: method selector;
+		nextPut: $)
 ]

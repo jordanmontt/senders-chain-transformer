@@ -43,6 +43,13 @@ AllocationGraph >> detectAllocationSitesUsing: aStrategy [
 	1 halt.
 ]
 
+{ #category : 'initialization' }
+AllocationGraph >> initialize [
+
+	super initialize.
+	nodes := IdentityDictionary new: 1000
+]
+
 { #category : 'inspector' }
 AllocationGraph >> inspectGraph [
 
@@ -63,6 +70,18 @@ AllocationGraph >> leavesFor: anEdge [
 	^ anEdge targetNode edges flatCollect: [ :e | self leavesFor: e ]
 ]
 
+{ #category : 'public' }
+AllocationGraph >> nodeFor: aMethod [
+
+	^ nodes at: aMethod ifAbsentPut: [ AllocationGraphNode new method: aMethod ]
+]
+
+{ #category : 'accessing' }
+AllocationGraph >> nodes [
+
+	^ nodes
+]
+
 { #category : 'as yet unclassified' }
 AllocationGraph >> recordCallFrom: aCaller to: aCallee at: anOffset sample: sample [
 
@@ -80,4 +99,10 @@ AllocationGraph >> setUpForSamples: aCollection [
 
 	samples := aCollection.
 	aCollection do: [ :sample | self accumulateSample: sample ]
+]
+
+{ #category : 'as yet unclassified' }
+AllocationGraph >> subGraphForType: aClass [
+
+	^ self class onEphemerons: (samples select: [ :e | e allocatedObjectClass = aClass ])
 ]

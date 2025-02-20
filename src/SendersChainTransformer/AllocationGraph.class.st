@@ -40,7 +40,17 @@ AllocationGraph >> basicInspect [
 { #category : 'as yet unclassified' }
 AllocationGraph >> detectAllocationSitesUsing: aStrategy [
 
-	1 halt.
+	| workList visitedNodes |
+	visitedNodes := Set new.
+	workList := OrderedCollection withAll: self leaves.
+	[ workList isEmpty ] whileFalse: [
+		| current |
+		current := workList removeFirst.
+		(visitedNodes includes: current) ifFalse: [
+			visitedNodes add: current.
+			(aStrategy isAllocationSite: current)
+				ifTrue: [ current beAllocationSite ]
+				ifFalse: [ workList addAll: (current callers reject: [ :caller | visitedNodes includes: caller ]) ] ] ]
 ]
 
 { #category : 'initialization' }
@@ -85,13 +95,14 @@ AllocationGraph >> nodes [
 { #category : 'as yet unclassified' }
 AllocationGraph >> recordCallFrom: aCaller to: aCallee at: anOffset sample: sample [
 
-	| call |
-	call := (self nodeFor: aCaller)
-		addCallTo: (self nodeFor: aCallee)
-		withOffset: anOffset.
+	| edge callerNode calleeNode |
+	callerNode := (self nodeFor: aCaller).
+	calleeNode := (self nodeFor: aCallee).
+	edge := callerNode addCallTo: calleeNode withOffset: anOffset.
+	
+	calleeNode addCaller: callerNode.
 
-	call updateFromSample: sample.
-	^ call
+	edge updateFromSample: sample
 ]
 
 { #category : 'initialization' }

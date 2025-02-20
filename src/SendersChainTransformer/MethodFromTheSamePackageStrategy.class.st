@@ -34,13 +34,19 @@ MethodFromTheSamePackageStrategy >> classesToMatch [
 { #category : 'accessing' }
 MethodFromTheSamePackageStrategy >> classesToMatch: aCol [
 
-	classesToMatch := aCol
+	classesToMatch := aCol asSet
+]
+
+{ #category : 'testing' }
+MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode [
+
+	^ classesToMatch includes: anAllocationGraphNode method methodClass
 ]
 
 { #category : 'accessing' }
 MethodFromTheSamePackageStrategy >> packages: aCollectionOfPackages [
 
-	classesToMatch := aCollectionOfPackages flatCollect: #definedClasses
+	classesToMatch := aCollectionOfPackages flatCollect: #definedClasses as: Set
 ]
 
 { #category : 'api' }

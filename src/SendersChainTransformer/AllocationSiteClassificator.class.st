@@ -33,15 +33,15 @@ AllocationSiteClassificator >> binObjects [
 
 		(self isObjectImmortal: illEphe) ifTrue: [
 			immortalObjectsBin add: illEphe.
-			(groupedAllocationSites at: illEphe allocationSite) addImmortalObject: illEphe.
+			(groupedAllocationSites at: illEphe) addImmortalObject: illEphe.
 			isObjectClassified := true ].
 		(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
 			shortObjectsBin add: illEphe.
-			(groupedAllocationSites at: illEphe allocationSite) addShortLivedObject: illEphe.
+			(groupedAllocationSites at: illEphe) addShortLivedObject: illEphe.
 			isObjectClassified := true ].
 		isObjectClassified ifFalse: [
 			longObjectsBin add: illEphe.
-			(groupedAllocationSites at: illEphe allocationSite) addLongLivedObject: illEphe ] ]
+			(groupedAllocationSites at: illEphe) addLongLivedObject: illEphe ] ]
 ]
 
 { #category : 'calculating' }
@@ -99,7 +99,7 @@ AllocationSiteClassificator >> groupAllocationSites [
 	groupedAllocationSites := Dictionary new.
 	objectAllocations do: [ :illEphe |
 		| illAllocationSite|
-		illAllocationSite := illEphe allocationSite.
+		illAllocationSite := illEphe.
 		groupedAllocationSites
 			at: illAllocationSite
 			ifAbsentPut: (IllAllocationSiteBin new

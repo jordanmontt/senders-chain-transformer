@@ -5,7 +5,8 @@ Class {
 		'method',
 		'edges',
 		'isAllocationSite',
-		'isLeaf'
+		'isLeaf',
+		'callers'
 	],
 	#category : 'SendersChainTransformer',
 	#package : 'SendersChainTransformer'
@@ -24,10 +25,27 @@ AllocationGraphNode >> addCallTo: anAllocationGraphNode withOffset: anOffset [
 					offset: anOffset ]) yourself
 ]
 
+{ #category : 'adding' }
+AllocationGraphNode >> addCaller: anAllocationGraphNode [
+
+	callers add: anAllocationGraphNode
+]
+
+{ #category : 'as yet unclassified' }
+AllocationGraphNode >> beAllocationSite [
+
+	isAllocationSite := true
+]
+
 { #category : 'initialization' }
 AllocationGraphNode >> beLeaf [
 
 	isLeaf := true
+]
+
+{ #category : 'accessing' }
+AllocationGraphNode >> callers [
+	^ callers
 ]
 
 { #category : 'accessing' }
@@ -47,6 +65,7 @@ AllocationGraphNode >> initialize [
 
 	super initialize.
 	edges := Dictionary new.
+	callers := Set new.
 	isAllocationSite := false.
 	isLeaf := false
 ]
@@ -56,6 +75,11 @@ AllocationGraphNode >> inspector [
 
 	<inspectorPresentationOrder: 0 title: 'Code'>
 	^ method inspectionSource
+]
+
+{ #category : 'accessing' }
+AllocationGraphNode >> isAllocationSite [
+	^ isAllocationSite
 ]
 
 { #category : 'accessing' }

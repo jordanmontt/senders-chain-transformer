@@ -29,6 +29,11 @@ AllocationGraphEdge >> initialize [
 ]
 
 { #category : 'accessing' }
+AllocationGraphEdge >> offset [
+	^ offset
+]
+
+{ #category : 'accessing' }
 AllocationGraphEdge >> offset: anInteger [
 
 	offset := anInteger

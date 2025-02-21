@@ -73,13 +73,15 @@ IllAllocationsAnalyzer >> processAndPretenureAllocationSites [
 
 	allocationGraph := AllocationGraph onEphemerons: objectAllocations.
 	allocationGraph detectAllocationSitesUsing: (MethodFromTheSamePackageStrategy packagesToMatch: AlSitExCormas applicationPackages).
-	1 halt.
-	objectAllocations := (allocationGraph nodes select: #isAllocationSite) flatCollect: [ :node | node edges values collect: [ : edge | MethodWithOffset method: node method offset: edge offset  ]  ].
+
+	objectAllocations := (allocationGraph nodes select: #isAllocationSite)
+		flatCollect: [ :node | node edges values
+			collect: [ : edge | MethodWithOffset method: node method offset: edge offset  ]  ].
 
 	"self identifyAllocationSites."
 	self classifyAllocationSites.
 	self removeMisclassifiedSites.	
-	1 halt.
+
 	self pretenureAllocationSites
 ]
 
@@ -116,13 +118,6 @@ IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 		objectAllocations: objectAllocations;
 		endTime: aProfiler endTime;
 		startTime: aProfiler startTime
-]
-
-{ #category : 'api' }
-IllAllocationsAnalyzer >> useMethodFromTheSamePackageStrategy [
-
-	self flag: 'We need to set the packages'.
-	allocationSiteStrategy := MethodFromTheSamePackageStrategy new
 ]
 
 { #category : 'api' }

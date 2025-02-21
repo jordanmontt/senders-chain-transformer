@@ -2,7 +2,7 @@ Class {
 	#name : 'MethodFromTheSamePackageStrategy',
 	#superclass : 'AllocationSiteIdentificationStrategy',
 	#instVars : [
-		'classesToMatch'
+		'packagesToMatch'
 	],
 	#category : 'SendersChainTransformer-Allocation-Site-Identification',
 	#package : 'SendersChainTransformer',
@@ -10,54 +10,34 @@ Class {
 }
 
 { #category : 'instance creation' }
-MethodFromTheSamePackageStrategy class >> classesToMatch: aCol [
-
-	^ self new
-		  classesToMatch: aCol;
-		  yourself
-]
-
-{ #category : 'instance creation' }
 MethodFromTheSamePackageStrategy class >> packagesToMatch: aCol [
 
 	^ self new
-		  packages: aCol;
+		  packagesToMatch: aCol;
 		  yourself
-]
-
-{ #category : 'accessing' }
-MethodFromTheSamePackageStrategy >> classesToMatch [
-
-	^ classesToMatch
-]
-
-{ #category : 'accessing' }
-MethodFromTheSamePackageStrategy >> classesToMatch: aCol [
-
-	classesToMatch := aCol asSet
 ]
 
 { #category : 'testing' }
 MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode [
 
-	^ classesToMatch includes: anAllocationGraphNode method methodClass
+	^ packagesToMatch includes: anAllocationGraphNode method package
 ]
 
 { #category : 'accessing' }
-MethodFromTheSamePackageStrategy >> packages: aCollectionOfPackages [
+MethodFromTheSamePackageStrategy >> packagesToMatch: aCollectionOfPackages [
 
-	classesToMatch := aCollectionOfPackages flatCollect: #definedClasses as: Set
+	packagesToMatch := aCollectionOfPackages
 ]
 
 { #category : 'api' }
 MethodFromTheSamePackageStrategy >> removeMisclassifiedSites: aDictionary [
 
 	^ aDictionary select: [ :illAllocationSiteBin |
-		  classesToMatch includes: illAllocationSiteBin allocationSite method methodClass ]
+		  packagesToMatch includes: illAllocationSiteBin allocationSite method package ]
 ]
 
 { #category : 'internal' }
-MethodFromTheSamePackageStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverClass: receiverClass [
+MethodFromTheSamePackageStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverPackage: receiverPackage [
 
-	^ classesToMatch includes: receiverClass
+	^ packagesToMatch includes: receiverPackage
 ]

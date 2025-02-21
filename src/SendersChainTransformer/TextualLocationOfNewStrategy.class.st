@@ -12,7 +12,7 @@ TextualLocationOfNewStrategy >> identifyAllocationSites: objectAllocations [
 ]
 
 { #category : 'as yet unclassified' }
-TextualLocationOfNewStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverClass: receiverClass [
+TextualLocationOfNewStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverPackage: receiverClass [
 
 	^ (allocatedObjectClass = receiverClass or: [ allocatedObjectClass inheritsFrom: receiverClass ]) not
 ]

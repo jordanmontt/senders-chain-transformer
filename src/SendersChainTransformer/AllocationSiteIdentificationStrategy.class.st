@@ -14,7 +14,7 @@ AllocationSiteIdentificationStrategy >> identifyAllocationSiteFor: illEphemeron 
 	i := 1.
 	[ i <= callStack size ] whileTrue: [
 		sender := callStack at: i.
-		(self stopCriterionForAllocatedClass: illEphemeron allocatedObjectClass receiverClass: sender method methodClass)
+		(self stopCriterionForAllocatedClass: illEphemeron allocatedObjectClass receiverPackage: sender method methodClass)
 			ifTrue: [	
 				illEphemeron
 					allocatorMethod: sender method;
@@ -37,7 +37,7 @@ AllocationSiteIdentificationStrategy >> removeMisclassifiedSites: aDictionary [
 ]
 
 { #category : 'internal' }
-AllocationSiteIdentificationStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverClass: receiverClass [
+AllocationSiteIdentificationStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverPackage: receiverClass [
 
 	^ self subclassResponsibility
 ]

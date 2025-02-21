@@ -37,6 +37,25 @@ AllocationGraph >> basicInspect [
 	^ 'Hello' asPresenter
 ]
 
+{ #category : 'api' }
+AllocationGraph >> buildSubgraphFromMethod: aCompiledMethod [
+
+	| newRoot newNodes nodesToTreat |
+	newRoot := nodes detect: [ :node | node method = aCompiledMethod ].
+	nodesToTreat := OrderedCollection with: newRoot.
+	newNodes := Set with: newRoot.
+
+	[ nodesToTreat isNotEmpty ] whileTrue: [
+		| current |
+		current := nodesToTreat removeFirst.
+		newNodes addAll: (current edges values collect: #targetNode).
+		nodesToTreat addAll: (current edges values collect: #targetNode) ].
+
+	^ self class new
+		  nodes: (newNodes collect: [ :node | node method -> (self nodeFor: node method) ]) asDictionary;
+		  yourself
+]
+
 { #category : 'as yet unclassified' }
 AllocationGraph >> detectAllocationSitesUsing: aStrategy [
 
@@ -73,6 +92,21 @@ AllocationGraph >> inspectGraphContext: aContext [
 	aContext withoutEvaluator
 ]
 
+{ #category : 'inspector' }
+AllocationGraph >> inspectGraphTreeLayout [
+
+	<inspectorPresentationOrder: 2 title: 'Graph Tree'>
+	^ AllocationGraphVizu new
+		  withTreeLayout;
+		  buildInspectorPresenterFor: self
+]
+
+{ #category : 'inspector' }
+AllocationGraph >> inspectGraphTreeLayoutContext: aContext [
+
+	aContext withoutEvaluator
+]
+
 { #category : 'as yet unclassified' }
 AllocationGraph >> leaves [
 
@@ -96,6 +130,12 @@ AllocationGraph >> nodeFor: aMethod [
 AllocationGraph >> nodes [
 
 	^ nodes
+]
+
+{ #category : 'accessing' }
+AllocationGraph >> nodes: aCollection [
+
+	nodes := aCollection
 ]
 
 { #category : 'as yet unclassified' }

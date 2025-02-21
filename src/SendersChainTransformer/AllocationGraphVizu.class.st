@@ -1,6 +1,9 @@
 Class {
 	#name : 'AllocationGraphVizu',
 	#superclass : 'Object',
+	#instVars : [
+		'layoutClass'
+	],
 	#category : 'SendersChainTransformer',
 	#package : 'SendersChainTransformer'
 }
@@ -22,7 +25,7 @@ AllocationGraphVizu >> buildGraphCanvasFor: anAllocationGraph [
 			(anAllocationGraph nodes values 
 					flatCollect: [ :each | each edges collect: [ :call | each -> call targetNode ] ]).
 
-	RSSugiyamaLayout "RSTreeLayout" on: canvas nodes.
+	layoutClass on: canvas nodes.
 	^ canvas
 ]
 
@@ -34,6 +37,13 @@ AllocationGraphVizu >> buildInspectorPresenterFor: anAllocationGraph [
 	^ SpRoassalInspectorPresenter new
 		  canvas: c;
 		  yourself
+]
+
+{ #category : 'initialization' }
+AllocationGraphVizu >> initialize [
+
+	super initialize.
+	layoutClass := RSSugiyamaLayout
 ]
 
 { #category : 'drawing - roassal' }
@@ -56,4 +66,10 @@ AllocationGraphVizu >> nodesAsRoassalShapes: nodes [
 			add: label;
 			yourself ].
 	^ nodesAsRoassalShapes
+]
+
+{ #category : 'as yet unclassified' }
+AllocationGraphVizu >> withTreeLayout [
+
+	layoutClass := RSTreeLayout
 ]

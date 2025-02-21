@@ -10,7 +10,7 @@ Class {
 }
 
 { #category : 'instance creation' }
-AllocationGraph class >> onEphemerons: aCollection [
+AllocationGraph class >> onAllocatedSamples: aCollection [
 
 	^ self new
 		  setUpForSamples: aCollection;
@@ -67,6 +67,12 @@ AllocationGraph >> inspectGraph [
 	^ AllocationGraphVizu new buildInspectorPresenterFor: self
 ]
 
+{ #category : 'inspector' }
+AllocationGraph >> inspectGraphContext: aContext [
+
+	aContext withoutEvaluator
+]
+
 { #category : 'as yet unclassified' }
 AllocationGraph >> leaves [
 
@@ -94,12 +100,12 @@ AllocationGraph >> nodes [
 
 { #category : 'as yet unclassified' }
 AllocationGraph >> recordCallFrom: aCaller to: aCallee at: anOffset sample: sample [
-
+	"Caller -> the one that calls. Callee -> the one being called"
 	| edge callerNode calleeNode |
-	callerNode := (self nodeFor: aCaller).
-	calleeNode := (self nodeFor: aCallee).
+	callerNode := self nodeFor: aCaller.
+	calleeNode := self nodeFor: aCallee.
 	edge := callerNode addCallTo: calleeNode withOffset: anOffset.
-	
+
 	calleeNode addCaller: callerNode.
 
 	edge updateFromSample: sample

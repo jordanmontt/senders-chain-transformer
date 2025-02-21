@@ -5,8 +5,8 @@ Class {
 		'pretenurator',
 		'allocationSiteStrategy',
 		'allocationSiteClassificator',
-		'objectAllocations',
-		'toPretenureSites'
+		'toPretenureSites',
+		'rawObjectAllocationsSamples'
 	],
 	#category : 'SendersChainTransformer-Analyzer',
 	#package : 'SendersChainTransformer',
@@ -43,7 +43,7 @@ IllAllocationsAnalyzer >> classifyAllocationSites [
 { #category : 'calculating' }
 IllAllocationsAnalyzer >> identifyAllocationSites [
 
-	allocationSiteStrategy identifyAllocationSites: objectAllocations.
+	allocationSiteStrategy identifyAllocationSites: rawObjectAllocationsSamples.
 ]
 
 { #category : 'initialization' }
@@ -71,10 +71,12 @@ IllAllocationsAnalyzer >> processAndPretenureAllocationSites [
 	| allocationGraph detectedAllocSites |
 	self removeKernelAllocations.
 
-	allocationGraph := AllocationGraph onEphemerons: objectAllocations.
+	allocationGraph := AllocationGraph onAllocatedSamples: rawObjectAllocationsSamples.
 	allocationGraph detectAllocationSitesUsing: (MethodFromTheSamePackageStrategy packagesToMatch: AlSitExCormas applicationPackages).
+	
+	1 halt.
 
-	objectAllocations := (allocationGraph nodes select: #isAllocationSite)
+	rawObjectAllocationsSamples := (allocationGraph nodes select: #isAllocationSite)
 		flatCollect: [ :node | node edges values
 			collect: [ : edge | MethodWithOffset method: node method offset: edge offset  ]  ].
 
@@ -88,7 +90,7 @@ IllAllocationsAnalyzer >> processAndPretenureAllocationSites [
 { #category : 'removing' }
 IllAllocationsAnalyzer >> removeKernelAllocations [
 
-	objectAllocations removeAllSuchThat: [ :illEphemeron |
+	rawObjectAllocationsSamples removeAllSuchThat: [ :illEphemeron |
 		{
 			Context.
 			Deprecation.
@@ -113,9 +115,9 @@ IllAllocationsAnalyzer >> restoreOriginalState [
 { #category : 'initialization' }
 IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 
-	objectAllocations := aProfiler objectAllocations copy.
+	rawObjectAllocationsSamples := aProfiler objectAllocations copy.
 	allocationSiteClassificator
-		objectAllocations: objectAllocations;
+		objectAllocations: rawObjectAllocationsSamples;
 		endTime: aProfiler endTime;
 		startTime: aProfiler startTime
 ]

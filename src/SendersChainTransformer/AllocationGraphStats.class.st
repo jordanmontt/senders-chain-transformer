@@ -2,17 +2,22 @@ Class {
 	#name : 'AllocationGraphStats',
 	#superclass : 'Object',
 	#instVars : [
-		'lifetimes'
+		'allocatedSamples'
 	],
 	#category : 'SendersChainTransformer',
 	#package : 'SendersChainTransformer'
 }
 
+{ #category : 'accessing' }
+AllocationGraphStats >> allocatedSamples [
+	^ allocatedSamples
+]
+
 { #category : 'initialization' }
 AllocationGraphStats >> initialize [
 
 	super initialize.
-	lifetimes := OrderedCollection new
+	allocatedSamples := Set new
 ]
 
 { #category : 'printing' }
@@ -20,11 +25,13 @@ AllocationGraphStats >> printOn: aStream [
 
 	aStream
 		nextPutAll: 'weight ';
-		print: lifetimes size
+		print: allocatedSamples size
 ]
 
 { #category : 'as yet unclassified' }
 AllocationGraphStats >> updateFromSample: aSample [
-
-	lifetimes add: aSample lifetime
+	"| stats |
+	stats := allocNodeStatistics at: aSample allocatedObjectClass ifAbsentPut: AllocationGraphStats new.
+	stats updateFromSample: aSample."
+	allocatedSamples add: aSample
 ]

@@ -21,11 +21,17 @@ AllocationGraphEdge class >> targetNode: node sourceNode: aSourceNode offset: an
 		  yourself
 ]
 
+{ #category : 'as yet unclassified' }
+AllocationGraphEdge >> allocatedSamples [
+
+	^ allocNodeStatistics allocatedSamples
+]
+
 { #category : 'initialization' }
 AllocationGraphEdge >> initialize [
 
 	super initialize.
-	allocNodeStatistics := Dictionary new
+	allocNodeStatistics := AllocationGraphStats new
 ]
 
 { #category : 'accessing' }
@@ -60,7 +66,7 @@ AllocationGraphEdge >> targetNode: anObject [
 { #category : 'as yet unclassified' }
 AllocationGraphEdge >> updateFromSample: aSample [
 
-	| stats |
-	stats := allocNodeStatistics at: aSample allocatedObjectClass ifAbsentPut: AllocationGraphStats new.
-	stats updateFromSample: aSample
+"| stats |
+stats := allocNodeStatistics at: aSample allocatedObjectClass ifAbsentPut: AllocationGraphStats new"
+	allocNodeStatistics updateFromSample: aSample
 ]

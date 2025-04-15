@@ -8,7 +8,6 @@ Class {
 
 { #category : 'as yet unclassified' }
 AllocationGraphFixture class >> entryPoint [
-
 	"prim1 -> Behavior >> #basicNew
 	prim2 -> Array >> #new: 2
 	prim3 -> Behavior >> #basicNewTenured"
@@ -19,32 +18,32 @@ AllocationGraphFixture class >> entryPoint [
 { #category : 'as yet unclassified' }
 AllocationGraphFixture class >> m1 [
 
-	Behavior basicNew.
-	Array new: 0
+	5 timesRepeat: [ Behavior basicNew ].
+	20 timesRepeat: [ Array new: 0 ]
 ]
 
 { #category : 'as yet unclassified' }
 AllocationGraphFixture class >> m2 [
 
-	Behavior basicNew
+	5 timesRepeat: [ Behavior basicNew ]
 ]
 
 { #category : 'as yet unclassified' }
 AllocationGraphFixture class >> m3 [
 
-	Behavior basicNewTenured
+	20 timesRepeat: [ Behavior basicNewTenured ]
 ]
 
 { #category : 'as yet unclassified' }
 AllocationGraphFixture class >> m4 [
 
-	Behavior basicNewTenured
+	5 timesRepeat: [ Behavior basicNewTenured ]
 ]
 
 { #category : 'as yet unclassified' }
 AllocationGraphFixture class >> m5 [
 
-	Behavior basicNewTenured
+	5 timesRepeat: [ Behavior basicNewTenured ]
 ]
 
 { #category : 'as yet unclassified' }

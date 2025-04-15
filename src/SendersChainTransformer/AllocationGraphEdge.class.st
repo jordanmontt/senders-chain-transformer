@@ -5,7 +5,8 @@ Class {
 		'offset',
 		'allocNodeStatistics',
 		'targetNode',
-		'sourceNode'
+		'sourceNode',
+		'numberOfCalls'
 	],
 	#category : 'SendersChainTransformer',
 	#package : 'SendersChainTransformer'
@@ -28,10 +29,17 @@ AllocationGraphEdge >> allocatedSamples [
 ]
 
 { #category : 'initialization' }
+AllocationGraphEdge >> increaseNumberOfCalls [
+
+	numberOfCalls := numberOfCalls + 1
+]
+
+{ #category : 'initialization' }
 AllocationGraphEdge >> initialize [
 
 	super initialize.
-	allocNodeStatistics := AllocationGraphStats new
+	allocNodeStatistics := AllocationGraphStats new.
+	numberOfCalls := 0
 ]
 
 { #category : 'accessing' }
@@ -43,6 +51,13 @@ AllocationGraphEdge >> offset [
 AllocationGraphEdge >> offset: anInteger [
 
 	offset := anInteger
+]
+
+{ #category : 'printing' }
+AllocationGraphEdge >> printOn: aStream [
+
+	numberOfCalls printOn: aStream.
+	aStream << ' calls'
 ]
 
 { #category : 'accessing' }

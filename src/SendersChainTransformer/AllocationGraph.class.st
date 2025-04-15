@@ -17,7 +17,7 @@ AllocationGraph class >> onAllocatedSamples: aCollection [
 		  yourself
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'computing' }
 AllocationGraph >> accumulateSample: aSample [
 
 	| callee |
@@ -28,13 +28,6 @@ AllocationGraph >> accumulateSample: aSample [
 			ifNotNil: [ self recordCallFrom: method to: callee at: offset sample: aSample ].
 		method selector = #DoIt ifTrue: [ ^ self ].
 		callee := method ]
-]
-
-{ #category : 'inspector' }
-AllocationGraph >> basicInspect [
-
-	<inspectorPresentationOrder: 0 title: 'Basic info'>
-	^ 'Hello' asPresenter
 ]
 
 { #category : 'api' }
@@ -82,7 +75,7 @@ AllocationGraph >> initialize [
 { #category : 'inspector' }
 AllocationGraph >> inspectGraph [
 
-	<inspectorPresentationOrder: 2 title: 'Graph'>
+	<inspectorPresentationOrder: 1 title: 'Graph'>
 	^ AllocationGraphVizu new buildInspectorPresenterFor: self
 ]
 
@@ -107,7 +100,14 @@ AllocationGraph >> inspectGraphTreeLayoutContext: aContext [
 	aContext withoutEvaluator
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'inspector' }
+AllocationGraph >> inspectionRaw [
+	"Put the raw inspection as ther first tab to avoid freezing the image. The layout of the graph can take time"
+	<inspectorPresentationOrder: 0 title: 'Raw'>
+	^ StRawInspectionPresenter on: self
+]
+
+{ #category : 'accessing' }
 AllocationGraph >> leaves [
 
 	^ nodes values select: [ :node | node isLeaf ]
@@ -151,7 +151,7 @@ AllocationGraph >> recordCallFrom: aCaller to: aCallee at: anOffset sample: samp
 	edge updateFromSample: sample
 ]
 
-{ #category : 'initialization' }
+{ #category : 'api' }
 AllocationGraph >> setUpForSamples: aCollection [
 
 	samples := aCollection.

@@ -16,12 +16,14 @@ Class {
 AllocationGraphNode >> addCallTo: anAllocationGraphNode withOffset: anOffset [
 
 	^ (edges
-			at: (MethodWithOffset method: anAllocationGraphNode method offset: anOffset)
-			ifAbsentPut: [ 
-				AllocationGraphEdge 
-					targetNode: anAllocationGraphNode
-					sourceNode: self
-					offset: anOffset ]) yourself
+		   at: (MethodWithOffset method: anAllocationGraphNode method offset: anOffset)
+		   ifAbsentPut: [
+			   AllocationGraphEdge
+				targetNode: anAllocationGraphNode
+				sourceNode: self
+				offset: anOffset ])
+		  increaseNumberOfCalls;
+		  yourself
 ]
 
 { #category : 'adding' }

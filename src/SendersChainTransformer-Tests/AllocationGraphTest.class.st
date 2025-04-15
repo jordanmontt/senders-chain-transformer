@@ -15,16 +15,15 @@ AllocationGraphTest >> setUp [
 
 	| profiler |
 	super setUp.
-
 	profiler := IllMemoryProfiler new
 		            samplingRate: 1;
 		            profileOn: [ AllocationGraphFixture entryPoint ];
 		            yourself.
 	samples := profiler objectAllocations select: [ :ephemeron |
-		           {  Array.  Behavior } includes: ephemeron allocatedObjectClass ].
+		           { Array. Behavior } includes: ephemeron allocatedObjectClass ].
 	allocationGraph := AllocationGraph new
-								setUpForSamples: samples;
-								yourself
+		                   setUpForSamples: samples;
+		                   yourself.
 ]
 
 { #category : 'tests' }

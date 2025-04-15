@@ -43,6 +43,12 @@ AllocationGraphEdge >> initialize [
 ]
 
 { #category : 'accessing' }
+AllocationGraphEdge >> numberOfCalls [
+
+	^ numberOfCalls
+]
+
+{ #category : 'accessing' }
 AllocationGraphEdge >> offset [
 	^ offset
 ]

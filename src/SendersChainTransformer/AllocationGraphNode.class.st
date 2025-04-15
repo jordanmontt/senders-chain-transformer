@@ -104,6 +104,15 @@ AllocationGraphNode >> method: aCollection [
 	method := aCollection
 ]
 
+{ #category : 'as yet unclassified' }
+AllocationGraphNode >> numberOfCalls [
+
+	isLeaf ifTrue: [
+		^ callers sum: [ :caller | (caller edges detect: [ :edge | edge targetNode = self ]) numberOfCalls ] ].
+
+	^ edges sum: #numberOfCalls
+]
+
 { #category : 'printing' }
 AllocationGraphNode >> printOn: aStream [
 

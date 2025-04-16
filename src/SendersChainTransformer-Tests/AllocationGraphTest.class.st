@@ -28,6 +28,19 @@ AllocationGraphTest >> setUp [
 
 { #category : 'tests' }
 AllocationGraphTest >> testAllocationSiteDefaultDetection [
+
+	allocationGraph detectAllocationSitesUsing:
+		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
+
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m2) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m3) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m4) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m5) isAllocationSite.
+
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m6) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m7) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) isAllocationSite
 ]
 
 { #category : 'tests' }

@@ -35,8 +35,11 @@ AllocationGraphTest >> testBuildSubgraphFromMethod [
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) numberOfCalls equals: 60.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m6) numberOfCalls equals: 50.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m7) numberOfCalls equals: 10.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m2) numberOfCalls equals: 5.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) numberOfCalls equals: 25.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m3) numberOfCalls equals: 20.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m4) numberOfCalls equals: 5.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m5) numberOfCalls equals: 5.
 	
 	self assert: (allocationGraph nodeAt: Behavior >> #basicNew) numberOfCalls equals: 10.
 	self assert: (allocationGraph nodeAt: Behavior >> #basicNewTenured) numberOfCalls equals: 30.

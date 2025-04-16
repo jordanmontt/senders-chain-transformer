@@ -27,9 +27,24 @@ AllocationGraphTest >> setUp [
 ]
 
 { #category : 'tests' }
-AllocationGraphTest >> testBuildSubgraphFromMethod [
+AllocationGraphTest >> testAllocationSiteDefaultDetection [
+]
 
-	allocationGraph := allocationGraph buildSubgraphFromMethod: AllocationGraphFixture class >> #entryPoint.
+{ #category : 'tests' }
+AllocationGraphTest >> testLeaves [
+
+	| expectedLeaveSelectors |
+	expectedLeaveSelectors := { #basicNew. #new:. #basicNewTenured }.
+	self assert: allocationGraph leaves size equals: 3.
+	self
+		assertCollection: (allocationGraph leaves collect: [ :e | e method selector ])
+		hasSameElements: expectedLeaveSelectors
+]
+
+{ #category : 'tests' }
+AllocationGraphTest >> testPruneGraphFromNewRoot [
+
+	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
 	self assert: allocationGraph nodes size equals: 11.
 	
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) numberOfCalls equals: 60.
@@ -44,15 +59,4 @@ AllocationGraphTest >> testBuildSubgraphFromMethod [
 	self assert: (allocationGraph nodeAt: Behavior >> #basicNew) numberOfCalls equals: 10.
 	self assert: (allocationGraph nodeAt: Behavior >> #basicNewTenured) numberOfCalls equals: 30.
 	self assert: (allocationGraph nodeAt: Array class >> #new:) numberOfCalls equals: 20
-]
-
-{ #category : 'tests' }
-AllocationGraphTest >> testLeaves [
-
-	| expectedLeaveSelectors |
-	expectedLeaveSelectors := { #basicNew. #new:. #basicNewTenured }.
-	self assert: allocationGraph leaves size equals: 3.
-	self
-		assertCollection: (allocationGraph leaves collect: [ :e | e method selector ])
-		hasSameElements: expectedLeaveSelectors
 ]

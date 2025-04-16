@@ -4,8 +4,9 @@ Class {
 	#instVars : [
 		'layoutClass'
 	],
-	#category : 'SendersChainTransformer',
-	#package : 'SendersChainTransformer'
+	#category : 'SendersChainTransformer-Allocation-Graph',
+	#package : 'SendersChainTransformer',
+	#tag : 'Allocation-Graph'
 }
 
 { #category : 'drawing - roassal' }

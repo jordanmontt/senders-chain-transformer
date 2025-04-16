@@ -4,8 +4,9 @@ Class {
 	#instVars : [
 		'allocatedSamples'
 	],
-	#category : 'SendersChainTransformer',
-	#package : 'SendersChainTransformer'
+	#category : 'SendersChainTransformer-Allocation-Graph',
+	#package : 'SendersChainTransformer',
+	#tag : 'Allocation-Graph'
 }
 
 { #category : 'accessing' }

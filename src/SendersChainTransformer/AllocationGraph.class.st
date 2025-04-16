@@ -5,8 +5,9 @@ Class {
 		'nodes',
 		'samples'
 	],
-	#category : 'SendersChainTransformer',
-	#package : 'SendersChainTransformer'
+	#category : 'SendersChainTransformer-Allocation-Graph',
+	#package : 'SendersChainTransformer',
+	#tag : 'Allocation-Graph'
 }
 
 { #category : 'instance creation' }
@@ -17,10 +18,11 @@ AllocationGraph class >> onAllocatedSamples: aCollection [
 		  yourself
 ]
 
-{ #category : 'computing' }
+{ #category : 'private' }
 AllocationGraph >> accumulateSample: aSample [
 
 	| callee |
+	self flag: 'Attention, this assumes that the entry point will be the DoIt from the Playground.'.
 	callee := nil.
 	aSample sendersCallStack methodWithOffsetDo: [ :method :offset |
 		callee
@@ -31,25 +33,6 @@ AllocationGraph >> accumulateSample: aSample [
 ]
 
 { #category : 'api' }
-AllocationGraph >> buildSubgraphFromMethod: aCompiledMethod [
-
-	| newRoot newNodes nodesToTreat |
-	newRoot := nodes detect: [ :node | node method = aCompiledMethod ].
-	nodesToTreat := OrderedCollection with: newRoot.
-	newNodes := Set with: newRoot.
-
-	[ nodesToTreat isNotEmpty ] whileTrue: [
-		| current |
-		current := nodesToTreat removeFirst.
-		newNodes addAll: (current edges values collect: #targetNode).
-		nodesToTreat addAll: (current edges values collect: #targetNode) ].
-
-	^ self class new
-		  nodes: (newNodes collect: [ :node | node method -> (self nodeFor: node method) ]) asDictionary;
-		  yourself
-]
-
-{ #category : 'as yet unclassified' }
 AllocationGraph >> detectAllocationSitesUsing: aStrategy [
 
 	| workList visitedNodes |
@@ -113,7 +96,7 @@ AllocationGraph >> leaves [
 	^ nodes values select: [ :node | node isLeaf ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'api' }
 AllocationGraph >> leavesFor: anEdge [
 
 	anEdge targetNode ifNil: [ ^ { anEdge } ].
@@ -144,7 +127,27 @@ AllocationGraph >> nodes: aCollection [
 	nodes := aCollection
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'api' }
+AllocationGraph >> pruneGraphFromNewRoot: aCompiledMethod [
+
+	| newRoot newNodes nodesToTreat |
+	newRoot := nodes detect: [ :node | node method = aCompiledMethod ].
+	nodesToTreat := OrderedCollection with: newRoot.
+	newNodes := Set with: newRoot.
+
+	[ nodesToTreat isNotEmpty ] whileTrue: [
+		| current |
+		current := nodesToTreat removeFirst.
+		newNodes addAll: (current edges values collect: #targetNode).
+		nodesToTreat addAll: (current edges values collect: #targetNode) ].
+
+	^ self class new
+		  nodes: (newNodes collect: [ :node | node method -> (self nodeFor: node method) ]) asDictionary;
+		  samples: samples;
+		  yourself
+]
+
+{ #category : 'private' }
 AllocationGraph >> recordCallFrom: aCaller to: aCallee at: anOffset sample: sample [
 	"Caller -> the one that calls. Callee -> the one being called"
 	| edge callerNode calleeNode |
@@ -157,6 +160,12 @@ AllocationGraph >> recordCallFrom: aCaller to: aCallee at: anOffset sample: samp
 	edge updateFromSample: sample
 ]
 
+{ #category : 'accessing' }
+AllocationGraph >> samples: aCollection [
+
+	samples := aCollection
+]
+
 { #category : 'api' }
 AllocationGraph >> setUpForSamples: aCollection [
 
@@ -164,8 +173,8 @@ AllocationGraph >> setUpForSamples: aCollection [
 	aCollection do: [ :sample | self accumulateSample: sample ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'api' }
 AllocationGraph >> subGraphForType: aClass [
 
-	^ self class onEphemerons: (samples select: [ :e | e allocatedObjectClass = aClass ])
+	^ self class onAllocatedSamples: (samples select: [ :e | e allocatedObjectClass = aClass ])
 ]

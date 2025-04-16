@@ -16,7 +16,7 @@ BaselineOfSendersChainTransformer >> baseline: spec [
 
 		"External dependencies"
 		spec baseline: 'MethodProxies' with: [ spec repository: 'github://pharo-contributions/MethodProxies' ].
-		spec baseline: 'IllimaniProfiler' with: [ spec repository: 'github://jordanmontt/illimani-memory-profiler:main' ].
+		spec baseline: 'IllimaniProfiler' with: [ spec repository: 'github://jordanmontt/illimani-memory-profiler:dev' ].
 		"Linking external dependencies"
 		spec package: 'SendersChainTransformer-Tests' with: [ spec requires: #( 'MethodProxies' 'IllimaniProfiler') ].
 

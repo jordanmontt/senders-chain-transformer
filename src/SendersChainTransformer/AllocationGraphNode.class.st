@@ -6,14 +6,15 @@ Class {
 		'edges',
 		'isAllocationSite',
 		'isLeaf',
-		'callers'
+		'callers',
+		'isTextualAllocationSite'
 	],
 	#category : 'SendersChainTransformer-Allocation-Graph',
 	#package : 'SendersChainTransformer',
 	#tag : 'Allocation-Graph'
 }
 
-{ #category : 'adding' }
+{ #category : 'api' }
 AllocationGraphNode >> addCallTo: anAllocationGraphNode withOffset: anOffset [
 
 	^ (edges
@@ -27,7 +28,7 @@ AllocationGraphNode >> addCallTo: anAllocationGraphNode withOffset: anOffset [
 		  yourself
 ]
 
-{ #category : 'adding' }
+{ #category : 'api' }
 AllocationGraphNode >> addCaller: anAllocationGraphNode [
 
 	callers add: anAllocationGraphNode
@@ -39,16 +40,22 @@ AllocationGraphNode >> allocatedSamples [
 	^ edges values flatCollect: #allocatedSamples
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'api' }
 AllocationGraphNode >> beAllocationSite [
 
 	isAllocationSite := true
 ]
 
-{ #category : 'initialization' }
+{ #category : 'api' }
 AllocationGraphNode >> beLeaf [
 
 	isLeaf := true
+]
+
+{ #category : 'api' }
+AllocationGraphNode >> beTextualAllocationSite [
+
+	isTextualAllocationSite := true
 ]
 
 { #category : 'accessing' }
@@ -75,28 +82,38 @@ AllocationGraphNode >> initialize [
 	edges := Dictionary new.
 	callers := Set new.
 	isAllocationSite := false.
+	isTextualAllocationSite := false.
 	isLeaf := false
 ]
 
-{ #category : 'accessing' }
+{ #category : 'inspector' }
 AllocationGraphNode >> inspector [
 
 	<inspectorPresentationOrder: 0 title: 'Code'>
 	^ method inspectionSource
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 AllocationGraphNode >> isAllocationSite [
+
 	^ isAllocationSite
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 AllocationGraphNode >> isLeaf [
+
 	^ isLeaf
+]
+
+{ #category : 'testing' }
+AllocationGraphNode >> isTextualAllocationSite [
+
+	^ isTextualAllocationSite
 ]
 
 { #category : 'accessing' }
 AllocationGraphNode >> method [
+
 	^ method
 ]
 
@@ -105,7 +122,7 @@ AllocationGraphNode >> method: aCollection [
 	method := aCollection
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 AllocationGraphNode >> numberOfCalls [
 
 	isLeaf ifTrue: [

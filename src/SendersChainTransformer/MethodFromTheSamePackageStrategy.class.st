@@ -17,7 +17,7 @@ MethodFromTheSamePackageStrategy class >> packagesToMatch: aCol [
 		  yourself
 ]
 
-{ #category : 'testing' }
+{ #category : 'api' }
 MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode [
 
 	^ packagesToMatch includes: anAllocationGraphNode method package

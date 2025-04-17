@@ -27,7 +27,61 @@ AllocationGraphTest >> setUp [
 ]
 
 { #category : 'tests' }
-AllocationGraphTest >> testAllocationSiteDefaultDetection [
+AllocationGraphTest >> testAllocationSiteDetectionAfterPruning [
+
+	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
+	allocationGraph detectAllocationSitesUsing: TextualLocationOfNewStrategy new.
+
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m3) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m4) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m5) isAllocationSite.
+
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m2) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m6) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m7) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) isAllocationSite
+]
+
+{ #category : 'tests' }
+AllocationGraphTest >> testAllocationSiteDetectionAfterPruningMethodInPackage [
+
+	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
+	allocationGraph detectAllocationSitesUsing:
+		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
+
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m2) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m3) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m4) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m5) isAllocationSite.
+
+	self deny: (allocationGraph nodeAt: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m6) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m7) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) isAllocationSite
+]
+
+{ #category : 'tests' }
+AllocationGraphTest >> testDetectAllocationSiteDefault [
+
+	allocationGraph detectAllocationSitesUsing: TextualLocationOfNewStrategy new.
+
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m3) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m4) isAllocationSite.
+	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m5) isAllocationSite.
+
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m2) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m6) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m7) isAllocationSite.
+	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) isAllocationSite
+]
+
+{ #category : 'tests' }
+AllocationGraphTest >> testDetectAllocationSitesUsingMethodInPackage [
 
 	allocationGraph detectAllocationSitesUsing:
 		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
@@ -38,6 +92,7 @@ AllocationGraphTest >> testAllocationSiteDefaultDetection [
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m4) isAllocationSite.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m5) isAllocationSite.
 
+	self deny: (allocationGraph nodeAt: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.
 	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m6) isAllocationSite.
 	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #m7) isAllocationSite.
 	self deny: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) isAllocationSite
@@ -58,7 +113,7 @@ AllocationGraphTest >> testLeaves [
 AllocationGraphTest >> testPruneGraphFromNewRoot [
 
 	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
-	self assert: allocationGraph nodes size equals: 11.
+	self assert: allocationGraph nodes size equals: 12.
 	
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) numberOfCalls equals: 60.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m6) numberOfCalls equals: 50.
@@ -68,6 +123,8 @@ AllocationGraphTest >> testPruneGraphFromNewRoot [
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m3) numberOfCalls equals: 20.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m4) numberOfCalls equals: 5.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m5) numberOfCalls equals: 5.
+	
+	self assert: (allocationGraph nodeAt: AllocationGraphFixtureUtilities class >> #mm) numberOfCalls equals: 5.
 	
 	self assert: (allocationGraph nodeAt: Behavior >> #basicNew) numberOfCalls equals: 10.
 	self assert: (allocationGraph nodeAt: Behavior >> #basicNewTenured) numberOfCalls equals: 30.

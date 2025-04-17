@@ -25,7 +25,7 @@ AllocationGraphFixture class >> m1 [
 { #category : 'as yet unclassified' }
 AllocationGraphFixture class >> m2 [
 
-	5 timesRepeat: [ Behavior basicNew ]
+	AllocationGraphFixtureUtilities mm
 ]
 
 { #category : 'as yet unclassified' }

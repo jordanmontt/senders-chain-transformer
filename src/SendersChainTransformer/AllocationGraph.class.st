@@ -22,13 +22,15 @@ AllocationGraph class >> onAllocatedSamples: aCollection [
 AllocationGraph >> accumulateSample: aSample [
 
 	| callee |
-	self flag: 'Attention, this assumes that the entry point will be the DoIt from the Playground.'.
 	callee := nil.
 	aSample sendersCallStack methodWithOffsetDo: [ :method :offset |
 		callee
 			ifNil: [ (self nodeFor: method) beLeaf ]
-			ifNotNil: [ self recordCallFrom: method to: callee at: offset sample: aSample ].
+			ifNotNil: [ self recordCallFrom: method  to: callee at: offset sample: aSample ].
+		
 		method selector = #DoIt ifTrue: [ ^ self ].
+		aSample textualAllocatorMethod = method
+			ifTrue: [ (self nodeFor: method) beTextualAllocationSite ].
 		callee := method ]
 ]
 
@@ -142,7 +144,7 @@ AllocationGraph >> pruneGraphFromNewRoot: aCompiledMethod [
 		nodesToTreat addAll: (current edges values collect: #targetNode) ].
 
 	^ self class new
-		  nodes: (newNodes collect: [ :node | node method -> (self nodeFor: node method) ]) asDictionary;
+		  nodes: (newNodes collect: [ :node | node method -> node ]) asDictionary;
 		  samples: samples;
 		  yourself
 ]

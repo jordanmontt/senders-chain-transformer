@@ -12,7 +12,9 @@ BaselineOfSendersChainTransformer >> baseline: spec [
 	spec for: #common do: [
 		"Packages"
 		spec package: 'SendersChainTransformer'.
-		spec package: 'SendersChainTransformer-Tests' with: [ spec requires: #( 'SendersChainTransformer' ) ].
+		spec package: 'SendersChainTransformer-TestUtilities'.
+		spec package: 'SendersChainTransformer-Tests'
+			with: [ spec requires: #( 'SendersChainTransformer'  'SendersChainTransformer-TestUtilities') ].
 
 		"External dependencies"
 		spec baseline: 'MethodProxies' with: [ spec repository: 'github://pharo-contributions/MethodProxies' ].

@@ -35,7 +35,7 @@ AllocationGraph >> accumulateSample: aSample [
 ]
 
 { #category : 'api' }
-AllocationGraph >> detectAllocationSitesUsing: aStrategy [
+AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
 	| workList visitedNodes |
 	visitedNodes := Set new.
@@ -140,8 +140,8 @@ AllocationGraph >> pruneGraphFromNewRoot: aCompiledMethod [
 	[ nodesToTreat isNotEmpty ] whileTrue: [
 		| current |
 		current := nodesToTreat removeFirst.
-		newNodes addAll: (current edges values collect: #targetNode).
-		nodesToTreat addAll: (current edges values collect: #targetNode) ].
+		newNodes addAll: (current edges collect: #targetNode).
+		nodesToTreat addAll: (current edges collect: #targetNode) ].
 
 	^ self class new
 		  nodes: (newNodes collect: [ :node | node method -> node ]) asDictionary;

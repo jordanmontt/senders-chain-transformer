@@ -103,7 +103,7 @@ MaxLiveSizeTest >> testMaxLiveSize [
 
 	| analyzer |
 	analyzer := AllocationSiteClassificator new
-		objectAllocations: mockedObjectAllocations;
+		allocationSamples: mockedObjectAllocations;
 		yourself.
 
 	self assert: analyzer maxLiveSize equals: 140 "j and m are the only alive objects at point 13 of the timeline. J weights 100 bytes and m 40"

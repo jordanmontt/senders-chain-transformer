@@ -6,7 +6,7 @@ Class {
 		'allocationSiteStrategy',
 		'allocationSiteClassificator',
 		'toPretenureSites',
-		'rawObjectAllocationsSamples'
+		'rawAllocationsSamples'
 	],
 	#category : 'SendersChainTransformer-Analyzer',
 	#package : 'SendersChainTransformer',
@@ -42,8 +42,14 @@ IllAllocationsAnalyzer >> classifyAllocationSites [
 
 { #category : 'calculating' }
 IllAllocationsAnalyzer >> identifyAllocationSites [
-
-	allocationSiteStrategy identifyAllocationSites: rawObjectAllocationsSamples.
+	"allocationSiteStrategy identifyAllocationSites: rawAllocationsSamples."
+	| allocationGraph |
+	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
+	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
+		
+	"rawAllocationsSamples := (allocationGraph nodes select: #isAllocationSite)
+		flatCollect: [ :node | node edges collect: [ : edge |
+				MethodWithOffset method: node method offset: edge offset  ] ]."
 ]
 
 { #category : 'initialization' }
@@ -68,21 +74,11 @@ IllAllocationsAnalyzer >> pretenureAllocationSites [
 { #category : 'api' }
 IllAllocationsAnalyzer >> processAndPretenureAllocationSites [
 
-	| allocationGraph detectedAllocSites |
 	self removeKernelAllocations.
+	self identifyAllocationSites.
 
-	allocationGraph := AllocationGraph onAllocatedSamples: rawObjectAllocationsSamples.
-	allocationGraph detectAllocationSitesUsing: (MethodFromTheSamePackageStrategy packagesToMatch: AlSitExCormas applicationPackages).
-	
-	1 halt.
-
-	rawObjectAllocationsSamples := (allocationGraph nodes select: #isAllocationSite)
-		flatCollect: [ :node | node edges values
-			collect: [ : edge | MethodWithOffset method: node method offset: edge offset  ]  ].
-
-	"self identifyAllocationSites."
 	self classifyAllocationSites.
-	self removeMisclassifiedSites.	
+	self removeMisclassifiedSites.
 
 	self pretenureAllocationSites
 ]
@@ -90,13 +86,9 @@ IllAllocationsAnalyzer >> processAndPretenureAllocationSites [
 { #category : 'removing' }
 IllAllocationsAnalyzer >> removeKernelAllocations [
 
-	rawObjectAllocationsSamples removeAllSuchThat: [ :illEphemeron |
-		{
-			Context.
-			Deprecation.
-			Process.
-			WeakArray.
-			MouseMoveEvent } includes: illEphemeron allocatedObjectClass ]
+	rawAllocationsSamples removeAllSuchThat: [ :illEphemeron |
+		{ Context. Deprecation. Process. WeakArray. MouseMoveEvent }
+			includes: illEphemeron allocatedObjectClass ]
 ]
 
 { #category : 'calculating' }
@@ -112,12 +104,12 @@ IllAllocationsAnalyzer >> restoreOriginalState [
 	pretenurator restoreOriginalState
 ]
 
-{ #category : 'initialization' }
+{ #category : 'api' }
 IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 
-	rawObjectAllocationsSamples := aProfiler objectAllocations copy.
+	rawAllocationsSamples := aProfiler objectAllocations copy.
 	allocationSiteClassificator
-		objectAllocations: rawObjectAllocationsSamples;
+		objectAllocations: rawAllocationsSamples;
 		endTime: aProfiler endTime;
 		startTime: aProfiler startTime
 ]

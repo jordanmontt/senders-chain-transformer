@@ -17,15 +17,12 @@ Class {
 { #category : 'api' }
 AllocationGraphNode >> addCallTo: anAllocationGraphNode withOffset: anOffset [
 
-	^ (edges
-		   at: (MethodWithOffset method: anAllocationGraphNode method offset: anOffset)
-		   ifAbsentPut: [
-			   AllocationGraphEdge
-				targetNode: anAllocationGraphNode
-				sourceNode: self
-				offset: anOffset ])
-		  increaseNumberOfCalls;
-		  yourself
+	^ (edges 
+			at: (MethodWithOffset method: anAllocationGraphNode method offset: anOffset)
+			ifAbsentPut: [
+				AllocationGraphEdge targetNode: anAllocationGraphNode sourceNode: self offset: anOffset ])
+		increaseNumberOfCalls;
+		yourself
 ]
 
 { #category : 'api' }
@@ -66,7 +63,7 @@ AllocationGraphNode >> callers [
 { #category : 'accessing' }
 AllocationGraphNode >> edges [
 
-	^ edges
+	^ edges values
 ]
 
 { #category : 'accessing' }

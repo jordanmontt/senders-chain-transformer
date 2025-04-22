@@ -30,7 +30,7 @@ AllocationGraphTest >> setUp [
 AllocationGraphTest >> testAllocationSiteDetectionAfterPruning [
 
 	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
-	allocationGraph detectAllocationSitesUsing: TextualLocationOfNewStrategy new.
+	allocationGraph identifyAllocationSitesUsing: TextualLocationOfNewStrategy new.
 
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
@@ -48,7 +48,7 @@ AllocationGraphTest >> testAllocationSiteDetectionAfterPruning [
 AllocationGraphTest >> testAllocationSiteDetectionAfterPruningMethodInPackage [
 
 	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
-	allocationGraph detectAllocationSitesUsing:
+	allocationGraph identifyAllocationSitesUsing:
 		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
 
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.
@@ -66,7 +66,7 @@ AllocationGraphTest >> testAllocationSiteDetectionAfterPruningMethodInPackage [
 { #category : 'tests' }
 AllocationGraphTest >> testDetectAllocationSiteDefault [
 
-	allocationGraph detectAllocationSitesUsing: TextualLocationOfNewStrategy new.
+	allocationGraph identifyAllocationSitesUsing: TextualLocationOfNewStrategy new.
 
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAt: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
@@ -83,7 +83,7 @@ AllocationGraphTest >> testDetectAllocationSiteDefault [
 { #category : 'tests' }
 AllocationGraphTest >> testDetectAllocationSitesUsingMethodInPackage [
 
-	allocationGraph detectAllocationSitesUsing:
+	allocationGraph identifyAllocationSitesUsing:
 		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
 
 	self assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #m1) isAllocationSite.

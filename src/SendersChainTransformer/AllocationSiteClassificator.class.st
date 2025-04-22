@@ -8,26 +8,38 @@ Class {
 		'longObjectsBin',
 		'shortObjectsBin',
 		'immortalObjectsBin',
-		'objectAllocations',
 		'maxLiveSize',
 		'groupedAllocationSites',
 		'startTime',
 		'endTime',
 		'taThreshold',
 		'hif',
-		'hlf'
+		'hlf',
+		'allocationSamples'
 	],
 	#category : 'SendersChainTransformer-Allocation-Site-Identification',
 	#package : 'SendersChainTransformer',
 	#tag : 'Allocation-Site-Identification'
 }
 
+{ #category : 'accessing' }
+AllocationSiteClassificator >> allocationSamples [
+
+	^ allocationSamples
+]
+
+{ #category : 'accessing' }
+AllocationSiteClassificator >> allocationSamples: anObject [
+
+	allocationSamples := anObject
+]
+
 { #category : 'calculating' }
 AllocationSiteClassificator >> binObjects [
 
 	self groupAllocationSites.
 
-	objectAllocations do: [ :illEphe |
+	allocationSamples do: [ :illEphe |
 		| isObjectClassified |
 		isObjectClassified := false.
 
@@ -49,10 +61,10 @@ AllocationSiteClassificator >> calculateMaxLiveSize [
 
 	| aliveObjects currentTime initialTime aliveObjectsSize |
 	maxLiveSize := 0.
-	initialTime := objectAllocations first initializationTime.
-	aliveObjects := OrderedCollection with: objectAllocations first.
+	initialTime := allocationSamples first initializationTime.
+	aliveObjects := OrderedCollection with: allocationSamples first.
 
-	objectAllocations allButFirstDo: [ :illiEphemeron |
+	allocationSamples allButFirstDo: [ :illiEphemeron |
 		| deadObjects |
 		aliveObjectsSize := 0.
 		
@@ -97,7 +109,7 @@ AllocationSiteClassificator >> endTime: anInteger [
 AllocationSiteClassificator >> groupAllocationSites [
 	
 	groupedAllocationSites := Dictionary new.
-	objectAllocations do: [ :illEphe |
+	allocationSamples do: [ :illEphe |
 		| illAllocationSite|
 		illAllocationSite := illEphe.
 		groupedAllocationSites
@@ -146,22 +158,12 @@ AllocationSiteClassificator >> maxLiveSize [
 	^ maxLiveSize ifNil: [ self calculateMaxLiveSize ]
 ]
 
-{ #category : 'accessing' }
-AllocationSiteClassificator >> objectAllocations [
-	^ objectAllocations
-]
-
-{ #category : 'accessing' }
-AllocationSiteClassificator >> objectAllocations: aCollection [ 
-	objectAllocations := aCollection
-]
-
 { #category : 'api' }
 AllocationSiteClassificator >> pruneAllocationSites [
 
 	| v totalProgramAllocations |
 	v := 0.000002.
-	totalProgramAllocations := objectAllocations size.
+	totalProgramAllocations := allocationSamples size.
 	^ groupedAllocationSites reject: [ :allocationSiteBin |
 		  allocationSiteBin totalAllocations < (v * totalProgramAllocations) ]
 ]

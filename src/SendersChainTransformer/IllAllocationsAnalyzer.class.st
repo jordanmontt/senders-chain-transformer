@@ -6,7 +6,8 @@ Class {
 		'allocationSiteStrategy',
 		'allocationSiteClassificator',
 		'toPretenureSites',
-		'rawAllocationsSamples'
+		'rawAllocationsSamples',
+		'allocationGraph'
 	],
 	#category : 'SendersChainTransformer-Analyzer',
 	#package : 'SendersChainTransformer',
@@ -43,7 +44,6 @@ IllAllocationsAnalyzer >> classifyAllocationSites [
 { #category : 'calculating' }
 IllAllocationsAnalyzer >> identifyAllocationSites [
 	"allocationSiteStrategy identifyAllocationSites: rawAllocationsSamples."
-	| allocationGraph |
 	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
 	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
 		
@@ -109,7 +109,7 @@ IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 
 	rawAllocationsSamples := aProfiler objectAllocations copy.
 	allocationSiteClassificator
-		objectAllocations: rawAllocationsSamples;
+		allocationSamples: rawAllocationsSamples;
 		endTime: aProfiler endTime;
 		startTime: aProfiler startTime
 ]

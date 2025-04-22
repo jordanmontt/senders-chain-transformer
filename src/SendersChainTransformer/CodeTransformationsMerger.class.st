@@ -13,6 +13,12 @@ CodeTransformationsMerger >> hasDuplicateMethodTransformations: anArrayOfCompile
 ]
 
 { #category : 'internals' }
+CodeTransformationsMerger >> isTenuredSelector: aSelector [
+
+	^ TenuredSelectorMaker new isTenuredSelector: aSelector
+]
+
+{ #category : 'internals' }
 CodeTransformationsMerger >> mergeCompiledMethods: compiledMethodsWithTransformations into: originalCompiledMethod [
 
 	| astToTransform mergedCompiledMethod |
@@ -21,7 +27,7 @@ CodeTransformationsMerger >> mergeCompiledMethods: compiledMethodsWithTransforma
 		(astToTransform allChildren select: #isMessage)
 			with: (aCompiledMethod parseTree allChildren select: #isMessage)
 			do: [ :nodeToTransform :nodeWithChanges |
-				(nodeWithChanges selector includesSubstring: 'tenured' caseSensitive: false) ifTrue: [
+				(self isTenuredSelector: nodeWithChanges selector) ifTrue: [
 					nodeToTransform selector: nodeWithChanges selector ] ] ].
 	mergedCompiledMethod := astToTransform methodNode generateIR generate.
 	mergedCompiledMethod propertyAt: #source put: astToTransform formattedCode.

@@ -37,7 +37,7 @@ AllocationSitesPretenurer >> mergeCallSites [
 ]
 
 { #category : 'internals' }
-AllocationSitesPretenurer >> pretenureAllocationCallSiter: allocationCallSite senders: sendersToTransform [
+AllocationSitesPretenurer >> pretenureAllocationCallSite: allocationCallSite senders: sendersToTransform [
 
 	| sct |
 	sct := CallSiteTransformer new.
@@ -50,7 +50,7 @@ AllocationSitesPretenurer >> pretenureAllocationCallSiter: allocationCallSite se
 AllocationSitesPretenurer >> pretenureAllocations: toPretenureCallSitesArray [
 
 	toPretenureCallSitesArray do: [ :methodsWithOffsets |
-		self pretenureAllocationCallSiter: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
+		self pretenureAllocationCallSite: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
 	self mergeCallSites.
 	self installPretenuredMethods
 ]

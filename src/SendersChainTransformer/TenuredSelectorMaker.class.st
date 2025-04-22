@@ -9,7 +9,7 @@ Class {
 	#tag : 'Core'
 }
 
-{ #category : 'defaults' }
+{ #category : 'internals' }
 TenuredSelectorMaker >> defaultTenuredSelector: aByteSymbol [
 
 	^ #_pretenured_ , randomPrefix , '_' , aByteSymbol
@@ -20,6 +20,29 @@ TenuredSelectorMaker >> initialize [
 
 	super initialize.
 	randomPrefix := (Random new nextInteger: 1000000000) asString
+]
+
+{ #category : 'internals' }
+TenuredSelectorMaker >> isBinaryTenuredSelector: aSymbol [
+
+	| partSize parts len |
+	len := aSymbol size.
+	len \\ 3 = 0 ifFalse: [ ^ false ].
+	partSize := len // 3.
+	parts := {
+		(aSymbol copyFrom: 1 to: partSize).
+		(aSymbol copyFrom: partSize + 1 to: partSize * 2).
+		(aSymbol copyFrom: partSize * 2 + 1 to: len) }.
+
+	^ parts allSatisfy: [ :each | each = parts first ]
+]
+
+{ #category : 'api' }
+TenuredSelectorMaker >> isTenuredSelector: aSymbol [
+
+	^ aSymbol isBinary
+		  ifFalse: [ aSymbol includesSubstring: 'tenured' caseSensitive: false ]
+		  ifTrue: [ self isBinaryTenuredSelector: aSymbol ]
 ]
 
 { #category : 'api' }

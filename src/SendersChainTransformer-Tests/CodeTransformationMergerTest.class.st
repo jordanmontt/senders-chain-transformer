@@ -96,6 +96,33 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsIn4 [
 ]
 
 { #category : 'tests' }
+CodeTransformationMergerTest >> testMergeCodeTransformationsInBinaryTransformedSelector [
+
+	| modification1 modification2 result originalCompiledMethod expected |
+	originalCompiledMethod := OpalCompiler new
+			source: 'at: key ifAbsentPut: aBlock
+	^ self at: key ifAbsent: [ key -- aBlock value ]';
+			compile.
+	modification1 := OpalCompiler new
+			source: 'at: key ifAbsentPut: aBlock
+	^ self at: key ifAbsent: [ key ------ aBlock value ]';
+			compile.
+	modification2 := OpalCompiler new
+			source: 'at: key ifAbsentPut: aBlock
+	^ self _pretenured_76688_at: key ifAbsent: [ key -- aBlock value ]';
+			compile.
+
+	result := codeMerger
+			mergeCompiledMethods: { modification2. modification1 }
+			into: originalCompiledMethod.
+	expected := (OpalCompiler new
+			 source: 'at: key ifAbsentPut: aBlock
+	^ self _pretenured_76688_at: key ifAbsent: [ key ------ aBlock value ]';
+			 compile).
+	self assert: result parseTree equals: expected parseTree
+]
+
+{ #category : 'tests' }
 CodeTransformationMergerTest >> testMergeCodeTransformationsInOtherExample [
 
 	| modification1 modification2 result originalCompiledMethod expected |

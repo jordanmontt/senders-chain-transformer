@@ -40,6 +40,12 @@ AllocationGraph >> allocatedSamples [
 	^ nodes values flatCollect: #allocatedSamples as: Set
 ]
 
+{ #category : 'accessing' }
+AllocationGraph >> edges [
+
+	^ nodes values flatCollect: #edges as: Set
+]
+
 { #category : 'api' }
 AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 

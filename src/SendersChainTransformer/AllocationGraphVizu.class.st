@@ -22,9 +22,8 @@ AllocationGraphVizu >> buildGraphCanvasFor: anAllocationGraph [
 		color: Color black;
 		withBorderAttachPoint;
 		shapes: canvas nodes;
-		useAssociations:
-			(anAllocationGraph nodes values 
-					flatCollect: [ :each | each edges collect: [ :call | each -> call targetNode ] ]).
+		useAssociations: (anAllocationGraph nodes 
+				flatCollect: [ :each | each edges collect: [ :call | each -> call targetNode ] ]).
 
 	layoutClass on: canvas nodes.
 	^ canvas
@@ -52,7 +51,7 @@ AllocationGraphVizu >> nodesAsRoassalShapes: nodes [
 
 	|nodesAsRoassalShapes |
 
-	nodesAsRoassalShapes := RSComposite models: nodes values forEach: [ :shape :model |
+	nodesAsRoassalShapes := RSComposite models: nodes forEach: [ :shape :model |
 		| box label |
 		label := RSLabel new
 			text: model asString;

@@ -59,9 +59,7 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 	specialSelectors := #( #initialize #value #valueNoContextSwitch #critical: #'->' #, #/ #'==>' #@ ).
 	(specialSelectors includes: aByteSymbol) ifTrue: [ ^ aByteSymbol ].
 
-	"This is necesary to not alter the message precedence"
-	self flag: 'This is a hack. The real problem is that we will convert the binary to a keyword message thus changing the evaluation order and breaking the code geeration.'.
-	aByteSymbol isBinary ifTrue: [ ^ aByteSymbol , aByteSymbol , aByteSymbol ].
+	aByteSymbol isBinary ifTrue: [ ^ self defaultTenuredSelector: #':' ].
 
 	^ self defaultTenuredSelector: aByteSymbol
 ]

@@ -115,7 +115,7 @@ CallSiteTransformerTest >> testTransformMessageSendWithBinarySelector [
 			offset: 44.
 	expectedSourceCode:= 'binaryMethod
 
-	self foo: self ,,,,,, 1 andBar: 0'.
+	self foo: (self ', (codeTransformer selectorMaker makeSelector: #':') ,' 1) andBar: 0'.
 
 	tenuredCompiledMethod := codeTransformer transformMessageSend: aMethodWithOffset.
 

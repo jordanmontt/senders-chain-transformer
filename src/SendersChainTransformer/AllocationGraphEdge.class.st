@@ -68,6 +68,12 @@ AllocationGraphEdge >> printOn: aStream [
 ]
 
 { #category : 'accessing' }
+AllocationGraphEdge >> sourceNode [
+
+	^ sourceNode
+]
+
+{ #category : 'accessing' }
 AllocationGraphEdge >> sourceNode: anAllocationGraphNode [
 
 	sourceNode := anAllocationGraphNode

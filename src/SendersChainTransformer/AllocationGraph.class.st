@@ -34,6 +34,12 @@ AllocationGraph >> accumulateSample: aSample [
 		callee := method ]
 ]
 
+{ #category : 'accessing' }
+AllocationGraph >> allocatedSamples [
+
+	^ nodes values flatCollect: #allocatedSamples as: Set
+]
+
 { #category : 'api' }
 AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
@@ -120,7 +126,7 @@ AllocationGraph >> nodeFor: aMethod [
 { #category : 'accessing' }
 AllocationGraph >> nodes [
 
-	^ nodes
+	^ nodes values
 ]
 
 { #category : 'accessing' }

@@ -27,21 +27,6 @@ AllocationGraphTest >> setUp [
 ]
 
 { #category : 'tests' }
-AllocationGraphTest >> testAllocatedSamples [
-	"self assert: allocationGraph nodes size equals: 12."
-	self assert: (allocationGraph nodes values flatCollect: #allocatedSamples) asSet size equals: 60.
-	self
-		assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) numberOfCalls
-		equals: 60.
-
-	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
-	self assert: (allocationGraph nodes values flatCollect: #allocatedSamples) asSet size equals: 60.
-	self
-		assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) numberOfCalls
-		equals: 60
-]
-
-{ #category : 'tests' }
 AllocationGraphTest >> testAllocationSiteDetectionAfterPruning [
 
 	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.

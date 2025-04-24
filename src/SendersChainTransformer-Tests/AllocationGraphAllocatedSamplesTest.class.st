@@ -42,7 +42,6 @@ AllocationGraphAllocatedSamplesTest >> testAllocatedSamplesLongExecution [
 	self timeLimit: 5 minutes.
 
 	profiler := IllMemoryProfiler new
-						samplingRate: 1;
 		            profileOn: [ 5 timesRepeat: [ StPlayground open close ] ];
 		            yourself.
 	samples := profiler objectAllocations.

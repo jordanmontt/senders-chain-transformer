@@ -17,12 +17,10 @@ Class {
 { #category : 'api' }
 AllocationGraphNode >> addCallTo: anAllocationGraphNode withOffset: anOffset [
 
-	^ (edges 
-			at: (MethodWithOffset method: anAllocationGraphNode method offset: anOffset)
-			ifAbsentPut: [
-				AllocationGraphEdge targetNode: anAllocationGraphNode sourceNode: self offset: anOffset ])
-		increaseNumberOfCalls;
-		yourself
+	^ edges
+		  at: (MethodWithOffset method: anAllocationGraphNode method offset: anOffset)
+		  ifAbsentPut: [
+		  AllocationGraphEdge targetNode: anAllocationGraphNode sourceNode: self offset: anOffset ]
 ]
 
 { #category : 'api' }
@@ -33,6 +31,11 @@ AllocationGraphNode >> addCaller: anAllocationGraphNode [
 
 { #category : 'accessing' }
 AllocationGraphNode >> allocatedSamples [
+
+	isLeaf ifTrue: [
+		^ callers
+			flatCollect: [ :caller | (caller edges detect: [ :edge | edge targetNode = self ]) allocatedSamples ]
+			as: Set ].
 
 	^ edges values flatCollect: #allocatedSamples
 ]
@@ -117,15 +120,6 @@ AllocationGraphNode >> method [
 { #category : 'accessing' }
 AllocationGraphNode >> method: aCollection [ 
 	method := aCollection
-]
-
-{ #category : 'accessing' }
-AllocationGraphNode >> numberOfCalls [
-
-	isLeaf ifTrue: [
-		^ callers sum: [ :caller | (caller edges detect: [ :edge | edge targetNode = self ]) numberOfCalls ] ].
-
-	^ edges sum: #numberOfCalls
 ]
 
 { #category : 'printing' }

@@ -37,19 +37,16 @@ IllAllocationsAnalyzer >> allocationSiteStrategy: aStrategy [
 { #category : 'calculating' }
 IllAllocationsAnalyzer >> classifyAllocationSites [
 
+	allocationSiteClassificator setUpForAllocationGraph: allocationGraph.
 	toPretenureSites := allocationSiteClassificator retrievePretenureSites.
 	^ toPretenureSites
 ]
 
 { #category : 'calculating' }
 IllAllocationsAnalyzer >> identifyAllocationSites [
-	"allocationSiteStrategy identifyAllocationSites: rawAllocationsSamples."
+
 	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
-	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
-		
-	"rawAllocationsSamples := (allocationGraph nodes select: #isAllocationSite)
-		flatCollect: [ :node | node edges collect: [ : edge |
-				MethodWithOffset method: node method offset: edge offset  ] ]."
+	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy
 ]
 
 { #category : 'initialization' }
@@ -108,10 +105,11 @@ IllAllocationsAnalyzer >> restoreOriginalState [
 IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 
 	rawAllocationsSamples := aProfiler objectAllocations copy.
+	"The ephemerons of the profiler, the allocation samples, are always ordered by time."
 	allocationSiteClassificator
-		allocationSamples: rawAllocationsSamples;
-		endTime: aProfiler endTime;
-		startTime: aProfiler startTime
+		startTime: aProfiler objectAllocations first initializationTime;
+		endTime: aProfiler endTime
+
 ]
 
 { #category : 'api' }

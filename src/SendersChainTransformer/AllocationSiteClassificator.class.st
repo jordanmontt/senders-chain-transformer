@@ -5,9 +5,6 @@ Class {
 	#name : 'AllocationSiteClassificator',
 	#superclass : 'Object',
 	#instVars : [
-		'longObjectsBin',
-		'shortObjectsBin',
-		'immortalObjectsBin',
 		'maxLiveSize',
 		'groupedAllocationSites',
 		'startTime',
@@ -15,7 +12,10 @@ Class {
 		'taThreshold',
 		'hif',
 		'hlf',
-		'allocationSamples'
+		'immortalObjects',
+		'shortObjects',
+		'longObjects',
+		'allocationGraph'
 	],
 	#category : 'SendersChainTransformer-Allocation-Site-Identification',
 	#package : 'SendersChainTransformer',
@@ -23,53 +23,44 @@ Class {
 }
 
 { #category : 'accessing' }
-AllocationSiteClassificator >> allocationSamples [
+AllocationSiteClassificator >> allocationGraph: anAllocationGraph [
 
-	^ allocationSamples
-]
-
-{ #category : 'accessing' }
-AllocationSiteClassificator >> allocationSamples: anObject [
-
-	allocationSamples := anObject
+	allocationGraph := anAllocationGraph
 ]
 
 { #category : 'calculating' }
 AllocationSiteClassificator >> binObjects [
 
-	self groupAllocationSites.
-
-	allocationSamples do: [ :illEphe |
-		| isObjectClassified |
-		isObjectClassified := false.
-
-		(self isObjectImmortal: illEphe) ifTrue: [
-			immortalObjectsBin add: illEphe.
-			(groupedAllocationSites at: illEphe) addImmortalObject: illEphe.
-			isObjectClassified := true ].
-		(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
-			shortObjectsBin add: illEphe.
-			(groupedAllocationSites at: illEphe) addShortLivedObject: illEphe.
-			isObjectClassified := true ].
-		isObjectClassified ifFalse: [
-			longObjectsBin add: illEphe.
-			(groupedAllocationSites at: illEphe) addLongLivedObject: illEphe ] ]
+	groupedAllocationSites keysDo: [ :allocationSiteNode |
+			allocationSiteNode allocatedSamples do: [ :illEphe |
+					| isObjectClassified |
+					isObjectClassified := false.
+					(self isObjectImmortal: illEphe) ifTrue: [
+							immortalObjects add: illEphe.
+							(groupedAllocationSites at: illEphe) addImmortalObject: illEphe.
+							isObjectClassified := true ].
+					(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
+							shortObjects add: illEphe.
+							(groupedAllocationSites at: illEphe) addShortLivedObject: illEphe.
+							isObjectClassified := true ].
+					isObjectClassified ifFalse: [
+							longObjects add: illEphe.
+							(groupedAllocationSites at: illEphe) addLongLivedObject: illEphe ] ] ]
 ]
 
 { #category : 'calculating' }
 AllocationSiteClassificator >> calculateMaxLiveSize [
 
-	| aliveObjects currentTime initialTime aliveObjectsSize |
+	| aliveObjects currentTime  aliveObjectsSize allocatedSamples |
 	maxLiveSize := 0.
-	initialTime := allocationSamples first initializationTime.
-	aliveObjects := OrderedCollection with: allocationSamples first.
+	allocatedSamples := allocationGraph allocatedSamples sorted: [ :v1 :v2 | v1 initializationTime < v2 initializationTime ].
+	aliveObjects := OrderedCollection with: allocatedSamples first.
 
-	allocationSamples allButFirstDo: [ :illiEphemeron |
+	allocatedSamples allButFirstDo: [ :illiEphemeron |
 		| deadObjects |
 		aliveObjectsSize := 0.
-		
-		currentTime := illiEphemeron initializationTime - initialTime.
-		deadObjects := aliveObjects select: [ :e | currentTime >= (e finalizationTime - initialTime) ].
+		currentTime := illiEphemeron initializationTime - startTime.
+		deadObjects := aliveObjects select: [ :e | currentTime >= (e finalizationTime - startTime) ].
 		aliveObjects removeAll: deadObjects.
 		aliveObjects add: illiEphemeron.
 		
@@ -105,27 +96,13 @@ AllocationSiteClassificator >> endTime: anInteger [
 	endTime := anInteger
 ]
 
-{ #category : 'calculating' }
-AllocationSiteClassificator >> groupAllocationSites [
-	
-	groupedAllocationSites := Dictionary new.
-	allocationSamples do: [ :illEphe |
-		| illAllocationSite|
-		illAllocationSite := illEphe.
-		groupedAllocationSites
-			at: illAllocationSite
-			ifAbsentPut: (IllAllocationSiteBin new
-				allocationSite: illAllocationSite;
-				yourself) ]
-]
-
 { #category : 'initialization' }
 AllocationSiteClassificator >> initialize [
 
 	super initialize.
-	immortalObjectsBin := OrderedCollection new: 100000.
-	shortObjectsBin := OrderedCollection new: 100000.
-	longObjectsBin := OrderedCollection new: 10000.
+	immortalObjects := OrderedCollection new: 100000.
+	shortObjects := OrderedCollection new: 100000.
+	longObjects := OrderedCollection new: 10000.
 
 	taThreshold := 0.45.
 	hif := 0.
@@ -163,7 +140,7 @@ AllocationSiteClassificator >> pruneAllocationSites [
 
 	| v totalProgramAllocations |
 	v := 0.000002.
-	totalProgramAllocations := allocationSamples size.
+	totalProgramAllocations := allocationGraph allocatedSamples size.
 	^ groupedAllocationSites reject: [ :allocationSiteBin |
 		  allocationSiteBin totalAllocations < (v * totalProgramAllocations) ]
 ]
@@ -176,9 +153,25 @@ AllocationSiteClassificator >> retrievePretenureSites [
 ]
 
 { #category : 'accessing' }
-AllocationSiteClassificator >> shortObjectsBin [
+AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 
-	^ shortObjectsBin
+	allocationGraph := anAllocationGraph.
+
+	groupedAllocationSites := Dictionary new.
+	(allocationGraph nodes select: #isAllocationSite) do: [ :allocationSiteNode |
+			groupedAllocationSites
+				at: allocationSiteNode
+				ifAbsentPut: (IllAllocationSiteBin new
+					allocationSite: allocationSiteNode;
+					yourself) ].
+
+	self binObjects
+]
+
+{ #category : 'accessing' }
+AllocationSiteClassificator >> shortObjects [
+
+	^ shortObjects
 ]
 
 { #category : 'accessing' }

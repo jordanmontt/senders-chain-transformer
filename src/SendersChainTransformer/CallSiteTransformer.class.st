@@ -8,9 +8,9 @@ Class {
 		'transformedSenders',
 		'transformedCallSite'
 	],
-	#category : 'SendersChainTransformer-Core',
+	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
-	#tag : 'Core'
+	#tag : 'Code-Rewriter'
 }
 
 { #category : 'backup' }

@@ -35,14 +35,6 @@ IllAllocationsAnalyzer >> allocationSiteStrategy: aStrategy [
 ]
 
 { #category : 'calculating' }
-IllAllocationsAnalyzer >> classifyAllocationSites [
-
-	allocationSiteClassificator setUpForAllocationGraph: allocationGraph.
-	toPretenureSites := allocationSiteClassificator retrievePretenureSites.
-	^ toPretenureSites
-]
-
-{ #category : 'calculating' }
 IllAllocationsAnalyzer >> identifyAllocationSites [
 
 	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
@@ -74,7 +66,7 @@ IllAllocationsAnalyzer >> processAndPretenureAllocationSites [
 	self removeKernelAllocations.
 	self identifyAllocationSites.
 
-	self classifyAllocationSites.
+	self retrieveToPretenureSites.
 	self removeMisclassifiedSites.
 
 	self pretenureAllocationSites
@@ -99,6 +91,14 @@ IllAllocationsAnalyzer >> removeMisclassifiedSites [
 IllAllocationsAnalyzer >> restoreOriginalState [
 
 	pretenurator restoreOriginalState
+]
+
+{ #category : 'calculating' }
+IllAllocationsAnalyzer >> retrieveToPretenureSites [
+
+	allocationSiteClassificator setUpForAllocationGraph: allocationGraph.
+	allocationSiteClassificator classifyAllocationSites.
+	^ allocationSiteClassificator pruneAllocationSites select: #isLongOrImmortal
 ]
 
 { #category : 'api' }

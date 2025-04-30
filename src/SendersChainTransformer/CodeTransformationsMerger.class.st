@@ -1,9 +1,9 @@
 Class {
 	#name : 'CodeTransformationsMerger',
 	#superclass : 'Object',
-	#category : 'SendersChainTransformer-Core',
+	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
-	#tag : 'Core'
+	#tag : 'Code-Rewriter'
 }
 
 { #category : 'api' }

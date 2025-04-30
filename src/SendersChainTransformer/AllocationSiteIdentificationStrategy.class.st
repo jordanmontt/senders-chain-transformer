@@ -50,7 +50,7 @@ AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode [
 { #category : 'api' }
 AllocationSiteIdentificationStrategy >> removeMisclassifiedSites: aDictionary [
 
-	^ aDictionary reject: [ :illAllocationSiteBin | illAllocationSiteBin allocationSite methodClass = UndefinedObject ]
+	^ aDictionary reject: [ :illAllocationSiteBin | illAllocationSiteBin allocationSite method methodClass = UndefinedObject ]
 ]
 
 { #category : 'internal' }

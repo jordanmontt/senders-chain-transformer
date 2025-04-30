@@ -4,9 +4,9 @@ Class {
 	#instVars : [
 		'randomPrefix'
 	],
-	#category : 'SendersChainTransformer-Core',
+	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
-	#tag : 'Core'
+	#tag : 'Code-Rewriter'
 }
 
 { #category : 'internals' }

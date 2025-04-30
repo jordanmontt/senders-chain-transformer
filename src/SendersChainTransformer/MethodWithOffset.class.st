@@ -5,9 +5,9 @@ Class {
 		'offset',
 		'compiledMethodOrBlock'
 	],
-	#category : 'SendersChainTransformer-Core',
+	#category : 'SendersChainTransformer-Utilities',
 	#package : 'SendersChainTransformer',
-	#tag : 'Core'
+	#tag : 'Utilities'
 }
 
 { #category : 'instance creation' }

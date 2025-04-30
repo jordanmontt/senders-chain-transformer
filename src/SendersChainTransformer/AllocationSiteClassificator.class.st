@@ -17,9 +17,9 @@ Class {
 		'longObjects',
 		'allocationGraph'
 	],
-	#category : 'SendersChainTransformer-Allocation-Site-Identification',
+	#category : 'SendersChainTransformer-Allocation-Site-Classification',
 	#package : 'SendersChainTransformer',
-	#tag : 'Allocation-Site-Identification'
+	#tag : 'Allocation-Site-Classification'
 }
 
 { #category : 'accessing' }
@@ -32,20 +32,20 @@ AllocationSiteClassificator >> allocationGraph: anAllocationGraph [
 AllocationSiteClassificator >> binObjects [
 
 	groupedAllocationSites keysDo: [ :allocationSiteNode |
-			allocationSiteNode allocatedSamples do: [ :illEphe |
-					| isObjectClassified |
-					isObjectClassified := false.
-					(self isObjectImmortal: illEphe) ifTrue: [
-							immortalObjects add: illEphe.
-							(groupedAllocationSites at: illEphe) addImmortalObject: illEphe.
-							isObjectClassified := true ].
-					(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
-							shortObjects add: illEphe.
-							(groupedAllocationSites at: illEphe) addShortLivedObject: illEphe.
-							isObjectClassified := true ].
-					isObjectClassified ifFalse: [
-							longObjects add: illEphe.
-							(groupedAllocationSites at: illEphe) addLongLivedObject: illEphe ] ] ]
+		allocationSiteNode allocatedSamples do: [ :illEphe |
+			| isObjectClassified |
+			isObjectClassified := false.
+			(self isObjectImmortal: illEphe) ifTrue: [
+					immortalObjects add: illEphe.
+					(groupedAllocationSites at: allocationSiteNode) addImmortalObject: illEphe.
+					isObjectClassified := true ].
+			(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
+					shortObjects add: illEphe.
+					(groupedAllocationSites at: allocationSiteNode) addShortLivedObject: illEphe.
+					isObjectClassified := true ].
+			isObjectClassified ifFalse: [
+					longObjects add: illEphe.
+					(groupedAllocationSites at: allocationSiteNode) addLongLivedObject: illEphe ] ] ]
 ]
 
 { #category : 'calculating' }
@@ -145,13 +145,6 @@ AllocationSiteClassificator >> pruneAllocationSites [
 		  allocationSiteBin totalAllocations < (v * totalProgramAllocations) ]
 ]
 
-{ #category : 'api' }
-AllocationSiteClassificator >> retrievePretenureSites [
-
-	self classifyAllocationSites.
-	^ self pruneAllocationSites select: #isLongOrImmortal
-]
-
 { #category : 'accessing' }
 AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 
@@ -161,11 +154,9 @@ AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 	(allocationGraph nodes select: #isAllocationSite) do: [ :allocationSiteNode |
 			groupedAllocationSites
 				at: allocationSiteNode
-				ifAbsentPut: (IllAllocationSiteBin new
+				ifAbsentPut: (AllocationSiteBin new
 					allocationSite: allocationSiteNode;
-					yourself) ].
-
-	self binObjects
+					yourself) ]
 ]
 
 { #category : 'accessing' }

@@ -32,6 +32,7 @@ MethodFromTheSamePackageStrategy >> packagesToMatch: aCollectionOfPackages [
 { #category : 'api' }
 MethodFromTheSamePackageStrategy >> removeMisclassifiedSites: aDictionary [
 
+	self flag: 'Is this still necessary?'.
 	^ aDictionary select: [ :illAllocationSiteBin |
 		  packagesToMatch includes: illAllocationSiteBin allocationSite method package ]
 ]

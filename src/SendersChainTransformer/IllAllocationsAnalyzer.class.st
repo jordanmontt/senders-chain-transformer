@@ -34,6 +34,21 @@ IllAllocationsAnalyzer >> allocationSiteStrategy: aStrategy [
 	allocationSiteStrategy := aStrategy
 ]
 
+{ #category : 'api' }
+IllAllocationsAnalyzer >> analyze [
+
+	self processAllocationSites.
+	self rewriteToPretenureAllocationSites
+]
+
+{ #category : 'calculating' }
+IllAllocationsAnalyzer >> classifyAndPruneToPretenureSites [
+
+	allocationSiteClassificator setUpForAllocationGraph: allocationGraph.
+	allocationSiteClassificator classifyAllocationSites.
+	^ allocationSiteClassificator pruneAllocationSites select: #isLongOrImmortal
+]
+
 { #category : 'calculating' }
 IllAllocationsAnalyzer >> identifyAllocationSites [
 
@@ -51,25 +66,14 @@ IllAllocationsAnalyzer >> initialize [
 	self useTextualLocationStrategy
 ]
 
-{ #category : 'calculating' }
-IllAllocationsAnalyzer >> pretenureAllocationSites [
-
-	| allocationSendersList |
-	allocationSendersList := toPretenureSites values collect: [ :allocSiteBin |
-				allocSiteBin allObjects first allocationSenders asMethodWithOffsetObjects ].
-	pretenurator pretenureAllocations: allocationSendersList
-]
-
 { #category : 'api' }
-IllAllocationsAnalyzer >> processAndPretenureAllocationSites [
+IllAllocationsAnalyzer >> processAllocationSites [
 
 	self removeKernelAllocations.
 	self identifyAllocationSites.
 
-	self retrieveToPretenureSites.
-	self removeMisclassifiedSites.
-
-	self pretenureAllocationSites
+	self classifyAndPruneToPretenureSites.
+	self removeMisclassifiedSites
 ]
 
 { #category : 'removing' }
@@ -93,15 +97,16 @@ IllAllocationsAnalyzer >> restoreOriginalState [
 	pretenurator restoreOriginalState
 ]
 
-{ #category : 'calculating' }
-IllAllocationsAnalyzer >> retrieveToPretenureSites [
+{ #category : 'api' }
+IllAllocationsAnalyzer >> rewriteToPretenureAllocationSites [
 
-	allocationSiteClassificator setUpForAllocationGraph: allocationGraph.
-	allocationSiteClassificator classifyAllocationSites.
-	^ allocationSiteClassificator pruneAllocationSites select: #isLongOrImmortal
+	| allocationSendersList |
+	allocationSendersList := toPretenureSites values collect: [ :allocSiteBin |
+				allocSiteBin allObjects first allocationSenders asMethodWithOffsetObjects ].
+	pretenurator pretenureAllocations: allocationSendersList
 ]
 
-{ #category : 'api' }
+{ #category : 'api - accessing' }
 IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 
 	rawAllocationsSamples := aProfiler objectAllocations copy.
@@ -112,7 +117,7 @@ IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 
 ]
 
-{ #category : 'api' }
+{ #category : 'api - accessing' }
 IllAllocationsAnalyzer >> useTextualLocationStrategy [
 
 	allocationSiteStrategy := TextualLocationOfNewStrategy new

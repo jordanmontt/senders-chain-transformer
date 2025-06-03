@@ -10,6 +10,16 @@ Class {
 }
 
 { #category : 'instance creation' }
+MethodFromTheSamePackageStrategy class >> packagesNamesToMatch: aCol [
+
+	| packages |
+	packages := aCol collect: #asPackage.
+	^ self new
+		  packagesToMatch: packages;
+		  yourself
+]
+
+{ #category : 'instance creation' }
 MethodFromTheSamePackageStrategy class >> packagesToMatch: aCol [
 
 	^ self new

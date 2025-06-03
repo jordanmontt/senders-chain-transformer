@@ -46,7 +46,7 @@ IllAllocationsAnalyzer >> classifyAndPruneToPretenureSites [
 
 	allocationSiteClassificator setUpForAllocationGraph: allocationGraph.
 	allocationSiteClassificator classifyAllocationSites.
-	^ allocationSiteClassificator pruneAllocationSites select: #isLongOrImmortal
+	^ toPretenureSites := allocationSiteClassificator pruneAllocationSites select: #isLongOrImmortal
 ]
 
 { #category : 'calculating' }

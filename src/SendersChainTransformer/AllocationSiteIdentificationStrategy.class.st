@@ -28,7 +28,7 @@ AllocationSiteIdentificationStrategy >> identifyAllocationSiteFor: illEphemeron 
 		(self stopCriterionForAllocatedClass: illEphemeron allocatedObjectClass receiverPackage: sender method methodClass)
 			ifTrue: [	
 				illEphemeron
-					textualAllocatorMethod: sender method;
+					identifiedAllocationSite: sender method;
 					offset: sender offset.
 				^ self ].
 		i := i + 1 ]

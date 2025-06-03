@@ -90,6 +90,12 @@ AllocationGraphNode >> initialize [
 AllocationGraphNode >> inspector [
 
 	<inspectorPresentationOrder: 0 title: 'Code'>
+	^ self inspectorPresenter
+]
+
+{ #category : 'inspector' }
+AllocationGraphNode >> inspectorPresenter [
+
 	^ method inspectionSource
 ]
 

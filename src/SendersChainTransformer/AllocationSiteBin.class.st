@@ -37,7 +37,7 @@ AllocationSiteBin >> addShortLivedObject: object [
 { #category : 'accessing' }
 AllocationSiteBin >> allObjects [
 
-	^ self longLivedObjects , self immortalObjects , self shortLivedObjects
+	^ self longAndImmortalLivedObjects , self shortLivedObjects
 ]
 
 { #category : 'accessing' }
@@ -129,6 +129,12 @@ AllocationSiteBin >> isLongOrImmortal [
 AllocationSiteBin >> isShort [
 
 	^ classification = #short
+]
+
+{ #category : 'accessing' }
+AllocationSiteBin >> longAndImmortalLivedObjects [
+
+	^ self longLivedObjects , self immortalObjects
 ]
 
 { #category : 'accessing' }

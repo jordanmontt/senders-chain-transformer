@@ -17,30 +17,6 @@ AllocationSiteIdentificationStrategy >> allocatorPrimitivesNames [
 	     'Object>>#clone' 'CompiledCode>>#clone' 'ExternalAddress>>#clone' 'FixedBitWidthRegister>>#copy' )
 ]
 
-{ #category : 'internal' }
-AllocationSiteIdentificationStrategy >> identifyAllocationSiteFor: illEphemeron [
-
-	| callStack i sender |
-	callStack := illEphemeron sendersCallStack.
-	i := 1.
-	[ i <= callStack size ] whileTrue: [
-		sender := callStack at: i.
-		(self stopCriterionForAllocatedClass: illEphemeron allocatedObjectClass receiverPackage: sender method methodClass)
-			ifTrue: [	
-				illEphemeron
-					identifiedAllocationSite: sender method;
-					offset: sender offset.
-				^ self ].
-		i := i + 1 ]
-]
-
-{ #category : 'api' }
-AllocationSiteIdentificationStrategy >> identifyAllocationSites: objectAllocations [
-
-	objectAllocations do: [ :illEphemeron | self identifyAllocationSiteFor: illEphemeron ].
-	^ objectAllocations
-]
-
 { #category : 'api' }
 AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode [
 
@@ -52,10 +28,4 @@ AllocationSiteIdentificationStrategy >> removeMisclassifiedSites: aDictionary [
 
 	self flag: 'Is this still necessary?'.
 	^ aDictionary reject: [ :illAllocationSiteBin | illAllocationSiteBin allocationSite method methodClass = UndefinedObject ]
-]
-
-{ #category : 'internal' }
-AllocationSiteIdentificationStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverPackage: receiverClass [
-
-	^ self subclassResponsibility
 ]

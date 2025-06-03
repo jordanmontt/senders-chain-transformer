@@ -7,7 +7,8 @@ Class {
 		'isAllocationSite',
 		'isLeaf',
 		'callers',
-		'isTextualAllocationSite'
+		'isTextualAllocationSite',
+		'allocationPath'
 	],
 	#category : 'SendersChainTransformer-Allocation-Graph',
 	#package : 'SendersChainTransformer',
@@ -40,6 +41,12 @@ AllocationGraphNode >> allocatedSamples [
 	^ edges values flatCollect: #allocatedSamples
 ]
 
+{ #category : 'accessing' }
+AllocationGraphNode >> allocationPath: anArray [
+
+	allocationPath := anArray
+]
+
 { #category : 'api' }
 AllocationGraphNode >> beAllocationSite [
 
@@ -61,6 +68,12 @@ AllocationGraphNode >> beTextualAllocationSite [
 { #category : 'accessing' }
 AllocationGraphNode >> callers [
 	^ callers
+]
+
+{ #category : 'api' }
+AllocationGraphNode >> edgeTo: aTargetNode [
+
+	^ edges detect: [ :edge | edge targetNode = aTargetNode ]
 ]
 
 { #category : 'accessing' }

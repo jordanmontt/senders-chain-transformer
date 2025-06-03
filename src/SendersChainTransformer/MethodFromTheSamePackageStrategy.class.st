@@ -46,9 +46,3 @@ MethodFromTheSamePackageStrategy >> removeMisclassifiedSites: aDictionary [
 	^ aDictionary select: [ :illAllocationSiteBin |
 		  packagesToMatch includes: illAllocationSiteBin allocationSite method package ]
 ]
-
-{ #category : 'internal' }
-MethodFromTheSamePackageStrategy >> stopCriterionForAllocatedClass: allocatedObjectClass receiverPackage: receiverPackage [
-
-	^ packagesToMatch includes: receiverPackage
-]

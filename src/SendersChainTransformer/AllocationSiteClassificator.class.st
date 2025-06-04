@@ -38,21 +38,21 @@ AllocationSiteClassificator >> allocationGraph: anAllocationGraph [
 { #category : 'calculating' }
 AllocationSiteClassificator >> binObjects [
 
-	groupedAllocationSites keysDo: [ :allocationSiteNode |
-		allocationSiteNode allocatedSamples do: [ :illEphe |
+	groupedAllocationSites keysDo: [ :allocationGraphEdge |
+		allocationGraphEdge allocatedSamples do: [ :illEphe |
 			| isObjectClassified |
 			isObjectClassified := false.
 			(self isObjectImmortal: illEphe) ifTrue: [
 					immortalObjects add: illEphe.
-					(groupedAllocationSites at: allocationSiteNode) addImmortalObject: illEphe.
+					(groupedAllocationSites at: allocationGraphEdge) addImmortalObject: illEphe.
 					isObjectClassified := true ].
 			(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
 					shortObjects add: illEphe.
-					(groupedAllocationSites at: allocationSiteNode) addShortLivedObject: illEphe.
+					(groupedAllocationSites at: allocationGraphEdge) addShortLivedObject: illEphe.
 					isObjectClassified := true ].
 			isObjectClassified ifFalse: [
 					longObjects add: illEphe.
-					(groupedAllocationSites at: allocationSiteNode) addLongLivedObject: illEphe ] ] ]
+					(groupedAllocationSites at: allocationGraphEdge) addLongLivedObject: illEphe ] ] ]
 ]
 
 { #category : 'calculating' }
@@ -96,28 +96,27 @@ AllocationSiteClassificator >> classifyAllocationSites [
 		wasClassified ifFalse: [ allocationSiteBin classification: #short ] ]
 ]
 
+{ #category : 'api' }
+AllocationSiteClassificator >> computeLongLivedAllocationSites [
+
+	self binObjects.
+	self pruneAllocationSites.
+	self classifyAllocationSites
+]
+
 { #category : 'accessing' }
 AllocationSiteClassificator >> endTime: anInteger [
 
 	endTime := anInteger
 ]
 
-{ #category : 'api' }
-AllocationSiteClassificator >> getLongLivedAllocationSites [
-
-	self binObjects.
-	self pruneAllocationSites.
-	self classifyAllocationSites.
-	^ groupedAllocationSites select: #isLongOrImmortal
-]
-
 { #category : 'initialization' }
 AllocationSiteClassificator >> initialize [
 
 	super initialize.
-	immortalObjects := OrderedCollection new: 100000.
-	shortObjects := OrderedCollection new: 100000.
-	longObjects := OrderedCollection new: 10000.
+	immortalObjects := Set new: 100000.
+	shortObjects := Set new: 100000.
+	longObjects := Set new: 10000.
 
 	taThreshold := 0.45.
 	hif := 0.
@@ -142,6 +141,12 @@ AllocationSiteClassificator >> isObjectShortLived: illEphe [
 	| age |
 	age := illEphe lifetime / self maxLiveSize.
 	^ age < (taThreshold * self maxLiveSize)
+]
+
+{ #category : 'api' }
+AllocationSiteClassificator >> longLivedAllocationSites [
+
+    ^ groupedAllocationSites select: #isLongOrImmortal
 ]
 
 { #category : 'accessing' }
@@ -171,11 +176,11 @@ AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 	allocationGraph := anAllocationGraph.
 
 	groupedAllocationSites := Dictionary new.
-	(allocationGraph nodes select: #isAllocationSite) do: [ :allocationSiteNode |
+	allocationGraph edges do: [ :allocationGraphEdge |
 			groupedAllocationSites
-				at: allocationSiteNode
+				at: allocationGraphEdge
 				ifAbsentPut: (AllocationSiteBin new
-					allocationSite: allocationSiteNode;
+					allocationSite: allocationGraphEdge;
 					yourself) ]
 ]
 

@@ -43,23 +43,42 @@ AllocationSiteClassificatorTest >> setUpAllocationGraph [
 { #category : 'tests' }
 AllocationSiteClassificatorTest >> testBinObjects [
 
-	| binnedAllocationSites |
-	self setUpAllocationGraph.
-	
-	classificator
-		startTime: profiler objectAllocations first initializationTime;
-		endTime: profiler endTime;
-		setUpForAllocationGraph: allocationGraph.
-	classificator binObjects.
+    | binnedAllocationSites |
+    self setUpAllocationGraph.
 
-	binnedAllocationSites := classificator groupedAllocationSites associations sorted: [ :a : b | 
-			a key method selector < b key method selector ].
+    classificator
+        startTime: profiler objectAllocations first initializationTime;
+        endTime: profiler endTime;
+        setUpForAllocationGraph: allocationGraph.
+    classificator binObjects.
 
-	self assert: (binnedAllocationSites first "m1" value immortalObjects size) equals: 25.
-	self assert: (binnedAllocationSites second "m3" value immortalObjects size) equals: 20.
-	self assert: (binnedAllocationSites third "m4" value immortalObjects size) equals: 5.
-	self assert: (binnedAllocationSites fourth "m5" value immortalObjects size) equals: 5.
-	self assert: (binnedAllocationSites fifth "mm" value immortalObjects size) equals: 5
+    binnedAllocationSites := classificator groupedAllocationSites values.
+
+    self
+		assert: ( binnedAllocationSites detect: [ :bin |
+    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m1) ] )
+                immortalObjects size
+    	equals: 25.
+	 self
+		assert: ( binnedAllocationSites detect: [ :bin |
+    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m3) ] )
+                immortalObjects size
+    	equals: 20.
+     self
+		assert: ( binnedAllocationSites detect: [ :bin |
+    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m4) ] )
+                immortalObjects size
+    	equals: 5.
+     self
+		assert: ( binnedAllocationSites detect: [ :bin |
+    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m5) ] )
+                immortalObjects size
+    	equals: 5.
+     self
+		assert: ( binnedAllocationSites detect: [ :bin |
+    			bin allocationSite targetNode method = (AllocationGraphFixtureUtilities class >> #mm)] )
+                immortalObjects size
+    	equals: 5
 ]
 
 { #category : 'tests' }

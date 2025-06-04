@@ -36,6 +36,12 @@ AllocationGraphEdge >> initialize [
 ]
 
 { #category : 'accessing' }
+AllocationGraphEdge >> key [
+
+    ^ sourceNode
+]
+
+{ #category : 'accessing' }
 AllocationGraphEdge >> offset [
 	^ offset
 ]

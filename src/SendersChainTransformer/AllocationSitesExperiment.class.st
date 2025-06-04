@@ -45,11 +45,11 @@ AllocationSitesExperiment >> allocationSiteStrategy: aStrategy [
 ]
 
 { #category : 'calculating' }
-AllocationSitesExperiment >> getLongLivedAllocationSites [
+AllocationSitesExperiment >> computeLongLivedAllocationSites [
 
-	^ toPretenureSites := allocationSiteClassificator
-		                      setUpForAllocationGraph: allocationGraph;
-		                      getLongLivedAllocationSites
+    allocationSiteClassificator
+        setUpForAllocationGraph: allocationGraph;
+        computeLongLivedAllocationSites
 ]
 
 { #category : 'calculating' }
@@ -81,12 +81,14 @@ AllocationSitesExperiment >> inspector: aBuilder [
 { #category : 'api' }
 AllocationSitesExperiment >> processAllocationSites [
 
-	"Data cleaning"
-	self removeKernelAllocations.
-	"Identify allocation sites using strategy"
-	self identifyAllocationSites.
-	"Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
-	self getLongLivedAllocationSites
+    "Data cleaning"
+    self removeKernelAllocations.
+    "Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
+    self computeLongLivedAllocationSites.
+    "Identify allocation sites using strategy"
+    self identifyAllocationSites.
+    "Get the allocation sites to pretenure"
+    toPretenureSites := allocationSiteClassificator longLivedAllocationSites
 ]
 
 { #category : 'removing' }
@@ -107,9 +109,8 @@ AllocationSitesExperiment >> restoreOriginalState [
 AllocationSitesExperiment >> rewriteToPretenureAllocationSites [
 
 	| allocationSendersList |
-	allocationSendersList := toPretenureSites keys collect: [ :allocationGraphNode | 
-		"First element is the allocator primitive"
-		allocationGraphNode allocationPath allButFirst collect: [ :association |
+	allocationSendersList := toPretenureSites keys collect: [ :allocationGraphEdge | 
+		allocationGraphEdge sourceNode allocationPath collect: [ :association |
 				MethodWithOffset method: association key method offset: association value ] ].
 
 	pretenurator pretenureAllocations: allocationSendersList

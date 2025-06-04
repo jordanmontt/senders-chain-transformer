@@ -41,6 +41,12 @@ AllocationGraph >> allocatedSamples [
 ]
 
 { #category : 'accessing' }
+AllocationGraph >> edgeAtTargetNode: aMethod [
+
+    ^ self edges detect: [ :aGRaphEdge | aGRaphEdge targetNode method = aMethod ]
+]
+
+{ #category : 'accessing' }
 AllocationGraph >> edges [
 
 	^ nodes values flatCollect: #edges as: Set
@@ -49,9 +55,9 @@ AllocationGraph >> edges [
 { #category : 'api' }
 AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
-	| workList visitedNodes |
-	visitedNodes := Set new.
-	workList := self leaves collect: [ :leafNode | leafNode -> { leafNode -> nil } ] as: OrderedCollection.
+	| workList visitedNodePaths |
+	visitedNodePaths := Set new.
+	workList := self leaves collect: [ :leafNode | leafNode -> { (leafNode -> nil) } ] as: OrderedCollection.
 
 	[ workList isEmpty ] whileFalse: [
 		| current path |
@@ -59,18 +65,18 @@ AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 		path := workList first value.
 		workList removeFirst.
 
-		(visitedNodes includes: current) ifFalse: [
-				visitedNodes add: current.
-				(aStrategy isAllocationSite: current fromAllocationPath: path)
-					ifTrue: [ current beAllocationSite ]
-					ifFalse: [ workList addAll: 
-						(current callers
-								reject: [ :caller | visitedNodes includes: caller ]
-								thenCollect: [ :caller |
-									| offset |
-									offset := (caller edgeTo: current) offset.
-									path := path copyWith: caller -> offset.
-									caller -> path ]) ] ] ]
+		(visitedNodePaths includes: current -> path) ifFalse: [
+			visitedNodePaths add: current -> path.
+
+			(aStrategy isAllocationSite: current fromAllocationPath: path)
+				ifTrue: [ current beAllocationSite ]
+				ifFalse: [ 
+					workList addAll: (
+						current callers collect: [ :caller |
+							| offset |
+							offset := (caller edgeTo: current) offset.
+							path := path copyWith: caller -> offset.
+							caller -> path ]) ] ] ]
 ]
 
 { #category : 'initialization' }
@@ -89,21 +95,6 @@ AllocationGraph >> inspectGraph [
 
 { #category : 'inspector' }
 AllocationGraph >> inspectGraphContext: aContext [
-
-	aContext withoutEvaluator
-]
-
-{ #category : 'inspector' }
-AllocationGraph >> inspectGraphTreeLayout [
-
-	<inspectorPresentationOrder: 2 title: 'Graph Tree'>
-	^ AllocationGraphVizu new
-		  withTreeLayout;
-		  buildInspectorPresenterFor: self
-]
-
-{ #category : 'inspector' }
-AllocationGraph >> inspectGraphTreeLayoutContext: aContext [
 
 	aContext withoutEvaluator
 ]

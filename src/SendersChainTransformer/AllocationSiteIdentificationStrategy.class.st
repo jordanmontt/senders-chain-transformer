@@ -19,6 +19,7 @@ AllocationSiteIdentificationStrategy >> allocatorPrimitivesNames [
 
 { #category : 'api' }
 AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode fromAllocationPath: aListOfNodes [
+	"It is expected that the allocation paht is set by this method."
 
 	^ self subclassResponsibility
 ]

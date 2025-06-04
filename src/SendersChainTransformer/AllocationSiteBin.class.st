@@ -47,8 +47,9 @@ AllocationSiteBin >> allocationSite [
 ]
 
 { #category : 'accessing' }
-AllocationSiteBin >> allocationSite: anAllocationGraphNode [ 
-	allocationSite := anAllocationGraphNode
+AllocationSiteBin >> allocationSite: anAllocationGraphEdge [
+
+    allocationSite := anAllocationGraphEdge
 ]
 
 { #category : 'accessing' }
@@ -89,16 +90,16 @@ AllocationSiteBin >> immortalObjects [
 AllocationSiteBin >> initialize [
 
 	super initialize.
-	immortalObjects := OrderedCollection new.
-	longLivedObjects := OrderedCollection new.
-	shortLivedObjects := OrderedCollection new
+	immortalObjects := Set new: 10000.
+	longLivedObjects := Set new: 10000.
+	shortLivedObjects := Set new: 10000
 ]
 
 { #category : 'inspector' }
 AllocationSiteBin >> inspectorAllocSite [
 
 	<inspectorPresentationOrder: 901 title: 'Allocation site'>
-	^ allocationSite inspectorPresenter
+	^ (MethodWithOffset method: allocationSite sourceNode offset: allocationSite offset) inspectorPresenter
 ]
 
 { #category : 'testing' }

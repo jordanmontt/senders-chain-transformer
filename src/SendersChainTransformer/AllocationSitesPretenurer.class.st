@@ -37,20 +37,20 @@ AllocationSitesPretenurer >> mergeCallSites [
 ]
 
 { #category : 'internals' }
-AllocationSitesPretenurer >> pretenureAllocationCallSite: allocationCallSite senders: sendersToTransform [
+AllocationSitesPretenurer >> pretenureAllocationCallSite: methodWithOffset senders: callStack [
 
 	| sct |
 	sct := CallSiteTransformer new.
 	callSiteTransformers add: sct.
-	sct backupSenders: sendersToTransform caller: allocationCallSite.
-	sct transformCallSite: allocationCallSite senders: sendersToTransform
+	sct backupSenders: callStack caller: methodWithOffset.
+	sct transformCallSite: methodWithOffset senders: callStack
 ]
 
 { #category : 'api' }
 AllocationSitesPretenurer >> pretenureAllocations: toPretenureCallSitesArray [
 
-	toPretenureCallSitesArray do: [ :methodsWithOffsets |
-		self pretenureAllocationCallSite: methodsWithOffsets last senders: methodsWithOffsets allButLast ].
+	toPretenureCallSitesArray do: [ :callStack |
+		self pretenureAllocationCallSite: callStack last senders: callStack allButLast ].
 	self mergeCallSites.
 	self installPretenuredMethods
 ]

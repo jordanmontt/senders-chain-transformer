@@ -101,8 +101,11 @@ IllAllocationsAnalyzer >> restoreOriginalState [
 IllAllocationsAnalyzer >> rewriteToPretenureAllocationSites [
 
 	| allocationSendersList |
-	allocationSendersList := toPretenureSites values collect: [ :allocSiteBin |
-				allocSiteBin allObjects first allocationSenders asMethodWithOffsetObjects ].
+	allocationSendersList := toPretenureSites keys collect: [ :allocationGraphNode | 
+		"First element is the allocator primitive"
+		allocationGraphNode allocationPath removeFirst collect: [ :association |
+				MethodWithOffset method: association key method offset: association value ] ].
+
 	pretenurator pretenureAllocations: allocationSendersList
 ]
 

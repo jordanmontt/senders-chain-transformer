@@ -54,23 +54,23 @@ AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 	workList := self leaves collect: [ :leafNode | leafNode -> { leafNode -> nil } ] as: OrderedCollection.
 
 	[ workList isEmpty ] whileFalse: [
-			| current path |
-			current := workList first key.
-			path := workList first value.
-			workList removeFirst.
+		| current path |
+		current := workList first key.
+		path := workList first value.
+		workList removeFirst.
 
-			(visitedNodes includes: current) ifFalse: [
-					visitedNodes add: current.
-					(aStrategy isAllocationSite: current)
-						ifTrue: [ current beAllocationSite; allocationPath: path ]
-						ifFalse: [ workList addAll: 
-								(current callers
-									reject: [ :caller | visitedNodes includes: caller ]
-									thenCollect: [ :caller |
-										| offset |
-										offset := (caller edgeTo: current) offset.
-										path := path copyWith: caller -> offset.
-										caller -> path ]) ] ] ]
+		(visitedNodes includes: current) ifFalse: [
+				visitedNodes add: current.
+				(aStrategy isAllocationSite: current)
+					ifTrue: [ current beAllocationSite; allocationPath: path ]
+					ifFalse: [ workList addAll: 
+						(current callers
+								reject: [ :caller | visitedNodes includes: caller ]
+								thenCollect: [ :caller |
+									| offset |
+									offset := (caller edgeTo: current) offset.
+									path := path copyWith: caller -> offset.
+									caller -> path ]) ] ] ]
 ]
 
 { #category : 'initialization' }

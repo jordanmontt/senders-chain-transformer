@@ -42,6 +42,12 @@ AllocationGraphNode >> allocatedSamples [
 ]
 
 { #category : 'accessing' }
+AllocationGraphNode >> allocationPath [
+
+	^ allocationPath
+]
+
+{ #category : 'accessing' }
 AllocationGraphNode >> allocationPath: anArray [
 
 	allocationPath := anArray

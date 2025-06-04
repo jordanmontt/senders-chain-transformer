@@ -109,15 +109,15 @@ CallSiteTransformerTest >> testTransformMessageSend [
 { #category : 'tests' }
 CallSiteTransformerTest >> testTransformMessageSendWithBinarySelector [
 
-	| aMethodWithOffset tenuredCompiledMethod expectedSourceCode |
+	| aMethodWithOffset tenuredCompiledMethod expectedMethodsAST |
 	aMethodWithOffset := MethodWithOffset
 			method: SCMockClassWithDumbMethods >> #binaryMethod
 			offset: 44.
-	expectedSourceCode:= 'binaryMethod
+	expectedMethodsAST:= OCParser parseMethod: 'binaryMethod
 
 	self foo: (self ', (codeTransformer selectorMaker makeSelector: #':') ,' 1) andBar: 0'.
 
 	tenuredCompiledMethod := codeTransformer transformMessageSend: aMethodWithOffset.
 
-	self assert: tenuredCompiledMethod sourceCode equals: expectedSourceCode
+	self assert: tenuredCompiledMethod parseTree equals: expectedMethodsAST
 ]

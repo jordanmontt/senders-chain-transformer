@@ -7,7 +7,8 @@ Class {
 }
 
 { #category : 'api' }
-TextualLocationOfNewStrategy >> isAllocationSite: anAllocationGraphNode [
+TextualLocationOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfNodes [
 
+	"The profiler gives by default the textual allocation site"
 	^ anAllocationGraphNode isTextualAllocationSite
 ]

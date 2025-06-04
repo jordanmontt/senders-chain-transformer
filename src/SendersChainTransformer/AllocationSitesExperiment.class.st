@@ -1,5 +1,15 @@
+"
+The algorithm works as follow:
+
+1. Data cleaning. Clean noise if any.
+2. Allocation graph. Create an allocation graph using the samples as an input. The samples are objects obtained during profiling that contain information about the stack, the object lifetime, etc.
+3. Identify the allocation sites using different strategies. Mark the nodes in the graph.
+4. Classify the allocation sites as long or short using Blackburn's algorithm.
+5. Rewrite the code from the allocation site to the primitive allocator creating an unique path. 
+ 
+"
 Class {
-	#name : 'IllAllocationsAnalyzer',
+	#name : 'AllocationSitesExperiment',
 	#superclass : 'Object',
 	#instVars : [
 		'pretenurator',
@@ -9,13 +19,13 @@ Class {
 		'rawAllocationsSamples',
 		'allocationGraph'
 	],
-	#category : 'SendersChainTransformer-Analyzer',
+	#category : 'SendersChainTransformer-Experiment',
 	#package : 'SendersChainTransformer',
-	#tag : 'Analyzer'
+	#tag : 'Experiment'
 }
 
 { #category : 'instance creation' }
-IllAllocationsAnalyzer class >> onProfiler: aProfiler [
+AllocationSitesExperiment class >> onProfiler: aProfiler [
 
 	^ self new
 		  setForProfiler: aProfiler;
@@ -23,41 +33,34 @@ IllAllocationsAnalyzer class >> onProfiler: aProfiler [
 ]
 
 { #category : 'accessing' }
-IllAllocationsAnalyzer >> allocationSiteStrategy [
+AllocationSitesExperiment >> allocationSiteStrategy [
 
 	^ allocationSiteStrategy
 ]
 
-{ #category : 'accessing' }
-IllAllocationsAnalyzer >> allocationSiteStrategy: aStrategy [
+{ #category : 'api - accessing' }
+AllocationSitesExperiment >> allocationSiteStrategy: aStrategy [
 
 	allocationSiteStrategy := aStrategy
 ]
 
-{ #category : 'api' }
-IllAllocationsAnalyzer >> analyze [
+{ #category : 'calculating' }
+AllocationSitesExperiment >> getLongLivedAllocationSites [
 
-	self processAllocationSites.
-	self rewriteToPretenureAllocationSites
+	^ toPretenureSites := allocationSiteClassificator
+		                      setUpForAllocationGraph: allocationGraph;
+		                      getLongLivedAllocationSites
 ]
 
 { #category : 'calculating' }
-IllAllocationsAnalyzer >> classifyAndPruneToPretenureSites [
-
-	allocationSiteClassificator setUpForAllocationGraph: allocationGraph.
-	allocationSiteClassificator classifyAllocationSites.
-	^ toPretenureSites := allocationSiteClassificator pruneAllocationSites select: #isLongOrImmortal
-]
-
-{ #category : 'calculating' }
-IllAllocationsAnalyzer >> identifyAllocationSites [
+AllocationSitesExperiment >> identifyAllocationSites [
 
 	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
 	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy
 ]
 
 { #category : 'initialization' }
-IllAllocationsAnalyzer >> initialize [
+AllocationSitesExperiment >> initialize [
 
 	super initialize.
 
@@ -67,7 +70,7 @@ IllAllocationsAnalyzer >> initialize [
 ]
 
 { #category : 'inspector' }
-IllAllocationsAnalyzer >> inspector: aBuilder [
+AllocationSitesExperiment >> inspector: aBuilder [
 
 	<inspectorPresentationOrder: 0 title: 'To Pretenure Sites'>
 	^ aBuilder newList
@@ -76,38 +79,32 @@ IllAllocationsAnalyzer >> inspector: aBuilder [
 ]
 
 { #category : 'api' }
-IllAllocationsAnalyzer >> processAllocationSites [
+AllocationSitesExperiment >> processAllocationSites [
 
+	"Data cleaning"
 	self removeKernelAllocations.
+	"Identify allocation sites using strategy"
 	self identifyAllocationSites.
-
-	self classifyAndPruneToPretenureSites.
-	self removeMisclassifiedSites
+	"Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
+	self getLongLivedAllocationSites
 ]
 
 { #category : 'removing' }
-IllAllocationsAnalyzer >> removeKernelAllocations [
+AllocationSitesExperiment >> removeKernelAllocations [
 
 	rawAllocationsSamples removeAllSuchThat: [ :illEphemeron |
 		{ Context. Deprecation. Process. WeakArray. MouseMoveEvent }
 			includes: illEphemeron allocatedObjectClass ]
 ]
 
-{ #category : 'calculating' }
-IllAllocationsAnalyzer >> removeMisclassifiedSites [
-
-	toPretenureSites := allocationSiteStrategy removeMisclassifiedSites: toPretenureSites.
-	^ toPretenureSites
-]
-
 { #category : 'api' }
-IllAllocationsAnalyzer >> restoreOriginalState [
+AllocationSitesExperiment >> restoreOriginalState [
 
 	pretenurator restoreOriginalState
 ]
 
 { #category : 'api' }
-IllAllocationsAnalyzer >> rewriteToPretenureAllocationSites [
+AllocationSitesExperiment >> rewriteToPretenureAllocationSites [
 
 	| allocationSendersList |
 	allocationSendersList := toPretenureSites keys collect: [ :allocationGraphNode | 
@@ -118,8 +115,15 @@ IllAllocationsAnalyzer >> rewriteToPretenureAllocationSites [
 	pretenurator pretenureAllocations: allocationSendersList
 ]
 
+{ #category : 'api' }
+AllocationSitesExperiment >> run [
+
+	self processAllocationSites.
+	self rewriteToPretenureAllocationSites
+]
+
 { #category : 'api - accessing' }
-IllAllocationsAnalyzer >> setForProfiler: aProfiler [
+AllocationSitesExperiment >> setForProfiler: aProfiler [
 
 	rawAllocationsSamples := aProfiler objectAllocations copy.
 	"The ephemerons of the profiler, the allocation samples, are always ordered by time."
@@ -130,7 +134,7 @@ IllAllocationsAnalyzer >> setForProfiler: aProfiler [
 ]
 
 { #category : 'api - accessing' }
-IllAllocationsAnalyzer >> useTextualLocationStrategy [
+AllocationSitesExperiment >> useTextualLocationStrategy [
 
 	allocationSiteStrategy := TextualLocationOfNewStrategy new
 ]

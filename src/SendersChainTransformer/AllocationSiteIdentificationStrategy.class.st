@@ -18,14 +18,7 @@ AllocationSiteIdentificationStrategy >> allocatorPrimitivesNames [
 ]
 
 { #category : 'api' }
-AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode [
+AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode fromAllocationPath: aListOfNodes [
 
 	^ self subclassResponsibility
-]
-
-{ #category : 'api' }
-AllocationSiteIdentificationStrategy >> removeMisclassifiedSites: aDictionary [
-
-	self flag: 'Is this still necessary?'.
-	^ aDictionary reject: [ :illAllocationSiteBin | illAllocationSiteBin allocationSite method methodClass = UndefinedObject ]
 ]

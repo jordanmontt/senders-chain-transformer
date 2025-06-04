@@ -1,5 +1,12 @@
 "
 Allocation sites classification algorithm. Paper: https://www.steveblackburn.org/pubs/papers/pbp-toplas-2007.pdf
+
+The algorithm works as follows:
+
+1. Setup. It receives an allocation graph as an input. It takes the nodes of the graph and creates ""allocation bin"" objects, an internal helper data structure, and does some data cleaning.
+2. Pruning. It prunes the allocation sites that have total allocation less than 0.000002 times the total allocation.
+3. Allocation Site Identification. It traverses the graph and it identifies all the possible allocation sites. It can use different strategies to ask to each node if it is an allocation site.
+4. (Optional) Return the allocations that are long or lived
 "
 Class {
 	#name : 'AllocationSiteClassificator',
@@ -70,10 +77,8 @@ AllocationSiteClassificator >> calculateMaxLiveSize [
 	^ maxLiveSize
 ]
 
-{ #category : 'api' }
+{ #category : 'calculating' }
 AllocationSiteClassificator >> classifyAllocationSites [
-
-	self binObjects.
 
 	groupedAllocationSites valuesDo: [ :allocationSiteBin |
 		| is ss ls wasClassified |
@@ -92,8 +97,18 @@ AllocationSiteClassificator >> classifyAllocationSites [
 ]
 
 { #category : 'accessing' }
-AllocationSiteClassificator >> endTime: anInteger [ 
+AllocationSiteClassificator >> endTime: anInteger [
+
 	endTime := anInteger
+]
+
+{ #category : 'api' }
+AllocationSiteClassificator >> getLongLivedAllocationSites [
+
+	self binObjects.
+	self pruneAllocationSites.
+	self classifyAllocationSites.
+	^ groupedAllocationSites select: #isLongOrImmortal
 ]
 
 { #category : 'initialization' }
@@ -135,17 +150,22 @@ AllocationSiteClassificator >> maxLiveSize [
 	^ maxLiveSize ifNil: [ self calculateMaxLiveSize ]
 ]
 
-{ #category : 'api' }
+{ #category : 'calculating' }
 AllocationSiteClassificator >> pruneAllocationSites [
 
-	| v totalProgramAllocations |
-	v := 0.000002.
+	| totalProgramAllocations |
 	totalProgramAllocations := allocationGraph allocatedSamples size.
-	^ groupedAllocationSites reject: [ :allocationSiteBin |
-		  allocationSiteBin totalAllocations < (v * totalProgramAllocations) ]
+	groupedAllocationSites := groupedAllocationSites reject: [ :allocationSiteBin |
+			allocationSiteBin totalAllocations < (self pruningThreshold * totalProgramAllocations) ]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'calculating' }
+AllocationSiteClassificator >> pruningThreshold [
+
+	^ 0.000002
+]
+
+{ #category : 'api' }
 AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 
 	allocationGraph := anAllocationGraph.
@@ -167,11 +187,13 @@ AllocationSiteClassificator >> shortObjects [
 
 { #category : 'accessing' }
 AllocationSiteClassificator >> startTime [
+
 	^ startTime
 ]
 
 { #category : 'accessing' }
-AllocationSiteClassificator >> startTime: anInteger [ 
+AllocationSiteClassificator >> startTime: anInteger [
+
 	startTime := anInteger
 ]
 

@@ -5,7 +5,9 @@ Class {
 	#name : 'AllocationSiteClassificatorTest',
 	#superclass : 'TestCase',
 	#instVars : [
-		'classificator'
+		'classificator',
+		'profiler',
+		'allocationGraph'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -21,19 +23,28 @@ AllocationSiteClassificatorTest >> setUp [
 ]
 
 { #category : 'tests' }
-AllocationSiteClassificatorTest >> testBinObjects [
-
-	| profiler samples allocationGraph binnedAllocationSites |
+AllocationSiteClassificatorTest >> setUpAllocationGraph [
+	
+	| samples |
 	profiler := IllMemoryProfiler new
 			samplingRate: 1;
 			profileOn: [ AllocationGraphFixture entryPoint ];
 			yourself.
+
 	samples := profiler objectAllocations select: [ :ephemeron |
 			{ Array. Behavior } includes: ephemeron allocatedObjectClass ].
+
 	allocationGraph := AllocationGraph new
 			setUpForSamples: samples;
 			pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
 	allocationGraph identifyAllocationSitesUsing: TextualLocationOfNewStrategy new.
+]
+
+{ #category : 'tests' }
+AllocationSiteClassificatorTest >> testBinObjects [
+
+	| binnedAllocationSites |
+	self setUpAllocationGraph.
 	
 	classificator
 		startTime: profiler objectAllocations first initializationTime;

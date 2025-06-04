@@ -1,5 +1,5 @@
 "
-I am a simple data structure used by the class IllAnalyzer.
+I am a simple data structure used for classifiying the allocation sites. Check my users
 "
 Class {
 	#name : 'AllocationSiteBin',

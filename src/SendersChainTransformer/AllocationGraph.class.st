@@ -61,8 +61,8 @@ AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
 		(visitedNodes includes: current) ifFalse: [
 				visitedNodes add: current.
-				(aStrategy isAllocationSite: current)
-					ifTrue: [ current beAllocationSite; allocationPath: path ]
+				(aStrategy isAllocationSite: current fromAllocationPath: path)
+					ifTrue: [ current beAllocationSite ]
 					ifFalse: [ workList addAll: 
 						(current callers
 								reject: [ :caller | visitedNodes includes: caller ]

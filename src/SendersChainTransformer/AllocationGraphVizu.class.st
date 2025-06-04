@@ -68,7 +68,7 @@ AllocationGraphVizu >> nodesAsRoassalShapes: nodes [
 	^ nodesAsRoassalShapes
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'drawing - roassal' }
 AllocationGraphVizu >> withTreeLayout [
 
 	layoutClass := RSTreeLayout

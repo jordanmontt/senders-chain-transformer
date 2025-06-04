@@ -28,7 +28,17 @@ MethodFromTheSamePackageStrategy class >> packagesToMatch: aCol [
 ]
 
 { #category : 'api' }
-MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode [
+MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfNodes [
+	"It is expected that the allocation paht is set by this method."
+
+	| isAllocationSite |
+	isAllocationSite := (self isMethodInTheSamePackage: anAllocationGraphNode).
+	isAllocationSite ifTrue: [ anAllocationGraphNode appendPath: aListOfNodes ].
+	^ isAllocationSite
+]
+
+{ #category : 'api' }
+MethodFromTheSamePackageStrategy >> isMethodInTheSamePackage: anAllocationGraphNode [
 
 	^ packagesToMatch includes: anAllocationGraphNode method package
 ]
@@ -37,12 +47,4 @@ MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode [
 MethodFromTheSamePackageStrategy >> packagesToMatch: aCollectionOfPackages [
 
 	packagesToMatch := aCollectionOfPackages
-]
-
-{ #category : 'api' }
-MethodFromTheSamePackageStrategy >> removeMisclassifiedSites: aDictionary [
-
-	self flag: 'Is this still necessary?'.
-	^ aDictionary select: [ :illAllocationSiteBin |
-		  packagesToMatch includes: illAllocationSiteBin allocationSite method package ]
 ]

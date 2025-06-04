@@ -66,6 +66,15 @@ IllAllocationsAnalyzer >> initialize [
 	self useTextualLocationStrategy
 ]
 
+{ #category : 'inspector' }
+IllAllocationsAnalyzer >> inspector: aBuilder [
+
+	<inspectorPresentationOrder: 0 title: 'To Pretenure Sites'>
+	^ aBuilder newList
+		items: toPretenureSites keys;
+		yourself
+]
+
 { #category : 'api' }
 IllAllocationsAnalyzer >> processAllocationSites [
 
@@ -103,7 +112,7 @@ IllAllocationsAnalyzer >> rewriteToPretenureAllocationSites [
 	| allocationSendersList |
 	allocationSendersList := toPretenureSites keys collect: [ :allocationGraphNode | 
 		"First element is the allocator primitive"
-		allocationGraphNode allocationPath removeFirst collect: [ :association |
+		allocationGraphNode allocationPath allButFirst collect: [ :association |
 				MethodWithOffset method: association key method offset: association value ] ].
 
 	pretenurator pretenureAllocations: allocationSendersList

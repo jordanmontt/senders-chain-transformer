@@ -83,7 +83,7 @@ AllocationSitesExperiment >> processAllocationSites [
 	"Data cleaning"
 	self removeKernelAllocations.
 	"Initialize Graph"
-	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
+	allocationGraph := AllocationGraph onSamples: rawAllocationsSamples.
    	"Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
 	self computeLongLivedAllocationSites.
 	"Identify allocation sites using strategy"

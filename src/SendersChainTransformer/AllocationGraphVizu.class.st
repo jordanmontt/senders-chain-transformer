@@ -30,11 +30,11 @@ AllocationGraphVizu >> buildGraphCanvasFor: anAllocationGraph [
 ]
 
 { #category : 'drawing - roassal' }
-AllocationGraphVizu >> buildInspectorPresenterFor: anAllocationGraph [
+AllocationGraphVizu >> buildInspectorPresenterFor: anAllocationGraph withBuilder: aBuilder [
 
 	| c |
 	c := self buildGraphCanvasFor: anAllocationGraph.
-	^ SpRoassalInspectorPresenter new
+	^ (aBuilder instantiate: SpRoassalInspectorPresenter)
 		  canvas: c;
 		  yourself
 ]

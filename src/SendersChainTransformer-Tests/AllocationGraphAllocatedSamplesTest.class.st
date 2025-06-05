@@ -26,13 +26,13 @@ AllocationGraphAllocatedSamplesTest >> testAllocatedSamples [
 
 	self assert: allocationGraph allocatedSamples size equals: 60.
 	self
-		assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) allocatedSamples size
+		assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint) allocatedSamples size
 		equals: 60.
 
-	allocationGraph := allocationGraph pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
+	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).
 	self assert: allocationGraph allocatedSamples size equals: 60.
 	self
-		assert: (allocationGraph nodeAt: AllocationGraphFixture class >> #entryPoint) allocatedSamples size
+		assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint) allocatedSamples size
 		equals: 60
 ]
 

@@ -90,9 +90,9 @@ AllocationSiteBin >> immortalObjects [
 AllocationSiteBin >> initialize [
 
 	super initialize.
-	immortalObjects := Set new.
-	longLivedObjects := Set new.
-	shortLivedObjects := Set new
+	immortalObjects := OrderedCollection new.
+	longLivedObjects := OrderedCollection new.
+	shortLivedObjects := OrderedCollection new
 ]
 
 { #category : 'inspector' }

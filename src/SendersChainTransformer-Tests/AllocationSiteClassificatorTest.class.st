@@ -34,9 +34,8 @@ AllocationSiteClassificatorTest >> setUpAllocationGraph [
 	samples := profiler objectAllocations select: [ :ephemeron |
 			{ Array. Behavior } includes: ephemeron allocatedObjectClass ].
 
-	allocationGraph := AllocationGraph new
-			setUpForSamples: samples;
-			pruneGraphFromNewRoot: AllocationGraphFixture class >> #entryPoint.
+	allocationGraph := AllocationGraph onSamples: samples.
+	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).
 	allocationGraph identifyAllocationSitesUsing: TextualLocationOfNewStrategy new.
 ]
 
@@ -56,27 +55,27 @@ AllocationSiteClassificatorTest >> testBinObjects [
 
     self
 		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m1) ] )
+    			bin allocationSite method = (AllocationGraphFixture class >> #m1) ] )
                 immortalObjects size
     	equals: 25.
 	 self
 		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m3) ] )
+    			bin allocationSite method = (AllocationGraphFixture class >> #m3) ] )
                 immortalObjects size
     	equals: 20.
      self
 		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m4) ] )
+    			bin allocationSite method = (AllocationGraphFixture class >> #m4) ] )
                 immortalObjects size
     	equals: 5.
      self
 		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite targetNode method = (AllocationGraphFixture class >> #m5) ] )
+    			bin allocationSite method = (AllocationGraphFixture class >> #m5) ] )
                 immortalObjects size
     	equals: 5.
      self
 		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite targetNode method = (AllocationGraphFixtureUtilities class >> #mm)] )
+    			bin allocationSite method = (AllocationGraphFixtureUtilities class >> #mm)] )
                 immortalObjects size
     	equals: 5
 ]

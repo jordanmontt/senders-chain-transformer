@@ -11,7 +11,7 @@ Class {
 }
 
 { #category : 'instance creation' }
-AllocationGraph class >> onAllocatedSamples: aCollection [
+AllocationGraph class >> onSamples: aCollection [
 
 	^ self new
 		  setUpForSamples: aCollection;
@@ -34,16 +34,33 @@ AllocationGraph >> accumulateSample: aSample [
 		callee := method ]
 ]
 
+{ #category : 'as yet unclassified' }
+AllocationGraph >> allReversedPathsFrom: startNode to: endNode [
+
+	| stack association paths |
+	paths := OrderedCollection new.
+	stack := Stack with: (startNode -> { startNode }). 
+
+	[ stack isNotEmpty ] whileTrue: [ 
+		| current currentNode pathUntilNow |
+		association := stack pop.
+		currentNode := association key.
+		pathUntilNow := association value.
+
+		currentNode = endNode
+			ifTrue: [ paths add: pathUntilNow ]
+			ifFalse: [  
+				currentNode edges do: [ :edge |
+					(pathUntilNow includes: edge targetNode) ifFalse: [
+						stack push: edge targetNode -> (pathUntilNow , { edge targetNode }) ] ] ] ].
+		
+		^ paths
+]
+
 { #category : 'accessing' }
 AllocationGraph >> allocatedSamples [
 
 	^ nodes values flatCollect: #allocatedSamples as: Set
-]
-
-{ #category : 'accessing' }
-AllocationGraph >> edgeAtTargetNode: aMethod [
-
-    ^ self edges detect: [ :aGRaphEdge | aGRaphEdge targetNode method = aMethod ]
 ]
 
 { #category : 'accessing' }
@@ -61,9 +78,9 @@ AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
 	[ workList isEmpty ] whileFalse: [
 		| current path |
-		current := workList first key.
-		path := workList first value.
-		workList removeFirst.
+		current := workList last key.
+		path := workList last value.
+		workList removeLast.
 
 		(visitedNodePaths includes: current -> path) ifFalse: [
 			visitedNodePaths add: current -> path.
@@ -73,10 +90,10 @@ AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 				ifFalse: [ 
 					workList addAll: (
 						current callers collect: [ :caller |
-							| offset |
+							| offset newPath |
 							offset := (caller edgeTo: current) offset.
-							path := path copyWith: caller -> offset.
-							caller -> path ]) ] ] ]
+							newPath := path copyWith: caller -> offset.
+							caller -> newPath ]) ] ] ]
 ]
 
 { #category : 'initialization' }
@@ -90,7 +107,7 @@ AllocationGraph >> initialize [
 AllocationGraph >> inspectGraph: aBuilder [
 
 	<inspectorPresentationOrder: 1 title: 'Graph'>
-	^ AllocationGraphVizu new buildInspectorPresenterFor: self
+	^ AllocationGraphVizu new buildInspectorPresenterFor: self withBuilder: aBuilder
 ]
 
 { #category : 'inspector' }
@@ -114,7 +131,7 @@ AllocationGraph >> leaves [
 ]
 
 { #category : 'accessing' }
-AllocationGraph >> nodeAt: aMethod [
+AllocationGraph >> nodeAtMethod: aMethod [
 	"Using the name because of the allocation primitives. When they were captured, the source code contained the 'trapMethod' code. After, if we want to access it later, the trapMethod code has been discared and the normal code it was put back. Because of this we need to use the name else we will get the a key not found error"
 	^ nodes at: aMethod ifAbsent: [ self leaves detect: [ :leaf | leaf method name = aMethod name ] ]
 ]
@@ -137,19 +154,33 @@ AllocationGraph >> nodes: aCollection [
 	nodes := aCollection
 ]
 
-{ #category : 'api' }
-AllocationGraph >> pruneGraphFromNewRoot: aCompiledMethod [
+{ #category : 'copying' }
+AllocationGraph >> postCopy [
 
-	| newRoot newNodes nodesToTreat |
-	newRoot := nodes detect: [ :node | node method = aCompiledMethod ].
+	super postCopy.
+	nodes := nodes values collect: #copy.
+]
+
+{ #category : 'api' }
+AllocationGraph >> pruneFromRoot: aNode [
+
+	| newRoot newNodes nodesToTreat visitesNodes |
+	newRoot := aNode veryDeepCopy
+		callers: Set new;
+		yourself.
 	nodesToTreat := OrderedCollection with: newRoot.
 	newNodes := Set with: newRoot.
+	visitesNodes := OrderedCollection new.
 
 	[ nodesToTreat isNotEmpty ] whileTrue: [
-		| current |
+		| current targetNodes |
 		current := nodesToTreat removeFirst.
-		newNodes addAll: (current edges collect: #targetNode).
-		nodesToTreat addAll: (current edges collect: #targetNode) ].
+		(visitesNodes includes: current) ifFalse: [
+			visitesNodes add: current.
+			targetNodes := (current edges collect: #targetNode) 
+					reject: [ :target | visitesNodes includes: target ].
+			newNodes addAll: targetNodes.
+			nodesToTreat addAll: targetNodes ] ].
 
 	^ self class new
 		  nodes: (newNodes collect: [ :node | node method -> node ]) asDictionary;
@@ -186,5 +217,5 @@ AllocationGraph >> setUpForSamples: aCollection [
 { #category : 'api' }
 AllocationGraph >> subGraphForType: aClass [
 
-	^ self class onAllocatedSamples: (samples select: [ :e | e allocatedObjectClass = aClass ])
+	^ self class onSamples: (samples select: [ :e | e allocatedObjectClass = aClass ])
 ]

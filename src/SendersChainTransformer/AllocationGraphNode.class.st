@@ -77,6 +77,12 @@ AllocationGraphNode >> callers [
 ]
 
 { #category : 'accessing' }
+AllocationGraphNode >> callers: aSet [
+
+	callers := aSet
+]
+
+{ #category : 'accessing' }
 AllocationGraphNode >> edgeForOffset: anInteger [ 
 
 	^ edges detect: [ :edge | edge offset = anInteger ]
@@ -143,6 +149,12 @@ AllocationGraphNode >> isAllocationSite [
 AllocationGraphNode >> isLeaf [
 
 	^ isLeaf
+]
+
+{ #category : 'testing' }
+AllocationGraphNode >> isRoot [
+
+	^ callers isEmpty
 ]
 
 { #category : 'testing' }

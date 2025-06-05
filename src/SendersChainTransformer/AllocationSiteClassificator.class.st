@@ -19,9 +19,6 @@ Class {
 		'taThreshold',
 		'hif',
 		'hlf',
-		'immortalObjects',
-		'shortObjects',
-		'longObjects',
 		'allocationGraph'
 	],
 	#category : 'SendersChainTransformer-Allocation-Site-Classification',
@@ -43,15 +40,12 @@ AllocationSiteClassificator >> binObjects [
 			| isObjectClassified |
 			isObjectClassified := false.
 			(self isObjectImmortal: illEphe) ifTrue: [
-					immortalObjects add: illEphe.
 					(groupedAllocationSites at: allocationGraphNode) addImmortalObject: illEphe.
 					isObjectClassified := true ].
 			(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
-					shortObjects add: illEphe.
 					(groupedAllocationSites at: allocationGraphNode) addShortLivedObject: illEphe.
 					isObjectClassified := true ].
 			isObjectClassified ifFalse: [
-					longObjects add: illEphe.
 					(groupedAllocationSites at: allocationGraphNode) addLongLivedObject: illEphe ] ] ]
 ]
 
@@ -64,11 +58,9 @@ AllocationSiteClassificator >> calculateMaxLiveSize [
 	aliveObjects := OrderedCollection with: allocatedSamples first.
 
 	allocatedSamples allButFirstDo: [ :illiEphemeron |
-		| deadObjects |
 		aliveObjectsSize := 0.
 		currentTime := illiEphemeron initializationTime - startTime.
-		deadObjects := aliveObjects select: [ :e | currentTime >= (e finalizationTime - startTime) ].
-		aliveObjects removeAll: deadObjects.
+		aliveObjects := aliveObjects reject: [ :e | currentTime >= (e finalizationTime - startTime) ].
 		aliveObjects add: illiEphemeron.
 		
 		aliveObjects do: [ :e | aliveObjectsSize := aliveObjectsSize + e sizeInBytes ].
@@ -114,9 +106,6 @@ AllocationSiteClassificator >> endTime: anInteger [
 AllocationSiteClassificator >> initialize [
 
 	super initialize.
-	immortalObjects := Set new.
-	shortObjects := Set new.
-	longObjects := Set new.
 
 	taThreshold := 0.45.
 	hif := 0.
@@ -182,12 +171,6 @@ AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 				ifAbsentPut: (AllocationSiteBin new
 					allocationSite: allocationGraphNode;
 					yourself) ]
-]
-
-{ #category : 'accessing' }
-AllocationSiteClassificator >> shortObjects [
-
-	^ shortObjects
 ]
 
 { #category : 'accessing' }

@@ -32,9 +32,8 @@ MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode from
 	"It is expected that the allocation paht is set by this method."
 
 	| isAllocationSite |
-	1 halt.
 	isAllocationSite := (self isMethodInTheSamePackage: anAllocationGraphNode).
-	isAllocationSite ifTrue: [ 1 halt.  anAllocationGraphNode appendPath: aListOfNodes ].
+	isAllocationSite ifTrue: [ 1 halt.  anAllocationGraphNode allocationPath: aListOfNodes ].
 	^ isAllocationSite
 ]
 

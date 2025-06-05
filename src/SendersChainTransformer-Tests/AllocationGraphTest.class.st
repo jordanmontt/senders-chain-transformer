@@ -27,6 +27,44 @@ AllocationGraphTest >> setUp [
 ]
 
 { #category : 'tests' }
+AllocationGraphTest >> testAllPathsFromTo [
+
+	| actualPaths expectedPaths |
+	
+	actualPaths := allocationGraph
+			allPathsFrom: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m7)
+			to: (allocationGraph nodeAtMethod: Behavior >> #basicNewTenured).
+	expectedPaths := {
+		                 {
+			                 (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m7).
+			                 (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m5).
+			                 (allocationGraph nodeAtMethod: Behavior >> #basicNewTenured) }.
+		                 {
+			                 (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m7).
+			                 (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m4).
+			                 (allocationGraph nodeAtMethod: Behavior >> #basicNewTenured) } }.
+
+	self assert: actualPaths size equals: 2.
+	self assertCollection: actualPaths includesAll: expectedPaths.
+]
+
+{ #category : 'tests' }
+AllocationGraphTest >> testAllocationPaths [
+
+	| m2Node basicNewNode expectedPath actualPath |
+	allocationGraph identifyAllocationSitesUsing:
+		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
+	m2Node := allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2.
+	basicNewNode := allocationGraph nodeAtMethod: Behavior >> #basicNew.
+	expectedPath := (allocationGraph allPathsFrom: m2Node to: basicNewNode) first.
+	actualPath := m2Node allocationPaths first.
+	"the allocation paths are reversed because we treat it as an execution stack.
+	It also contains the offsets"
+	actualPath := (actualPath collect: #key) reversed.
+	self assertCollection: actualPath equals: expectedPath
+]
+
+{ #category : 'tests' }
 AllocationGraphTest >> testAllocationSiteDetectionAfterPruning [
 
 	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).

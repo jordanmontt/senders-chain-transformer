@@ -35,14 +35,13 @@ AllocationGraph >> accumulateSample: aSample [
 ]
 
 { #category : 'as yet unclassified' }
-AllocationGraph >> allReversedPathsFrom: startNode to: endNode [
+AllocationGraph >> allPathsFrom: startNode to: endNode [
 
-	| stack association paths |
+	| stack association paths currentNode pathUntilNow |
 	paths := OrderedCollection new.
 	stack := Stack with: (startNode -> { startNode }). 
 
 	[ stack isNotEmpty ] whileTrue: [ 
-		| current currentNode pathUntilNow |
 		association := stack pop.
 		currentNode := association key.
 		pathUntilNow := association value.

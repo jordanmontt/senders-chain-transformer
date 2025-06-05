@@ -114,9 +114,9 @@ AllocationSiteClassificator >> endTime: anInteger [
 AllocationSiteClassificator >> initialize [
 
 	super initialize.
-	immortalObjects := Set new: 100000.
-	shortObjects := Set new: 100000.
-	longObjects := Set new: 10000.
+	immortalObjects := Set new.
+	shortObjects := Set new.
+	longObjects := Set new.
 
 	taThreshold := 0.45.
 	hif := 0.

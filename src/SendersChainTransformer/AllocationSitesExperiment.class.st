@@ -55,7 +55,6 @@ AllocationSitesExperiment >> computeLongLivedAllocationSites [
 { #category : 'calculating' }
 AllocationSitesExperiment >> identifyAllocationSites [
 
-	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
 	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy
 ]
 
@@ -81,14 +80,16 @@ AllocationSitesExperiment >> inspector: aBuilder [
 { #category : 'api' }
 AllocationSitesExperiment >> processAllocationSites [
 
-    "Data cleaning"
-    self removeKernelAllocations.
-    "Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
-    self computeLongLivedAllocationSites.
-    "Identify allocation sites using strategy"
-    self identifyAllocationSites.
-    "Get the allocation sites to pretenure"
-    toPretenureSites := allocationSiteClassificator longLivedAllocationSites
+	"Data cleaning"
+	self removeKernelAllocations.
+	"Initialize Graph"
+	allocationGraph := AllocationGraph onAllocatedSamples: rawAllocationsSamples.
+   	"Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
+	self computeLongLivedAllocationSites.
+	"Identify allocation sites using strategy"
+   	self identifyAllocationSites.
+   	"Get the allocation sites to pretenure"
+	toPretenureSites := allocationSiteClassificator longLivedAllocationSites
 ]
 
 { #category : 'removing' }

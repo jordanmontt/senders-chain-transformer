@@ -8,7 +8,7 @@ Class {
 		'isLeaf',
 		'callers',
 		'isTextualAllocationSite',
-		'allocationPath'
+		'allocationPaths'
 	],
 	#category : 'SendersChainTransformer-Allocation-Graph',
 	#package : 'SendersChainTransformer',
@@ -44,13 +44,19 @@ AllocationGraphNode >> allocatedSamples [
 { #category : 'accessing' }
 AllocationGraphNode >> allocationPath [
 
-	^ allocationPath
+	^ allocationPaths
 ]
 
 { #category : 'accessing' }
 AllocationGraphNode >> allocationPath: anArray [
 
-	allocationPath := anArray
+	allocationPaths := anArray
+]
+
+{ #category : 'accessing' }
+AllocationGraphNode >> appendPath: aCollection [
+
+	allocationPaths add: aCollection
 ]
 
 { #category : 'api' }
@@ -112,6 +118,7 @@ AllocationGraphNode >> initialize [
 	super initialize.
 	edges := Dictionary new.
 	callers := Set new.
+	allocationPaths := OrderedCollection new.
 	isAllocationSite := false.
 	isTextualAllocationSite := false.
 	isLeaf := false
@@ -129,7 +136,7 @@ AllocationGraphNode >> inspectorAllocationPath: aBuilder [
 
 	<inspectorPresentationOrder: 1 title: 'Path'>
 	| callStackRawArray |
-	callStackRawArray := allocationPath allButFirst flatCollect: [ :assoc | { assoc key method . assoc value } ].
+	callStackRawArray := allocationPaths allButFirst flatCollect: [ :assoc | { assoc key method . assoc value } ].
 	^ (IllSendersCallStack senders: callStackRawArray) buildInspectorPresenter: aBuilder
 ]
 

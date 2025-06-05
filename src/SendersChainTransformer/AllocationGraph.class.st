@@ -72,28 +72,22 @@ AllocationGraph >> edges [
 { #category : 'api' }
 AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
-	| workList visitedNodePaths |
-	visitedNodePaths := Set new.
-	workList := self leaves collect: [ :leafNode | leafNode -> { (leafNode -> nil) } ] as: OrderedCollection.
+	| stack offset current path |
+	stack := self leaves collect: [ :leafNode | leafNode -> { (leafNode -> nil) } ] as: OrderedCollection.
 
-	[ workList isEmpty ] whileFalse: [
-		| current path |
-		current := workList last key.
-		path := workList last value.
-		workList removeLast.
+	[ stack isEmpty ] whileFalse: [
+		current := stack last key.
+		path := stack last value.
+		stack removeLast.
 
-		(visitedNodePaths includes: current -> path) ifFalse: [
-			visitedNodePaths add: current -> path.
-
+		(path size <= 100) ifTrue: [
 			(aStrategy isAllocationSite: current fromAllocationPath: path)
-				ifTrue: [ current beAllocationSite ]
+				ifTrue: [ current beAllocationSite; appendPath: path ]
 				ifFalse: [ 
-					workList addAll: (
-						current callers collect: [ :caller |
-							| offset newPath |
-							offset := (caller edgeTo: current) offset.
-							newPath := path copyWith: caller -> offset.
-							caller -> newPath ]) ] ] ]
+					current callers do: [ :caller | 
+						offset := (caller edgeTo: current) offset.
+						(path anySatisfy: [ :assoc | assoc key = caller and: [ assoc value = offset ] ])
+							ifFalse: [ stack add: caller -> (path copyWith: caller -> offset) ] ] ] ] ]
 ]
 
 { #category : 'initialization' }

@@ -76,7 +76,7 @@ AllocationGraphNode >> callers [
 	^ callers
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 AllocationGraphNode >> edgeForOffset: anInteger [ 
 
 	^ edges detect: [ :edge | edge offset = anInteger ]

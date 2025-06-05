@@ -87,7 +87,7 @@ AllocationGraph >> initialize [
 ]
 
 { #category : 'inspector' }
-AllocationGraph >> inspectGraph [
+AllocationGraph >> inspectGraph: aBuilder [
 
 	<inspectorPresentationOrder: 1 title: 'Graph'>
 	^ AllocationGraphVizu new buildInspectorPresenterFor: self
@@ -100,10 +100,11 @@ AllocationGraph >> inspectGraphContext: aContext [
 ]
 
 { #category : 'inspector' }
-AllocationGraph >> inspectionRaw [
+AllocationGraph >> inspectionRaw: aBuilder [
 	"Put the raw inspection as ther first tab to avoid freezing the image. The layout of the graph can take time"
+
 	<inspectorPresentationOrder: 0 title: 'Raw'>
-	^ StRawInspectionPresenter on: self
+	^ aBuilder instantiate: StRawInspectionPresenter on: self
 ]
 
 { #category : 'accessing' }

@@ -113,7 +113,7 @@ CallSiteTransformerTest >> testTransformMessageSendWithBinarySelector [
 	aMethodWithOffset := MethodWithOffset
 			method: SCMockClassWithDumbMethods >> #binaryMethod
 			offset: 44.
-	expectedMethodsAST:= OCParser parseMethod: 'binaryMethod
+	expectedMethodsAST:= RBParser parseMethod: 'binaryMethod
 
 	self foo: (self ', (codeTransformer selectorMaker makeSelector: #':') ,' 1) andBar: 0'.
 

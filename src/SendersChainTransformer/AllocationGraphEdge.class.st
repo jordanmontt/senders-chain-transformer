@@ -55,8 +55,12 @@ AllocationGraphEdge >> offset: anInteger [
 { #category : 'printing' }
 AllocationGraphEdge >> printOn: aStream [
 
-	self allocatedSamples size printOn: aStream.
-	aStream << ' allocated samples'
+	aStream
+		nextPutAll: sourceNode method selector;
+		nextPutAll: ' -> ';
+		nextPutAll: targetNode method selector;
+		nextPutAll: ' weight ';
+		print: self allocatedSamples size
 ]
 
 { #category : 'accessing' }

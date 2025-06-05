@@ -76,6 +76,12 @@ AllocationGraphNode >> callers [
 	^ callers
 ]
 
+{ #category : 'as yet unclassified' }
+AllocationGraphNode >> edgeForOffset: anInteger [ 
+
+	^ edges detect: [ :edge | edge offset = anInteger ]
+]
+
 { #category : 'api' }
 AllocationGraphNode >> edgeTo: aTargetNode [
 
@@ -106,25 +112,25 @@ AllocationGraphNode >> initialize [
 ]
 
 { #category : 'inspector' }
-AllocationGraphNode >> inspector [
+AllocationGraphNode >> inspector: aBuilder [
 
 	<inspectorPresentationOrder: 0 title: 'Code'>
-	^ self inspectorPresenter
+	^ self inspectorPresenter: aBuilder
 ]
 
 { #category : 'inspector' }
-AllocationGraphNode >> inspectorAllocationPath [
+AllocationGraphNode >> inspectorAllocationPath: aBuilder [
 
 	<inspectorPresentationOrder: 1 title: 'Path'>
 	| callStackRawArray |
 	callStackRawArray := allocationPath allButFirst flatCollect: [ :assoc | { assoc key method . assoc value } ].
-	^ (IllSendersCallStack senders: callStackRawArray) buildInspectorPresenter
+	^ (IllSendersCallStack senders: callStackRawArray) buildInspectorPresenter: aBuilder
 ]
 
 { #category : 'inspector' }
-AllocationGraphNode >> inspectorPresenter [
+AllocationGraphNode >> inspectorPresenter: aBuilder [
 
-	^ method inspectionSource
+	^ method inspectionSource: aBuilder
 ]
 
 { #category : 'testing' }

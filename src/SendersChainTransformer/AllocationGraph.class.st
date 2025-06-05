@@ -112,13 +112,6 @@ AllocationGraph >> leaves [
 	^ nodes values select: [ :node | node isLeaf ]
 ]
 
-{ #category : 'api' }
-AllocationGraph >> leavesFor: anEdge [
-
-	anEdge targetNode ifNil: [ ^ { anEdge } ].
-	^ anEdge targetNode edges flatCollect: [ :e | self leavesFor: e ]
-]
-
 { #category : 'accessing' }
 AllocationGraph >> nodeAt: aMethod [
 	"Using the name because of the allocation primitives. When they were captured, the source code contained the 'trapMethod' code. After, if we want to access it later, the trapMethod code has been discared and the normal code it was put back. Because of this we need to use the name else we will get the a key not found error"

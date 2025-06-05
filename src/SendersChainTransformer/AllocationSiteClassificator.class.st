@@ -38,21 +38,21 @@ AllocationSiteClassificator >> allocationGraph: anAllocationGraph [
 { #category : 'calculating' }
 AllocationSiteClassificator >> binObjects [
 
-	groupedAllocationSites keysDo: [ :allocationGraphEdge |
-		allocationGraphEdge allocatedSamples do: [ :illEphe |
+	groupedAllocationSites keysDo: [ :allocationGraphNode |
+		allocationGraphNode allocatedSamples do: [ :illEphe |
 			| isObjectClassified |
 			isObjectClassified := false.
 			(self isObjectImmortal: illEphe) ifTrue: [
 					immortalObjects add: illEphe.
-					(groupedAllocationSites at: allocationGraphEdge) addImmortalObject: illEphe.
+					(groupedAllocationSites at: allocationGraphNode) addImmortalObject: illEphe.
 					isObjectClassified := true ].
 			(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
 					shortObjects add: illEphe.
-					(groupedAllocationSites at: allocationGraphEdge) addShortLivedObject: illEphe.
+					(groupedAllocationSites at: allocationGraphNode) addShortLivedObject: illEphe.
 					isObjectClassified := true ].
 			isObjectClassified ifFalse: [
 					longObjects add: illEphe.
-					(groupedAllocationSites at: allocationGraphEdge) addLongLivedObject: illEphe ] ] ]
+					(groupedAllocationSites at: allocationGraphNode) addLongLivedObject: illEphe ] ] ]
 ]
 
 { #category : 'calculating' }
@@ -176,11 +176,11 @@ AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 	allocationGraph := anAllocationGraph.
 
 	groupedAllocationSites := Dictionary new.
-	allocationGraph edges do: [ :allocationGraphEdge |
+	allocationGraph nodes do: [ :allocationGraphNode |
 			groupedAllocationSites
-				at: allocationGraphEdge
+				at: allocationGraphNode
 				ifAbsentPut: (AllocationSiteBin new
-					allocationSite: allocationGraphEdge;
+					allocationSite: allocationGraphNode;
 					yourself) ]
 ]
 

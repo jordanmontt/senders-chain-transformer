@@ -1,6 +1,6 @@
 Class {
 	#name : 'AllocationGraphNode',
-	#superclass : 'AllocationGraphStructure',
+	#superclass : 'AllocationGraphComponent',
 	#instVars : [
 		'method',
 		'edges',
@@ -72,6 +72,23 @@ AllocationGraphNode >> edgeForOffset: anInteger [
 AllocationGraphNode >> edgeTo: aTargetNode [
 
 	^ edges detect: [ :edge | edge targetNode = aTargetNode ]
+]
+
+{ #category : 'api - accessing' }
+AllocationGraphNode >> edgeTo: aTargetNode ifFound: ifFoundBlock [
+
+	^ edges
+		  detect: [ :edge | edge targetNode = aTargetNode ]
+		  ifFound: ifFoundBlock
+]
+
+{ #category : 'api - accessing' }
+AllocationGraphNode >> edgeTo: aTargetNode ifFound: foundBlock ifNone: noneBlock [
+
+	^ edges
+		  detect: [ :edge | edge targetNode = aTargetNode ]
+		  ifFound: foundBlock
+		  ifNone: noneBlock
 ]
 
 { #category : 'accessing' }

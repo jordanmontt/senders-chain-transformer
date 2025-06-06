@@ -66,8 +66,8 @@ AllocationSitesExperiment >> initialize [
 AllocationSitesExperiment >> inspector: aBuilder [
 
 	<inspectorPresentationOrder: 0 title: 'To Pretenure Sites'>
-	^ aBuilder newList
-		items: toPretenureSites keys;
+	^( aBuilder instantiate: SpListPresenter)
+		items: toPretenureSites;
 		yourself
 ]
 
@@ -83,7 +83,7 @@ AllocationSitesExperiment >> processAllocationSites [
 	"Identify allocation sites using strategy"
    allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
    	"Get the allocation sites to pretenure"
-	toPretenureSites := allocationGraph select: [ :node | node isAllocationSite ]
+	toPretenureSites := allocationGraph nodes select: [ :node | node isAllocationSite ]
 ]
 
 { #category : 'removing' }

@@ -35,18 +35,18 @@ AllocationSiteClassificator >> allocationGraph: anAllocationGraph [
 { #category : 'calculating' }
 AllocationSiteClassificator >> binObjects [
 
-	groupedAllocationSites keysDo: [ :allocationGraphNode |
-		allocationGraphNode allocatedSamples do: [ :illEphe |
+	groupedAllocationSites keysDo: [ :allocationGraphComponent |
+		allocationGraphComponent allocatedSamples do: [ :illEphe |
 			| isObjectClassified |
 			isObjectClassified := false.
 			(self isObjectImmortal: illEphe) ifTrue: [
-					(groupedAllocationSites at: allocationGraphNode) addImmortalObject: illEphe.
+					(groupedAllocationSites at: allocationGraphComponent) addImmortalObject: illEphe.
 					isObjectClassified := true ].
 			(isObjectClassified not and: [ self isObjectShortLived: illEphe ]) ifTrue: [
-					(groupedAllocationSites at: allocationGraphNode) addShortLivedObject: illEphe.
+					(groupedAllocationSites at: allocationGraphComponent) addShortLivedObject: illEphe.
 					isObjectClassified := true ].
 			isObjectClassified ifFalse: [
-					(groupedAllocationSites at: allocationGraphNode) addLongLivedObject: illEphe ] ] ]
+					(groupedAllocationSites at: allocationGraphComponent) addLongLivedObject: illEphe ] ] ]
 ]
 
 { #category : 'calculating' }
@@ -72,7 +72,7 @@ AllocationSiteClassificator >> calculateMaxLiveSize [
 { #category : 'calculating' }
 AllocationSiteClassificator >> classifyAllocationSites [
 
-	groupedAllocationSites valuesDo: [ :allocationSiteBin |
+	groupedAllocationSites keysAndValuesDo: [ :allocationGraphComponent :allocationSiteBin |
 		| is ss ls wasClassified |
 		wasClassified := false.
 		is := allocationSiteBin immortalObjects sum: #sizeInBytes.
@@ -81,11 +81,15 @@ AllocationSiteClassificator >> classifyAllocationSites [
 
 		is > (ss + ls + hif) ifTrue: [
 			allocationSiteBin classification: #immortal.
+			allocationGraphComponent beImmortal.
 			wasClassified := true ].
 		(wasClassified not and: [ is + ls > (ss + hlf) ]) ifTrue: [
 			allocationSiteBin classification: #long.
+			allocationGraphComponent beLongLived.
 			wasClassified := true ].
-		wasClassified ifFalse: [ allocationSiteBin classification: #short ] ]
+		wasClassified ifFalse: [
+			allocationSiteBin classification: #short.
+			allocationGraphComponent beShortLived ] ]
 ]
 
 { #category : 'api' }
@@ -166,7 +170,7 @@ AllocationSiteClassificator >> setUpForAllocationGraph: anAllocationGraph [
 	allocationGraph := anAllocationGraph.
 
 	groupedAllocationSites := Dictionary new.
-	allocationGraph nodes do: [ :allocationGraphNode |
+	allocationGraph edges do: [ :allocationGraphNode |
 			groupedAllocationSites
 				at: allocationGraphNode
 				ifAbsentPut: (AllocationSiteBin new

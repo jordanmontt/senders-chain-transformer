@@ -1,5 +1,5 @@
 Class {
-	#name : 'AllocationGraphStructure',
+	#name : 'AllocationGraphComponent',
 	#superclass : 'Object',
 	#instVars : [
 		'isAllocationSite',
@@ -13,31 +13,43 @@ Class {
 }
 
 { #category : 'api' }
-AllocationGraphStructure >> beAllocationSite [
+AllocationGraphComponent >> beAllocationSite [
 
 	isAllocationSite := true
 ]
 
 { #category : 'api' }
-AllocationGraphStructure >> beLeaf [
+AllocationGraphComponent >> beImmortal [
+
+	self beLongLived
+]
+
+{ #category : 'api' }
+AllocationGraphComponent >> beLeaf [
 
 	isLeaf := true
 ]
 
 { #category : 'api' }
-AllocationGraphStructure >> beLongLived [
+AllocationGraphComponent >> beLongLived [
 
 	isLongLived := true
 ]
 
 { #category : 'api' }
-AllocationGraphStructure >> beTextualAllocationSite [
+AllocationGraphComponent >> beShortLived [
+
+	isLongLived := false
+]
+
+{ #category : 'api' }
+AllocationGraphComponent >> beTextualAllocationSite [
 
 	isTextualAllocationSite := true
 ]
 
 { #category : 'initialization' }
-AllocationGraphStructure >> initialize [
+AllocationGraphComponent >> initialize [
 
 	super initialize.
 	isAllocationSite := false.
@@ -46,19 +58,19 @@ AllocationGraphStructure >> initialize [
 ]
 
 { #category : 'testing' }
-AllocationGraphStructure >> isAllocationSite [
+AllocationGraphComponent >> isAllocationSite [
 
 	^ isAllocationSite
 ]
 
 { #category : 'accessing' }
-AllocationGraphStructure >> isLongLived [ 
+AllocationGraphComponent >> isLongLived [ 
 
 	^ isLongLived
 ]
 
 { #category : 'testing' }
-AllocationGraphStructure >> isTextualAllocationSite [
+AllocationGraphComponent >> isTextualAllocationSite [
 
 	^ isTextualAllocationSite
 ]

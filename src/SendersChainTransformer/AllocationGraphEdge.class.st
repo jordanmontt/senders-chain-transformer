@@ -1,6 +1,6 @@
 Class {
 	#name : 'AllocationGraphEdge',
-	#superclass : 'AllocationGraphStructure',
+	#superclass : 'AllocationGraphComponent',
 	#instVars : [
 		'offset',
 		'allocNodeStatistics',

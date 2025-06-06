@@ -130,6 +130,8 @@ AllocationGraphNode >> inspectorAllocationPath: aBuilder [
 
 	<inspectorPresentationOrder: 1 title: 'Path'>
 	| callStackRawArray |
+	allocationPaths ifNil: [ ^ aBuilder newList ].
+
 	callStackRawArray := allocationPaths allButFirst flatCollect: [ :assoc | { assoc key method . assoc value } ].
 	^ (IllSendersCallStack senders: callStackRawArray) buildInspectorPresenter: aBuilder
 ]

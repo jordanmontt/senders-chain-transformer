@@ -34,7 +34,7 @@ AllocationGraph >> accumulateSample: aSample [
 		callee := method ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'api' }
 AllocationGraph >> allPathsFrom: startNode to: endNode [
 
 	| stack association paths currentNode pathUntilNow |
@@ -51,8 +51,8 @@ AllocationGraph >> allPathsFrom: startNode to: endNode [
 			ifFalse: [  
 				currentNode edges do: [ :edge |
 					(pathUntilNow includes: edge targetNode) ifFalse: [
-						stack push: edge targetNode -> (pathUntilNow , { edge targetNode }) ] ] ] ].
-		
+						stack push: edge targetNode -> (pathUntilNow copyWith: edge targetNode) ] ] ] ].
+
 		^ paths
 ]
 
@@ -72,13 +72,14 @@ AllocationGraph >> edges [
 AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
 	| stack offset current path |
-	stack := self leaves collect: [ :leafNode | leafNode -> { (leafNode -> nil) } ] as: OrderedCollection.
+	stack := self leaves collect: [ :leafNode | leafNode -> { (leafNode -> -1) } ] as: OrderedCollection.
 
 	[ stack isEmpty ] whileFalse: [
 		current := stack last key.
 		path := stack last value.
 		stack removeLast.
 
+		"Cut the traversal if we didn't find an allocation site until this depth"
 		(path size <= 100) ifTrue: [
 			(aStrategy isAllocationSite: current fromAllocationPath: path)
 				ifTrue: [ current beAllocationSite; appendPath: path ]
@@ -145,13 +146,6 @@ AllocationGraph >> nodes [
 AllocationGraph >> nodes: aCollection [
 
 	nodes := aCollection
-]
-
-{ #category : 'copying' }
-AllocationGraph >> postCopy [
-
-	super postCopy.
-	nodes := nodes values collect: #copy.
 ]
 
 { #category : 'api' }

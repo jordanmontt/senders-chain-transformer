@@ -71,8 +71,8 @@ AllocationGraph >> edges [
 { #category : 'api' }
 AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 
-	| stack offset current path |
-	stack := self leaves collect: [ :leafNode | leafNode -> { (leafNode -> -1) } ] as: OrderedCollection.
+	| stack offset current path edgeFromCallerToCurrent |
+	stack := self leaves collect: [ :leafNode | leafNode -> { } ] as: OrderedCollection.
 
 	[ stack isEmpty ] whileFalse: [
 		current := stack last key.
@@ -85,9 +85,9 @@ AllocationGraph >> identifyAllocationSitesUsing: aStrategy [
 				ifTrue: [ current beAllocationSite; appendPath: path ]
 				ifFalse: [ 
 					current callers do: [ :caller | 
-						offset := (caller edgeTo: current) offset.
-						(path anySatisfy: [ :assoc | assoc key = caller and: [ assoc value = offset ] ])
-							ifFalse: [ stack add: caller -> (path copyWith: caller -> offset) ] ] ] ] ]
+						edgeFromCallerToCurrent := caller edgeTo: current.
+						(path includes: edgeFromCallerToCurrent)
+							ifFalse: [ stack add: caller -> (path copyWith: edgeFromCallerToCurrent) ] ] ] ] ]
 ]
 
 { #category : 'initialization' }

@@ -1,13 +1,10 @@
 Class {
 	#name : 'AllocationGraphNode',
-	#superclass : 'Object',
+	#superclass : 'AllocationGraphStructure',
 	#instVars : [
 		'method',
 		'edges',
-		'isAllocationSite',
-		'isLeaf',
 		'callers',
-		'isTextualAllocationSite',
 		'allocationPaths'
 	],
 	#category : 'SendersChainTransformer-Allocation-Graph',
@@ -30,12 +27,12 @@ AllocationGraphNode >> addCaller: anAllocationGraphNode [
 	callers add: anAllocationGraphNode
 ]
 
-{ #category : 'accessing' }
+{ #category : 'api - accessing' }
 AllocationGraphNode >> allocatedSamples [
 
-	isLeaf ifTrue: [
+	self isLeaf ifTrue: [
 		^ callers
-			flatCollect: [ :caller | (caller edges detect: [ :edge | edge targetNode = self ]) allocatedSamples ]
+			flatCollect: [ :caller | (caller edgeTo: self) allocatedSamples ]
 			as: Set ].
 
 	^ edges values flatCollect: #allocatedSamples
@@ -47,32 +44,15 @@ AllocationGraphNode >> allocationPaths [
 	^ allocationPaths
 ]
 
-{ #category : 'accessing' }
+{ #category : 'api' }
 AllocationGraphNode >> appendPath: aCollection [
 
 	allocationPaths add: aCollection
 ]
 
-{ #category : 'api' }
-AllocationGraphNode >> beAllocationSite [
-
-	isAllocationSite := true
-]
-
-{ #category : 'api' }
-AllocationGraphNode >> beLeaf [
-
-	isLeaf := true
-]
-
-{ #category : 'api' }
-AllocationGraphNode >> beTextualAllocationSite [
-
-	isTextualAllocationSite := true
-]
-
 { #category : 'accessing' }
 AllocationGraphNode >> callers [
+
 	^ callers
 ]
 
@@ -82,13 +62,13 @@ AllocationGraphNode >> callers: aSet [
 	callers := aSet
 ]
 
-{ #category : 'accessing' }
+{ #category : 'api - accessing' }
 AllocationGraphNode >> edgeForOffset: anInteger [ 
 
 	^ edges detect: [ :edge | edge offset = anInteger ]
 ]
 
-{ #category : 'api' }
+{ #category : 'api - accessing' }
 AllocationGraphNode >> edgeTo: aTargetNode [
 
 	^ edges detect: [ :edge | edge targetNode = aTargetNode ]
@@ -112,10 +92,7 @@ AllocationGraphNode >> initialize [
 	super initialize.
 	edges := Dictionary new.
 	callers := Set new.
-	allocationPaths := OrderedCollection new.
-	isAllocationSite := false.
-	isTextualAllocationSite := false.
-	isLeaf := false
+	allocationPaths := OrderedCollection new
 ]
 
 { #category : 'inspector' }
@@ -143,27 +120,15 @@ AllocationGraphNode >> inspectorPresenter: aBuilder [
 ]
 
 { #category : 'testing' }
-AllocationGraphNode >> isAllocationSite [
-
-	^ isAllocationSite
-]
-
-{ #category : 'testing' }
 AllocationGraphNode >> isLeaf [
 
-	^ isLeaf
+	^ edges isEmpty
 ]
 
 { #category : 'testing' }
 AllocationGraphNode >> isRoot [
 
 	^ callers isEmpty
-]
-
-{ #category : 'testing' }
-AllocationGraphNode >> isTextualAllocationSite [
-
-	^ isTextualAllocationSite
 ]
 
 { #category : 'accessing' }
@@ -173,7 +138,8 @@ AllocationGraphNode >> method [
 ]
 
 { #category : 'accessing' }
-AllocationGraphNode >> method: aCollection [ 
+AllocationGraphNode >> method: aCollection [
+
 	method := aCollection
 ]
 

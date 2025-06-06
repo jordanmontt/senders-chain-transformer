@@ -1,6 +1,6 @@
 Class {
 	#name : 'AllocationGraphEdge',
-	#superclass : 'Object',
+	#superclass : 'AllocationGraphStructure',
 	#instVars : [
 		'offset',
 		'allocNodeStatistics',
@@ -22,7 +22,7 @@ AllocationGraphEdge class >> targetNode: node sourceNode: aSourceNode offset: an
 		  yourself
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 AllocationGraphEdge >> allocatedSamples [
 
 	^ allocNodeStatistics allocatedSamples
@@ -33,12 +33,6 @@ AllocationGraphEdge >> initialize [
 
 	super initialize.
 	allocNodeStatistics := AllocationGraphStats new
-]
-
-{ #category : 'accessing' }
-AllocationGraphEdge >> key [
-
-    ^ sourceNode
 ]
 
 { #category : 'accessing' }
@@ -87,10 +81,8 @@ AllocationGraphEdge >> targetNode: anObject [
 	targetNode := anObject
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'api' }
 AllocationGraphEdge >> updateFromSample: aSample [
 
-"| stats |
-stats := allocNodeStatistics at: aSample allocatedObjectClass ifAbsentPut: AllocationGraphStats new"
 	allocNodeStatistics updateFromSample: aSample
 ]

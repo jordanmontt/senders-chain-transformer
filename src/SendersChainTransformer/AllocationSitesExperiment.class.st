@@ -52,12 +52,6 @@ AllocationSitesExperiment >> computeLongLivedAllocationSites [
         computeLongLivedAllocationSites
 ]
 
-{ #category : 'calculating' }
-AllocationSitesExperiment >> identifyAllocationSites [
-
-	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy
-]
-
 { #category : 'initialization' }
 AllocationSitesExperiment >> initialize [
 
@@ -87,9 +81,9 @@ AllocationSitesExperiment >> processAllocationSites [
    	"Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
 	self computeLongLivedAllocationSites.
 	"Identify allocation sites using strategy"
-   	self identifyAllocationSites.
+   allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
    	"Get the allocation sites to pretenure"
-	toPretenureSites := allocationSiteClassificator longLivedAllocationSites
+	toPretenureSites := allocationGraph select: [ :node | node isAllocationSite ]
 ]
 
 { #category : 'removing' }

@@ -147,10 +147,11 @@ AllocationSiteClassificator >> maxLiveSize [
 { #category : 'calculating' }
 AllocationSiteClassificator >> pruneAllocationSites [
 
-	| totalProgramAllocations |
+	| totalProgramAllocations sitesWithSignificantSize |
 	totalProgramAllocations := allocationGraph allocatedSamples size.
-	groupedAllocationSites := groupedAllocationSites reject: [ :allocationSiteBin |
-			allocationSiteBin totalAllocations < (self pruningThreshold * totalProgramAllocations) ]
+	sitesWithSignificantSize := groupedAllocationSites associations reject: [ :assoc |
+			assoc key allocatedSamples size < (self pruningThreshold * totalProgramAllocations) ].
+	groupedAllocationSites := Dictionary newFrom: sitesWithSignificantSize
 ]
 
 { #category : 'calculating' }

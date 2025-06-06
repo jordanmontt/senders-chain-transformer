@@ -28,12 +28,9 @@ MethodFromTheSamePackageStrategy class >> packagesToMatch: aCol [
 ]
 
 { #category : 'api' }
-MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfNodes [
+MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
-
-	| isAllocationSite |
-	isAllocationSite := (self isMethodInTheSamePackage: anAllocationGraphNode).
-	^ isAllocationSite
+	^ self isMethodInTheSamePackage: anAllocationGraphNode
 ]
 
 { #category : 'api' }

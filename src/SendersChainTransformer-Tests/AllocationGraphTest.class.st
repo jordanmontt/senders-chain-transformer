@@ -57,10 +57,10 @@ AllocationGraphTest >> testAllocationPaths [
 	basicNewNode := allocationGraph nodeAtMethod: Behavior >> #basicNew.
 	expectedPath := (allocationGraph allPathsFrom: m2Node to: basicNewNode) first.
 	actualPath := m2Node allocationPaths first.
-	"the allocation paths are reversed because we treat it as an execution stack.
-	It also contains the offsets"
-	actualPath := (actualPath collect: #key) reversed.
-	self assertCollection: actualPath equals: expectedPath
+
+	actualPath := ( { actualPath first targetNode . actualPath first sourceNode }) , 
+			(actualPath allButFirst collect: #sourceNode).
+	self assertCollection: actualPath reversed equals: expectedPath
 ]
 
 { #category : 'tests' }

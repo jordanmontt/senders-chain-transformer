@@ -11,6 +11,7 @@ Class {
 
 { #category : 'accessing' }
 AllocationGraphStats >> allocatedSamples [
+
 	^ allocatedSamples
 ]
 
@@ -31,8 +32,6 @@ AllocationGraphStats >> printOn: aStream [
 
 { #category : 'as yet unclassified' }
 AllocationGraphStats >> updateFromSample: aSample [
-	"| stats |
-	stats := allocNodeStatistics at: aSample allocatedObjectClass ifAbsentPut: AllocationGraphStats new.
-	stats updateFromSample: aSample."
+
 	allocatedSamples add: aSample
 ]

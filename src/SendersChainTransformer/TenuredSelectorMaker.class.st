@@ -56,7 +56,7 @@ TenuredSelectorMaker >> makeSelector: aByteSymbol [
 	aByteSymbol = #basicNew: ifTrue: [ ^ #basicNewTenured: ].
 
 	"Do not transform"
-	specialSelectors := #( #initialize #value #valueNoContextSwitch #critical: #'->' #, #/ #'==>' #@ ).
+	specialSelectors := #( #initialize #value #valueNoContextSwitch #critical: ).
 	(specialSelectors includes: aByteSymbol) ifTrue: [ ^ aByteSymbol ].
 
 	aByteSymbol isBinary ifTrue: [ ^ self defaultTenuredSelector: #':' ].

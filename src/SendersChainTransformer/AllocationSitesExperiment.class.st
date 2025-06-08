@@ -83,7 +83,7 @@ AllocationSitesExperiment >> processAllocationSites [
 	"Identify allocation sites using strategy"
    allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
    	"Get the allocation sites to pretenure"
-	toPretenureSites := allocationGraph nodes select: [ :node | node isAllocationSite ]
+	^ toPretenureSites := allocationGraph nodes select: #isAllocationSite
 ]
 
 { #category : 'removing' }
@@ -104,11 +104,17 @@ AllocationSitesExperiment >> restoreOriginalState [
 AllocationSitesExperiment >> rewriteToPretenureAllocationSites [
 
 	| allocationSendersList |
-	allocationSendersList := toPretenureSites keys collect: [ :allocationGraphEdge | 
-		allocationGraphEdge sourceNode allocationPath collect: [ :association |
-				MethodWithOffset method: association key method offset: association value ] ].
+	allocationSendersList := OrderedCollection new.
+	toPretenureSites do: [ :allocationGraphNode |
+			allocationSendersList addAll:
+				(allocationGraphNode allocationPaths collect: [ :aCollection |
+						 aCollection collect: [ :edge |
+							 MethodWithOffset
+								 method: edge sourceNode method
+								 offset: edge offset ] ]) ].
 
-	pretenurator pretenureAllocations: allocationSendersList
+	pretenurator pretenureAllocations: allocationSendersList.
+	^ pretenurator
 ]
 
 { #category : 'api' }

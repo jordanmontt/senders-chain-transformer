@@ -53,8 +53,7 @@ AllocationGraphComponent >> initialize [
 
 	super initialize.
 	isAllocationSite := false.
-	isTextualAllocationSite := false.
-	isLongLived := false
+	isTextualAllocationSite := false
 ]
 
 { #category : 'testing' }

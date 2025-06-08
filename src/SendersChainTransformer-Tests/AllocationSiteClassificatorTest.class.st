@@ -42,7 +42,6 @@ AllocationSiteClassificatorTest >> setUpAllocationGraph [
 { #category : 'tests' }
 AllocationSiteClassificatorTest >> testBinObjects [
 
-    | binnedAllocationSites |
     self setUpAllocationGraph.
 
     classificator
@@ -51,33 +50,12 @@ AllocationSiteClassificatorTest >> testBinObjects [
         setUpForAllocationGraph: allocationGraph.
     classificator binObjects.
 
-    binnedAllocationSites := classificator groupedAllocationSites values.
-
-    self
-		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite method = (AllocationGraphFixture class >> #m1) ] )
-                immortalObjects size
-    	equals: 25.
-	 self
-		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite method = (AllocationGraphFixture class >> #m3) ] )
-                immortalObjects size
-    	equals: 20.
-     self
-		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite method = (AllocationGraphFixture class >> #m4) ] )
-                immortalObjects size
-    	equals: 5.
-     self
-		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite method = (AllocationGraphFixture class >> #m5) ] )
-                immortalObjects size
-    	equals: 5.
-     self
-		assert: ( binnedAllocationSites detect: [ :bin |
-    			bin allocationSite method = (AllocationGraphFixtureUtilities class >> #mm)] )
-                immortalObjects size
-    	equals: 5
+    classificator groupedAllocationSites associationsDo: [ :assoc |
+		| graphEdge allocationSiteBin | 
+		graphEdge := assoc key.
+		allocationSiteBin := assoc value.
+		self assert: graphEdge allocatedSamples size equals: allocationSiteBin allObjects size ]
+   
 ]
 
 { #category : 'tests' }

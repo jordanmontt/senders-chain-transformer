@@ -105,7 +105,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInBinaryTransformedS
 			compile.
 	modification1 := OpalCompiler new
 			source: 'at: key ifAbsentPut: aBlock
-	^ self at: key ifAbsent: [ key ------ aBlock value ]';
+	^ self at: key ifAbsent: [ key _pretenured_941934174_SHwyb: aBlock value ]';
 			compile.
 	modification2 := OpalCompiler new
 			source: 'at: key ifAbsentPut: aBlock
@@ -117,7 +117,7 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInBinaryTransformedS
 			into: originalCompiledMethod.
 	expected := (OpalCompiler new
 			 source: 'at: key ifAbsentPut: aBlock
-	^ self _pretenured_76688_at: key ifAbsent: [ key ------ aBlock value ]';
+	^ self _pretenured_76688_at: key ifAbsent: [ key _pretenured_941934174_SHwyb: aBlock value ]';
 			 compile).
 	self assert: result parseTree equals: expected parseTree
 ]

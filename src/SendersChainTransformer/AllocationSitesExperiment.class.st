@@ -33,6 +33,12 @@ AllocationSitesExperiment class >> onProfiler: aProfiler [
 ]
 
 { #category : 'accessing' }
+AllocationSitesExperiment >> allocationGraph [
+
+	^ allocationGraph
+]
+
+{ #category : 'accessing' }
 AllocationSitesExperiment >> allocationSiteStrategy [
 
 	^ allocationSiteStrategy

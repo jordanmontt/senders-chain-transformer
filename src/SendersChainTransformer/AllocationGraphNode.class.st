@@ -44,6 +44,11 @@ AllocationGraphNode >> allocationPaths [
 	^ allocationPaths
 ]
 
+{ #category : 'accessing' }
+AllocationGraphNode >> allocationPaths: aCollection [ 
+	allocationPaths := aCollection
+]
+
 { #category : 'api' }
 AllocationGraphNode >> appendPath: aCollection [
 
@@ -60,6 +65,22 @@ AllocationGraphNode >> callers [
 AllocationGraphNode >> callers: aSet [
 
 	callers := aSet
+]
+
+{ #category : 'copying' }
+AllocationGraphNode >> copy [
+
+	| edgesCopy callersCopy allocationPathsCopy |
+	edgesCopy := edges collect: [ :edge | edge copy ].
+	callersCopy := callers collect: [ :caller | caller copy ].
+	allocationPathsCopy := allocationPaths collect: [ :collection |
+		                       collection collect: [ :obj | obj copy ] ].
+
+	^ self shallowCopy
+		  edges: edgesCopy;
+		  callers: callersCopy;
+		  allocationPaths: allocationPathsCopy;
+		  yourself
 ]
 
 { #category : 'api - accessing' }

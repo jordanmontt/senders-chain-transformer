@@ -30,6 +30,16 @@ AllocationGraphVizu >> buildGraphCanvasFor: anAllocationGraph [
 ]
 
 { #category : 'drawing - roassal' }
+AllocationGraphVizu >> buildInspectorPresenterFor: anAllocationGraph [
+
+	^ self
+		  buildInspectorPresenterFor: anAllocationGraph
+		  withBuilder: (SpPresenterBuilder new
+				   application: StPharoApplication current;
+				   yourself)
+]
+
+{ #category : 'drawing - roassal' }
 AllocationGraphVizu >> buildInspectorPresenterFor: anAllocationGraph withBuilder: aBuilder [
 
 	| c |

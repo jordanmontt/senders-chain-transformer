@@ -154,7 +154,7 @@ AllocationGraph >> nodes: aCollection [
 AllocationGraph >> pruneFromRoot: aNode [
 
 	| newRoot newNodes nodesToTreat visitesNodes |
-	newRoot := aNode veryDeepCopy
+	newRoot := aNode copy
 		callers: Set new;
 		yourself.
 	nodesToTreat := OrderedCollection with: newRoot.

@@ -71,10 +71,10 @@ AllocationGraphNode >> callers: aSet [
 AllocationGraphNode >> copy [
 
 	| edgesCopy callersCopy allocationPathsCopy |
-	edgesCopy := edges collect: [ :edge | edge copy ].
-	callersCopy := callers collect: [ :caller | caller copy ].
+	edgesCopy := edges collect: [ :edge | edge shallowCopy ].
+	callersCopy := callers collect: [ :caller | caller shallowCopy ].
 	allocationPathsCopy := allocationPaths collect: [ :collection |
-		                       collection collect: [ :obj | obj copy ] ].
+		                       collection collect: [ :obj | obj shallowCopy ] ].
 
 	^ self shallowCopy
 		  edges: edgesCopy;

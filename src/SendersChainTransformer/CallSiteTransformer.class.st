@@ -67,11 +67,8 @@ CallSiteTransformer >> mergeTransformedSenders [
 CallSiteTransformer >> removeAlreadyImplemented: senders [
 	"These methods are already implemented as extension methods as they are methods that require special treatment. So we need to ignore them because we will transform incorrectly the method."
 	| toBan |
-	toBan := #( 'Bag class>>#new:' 'Bag class>>#new' 'Heap class>>#new:' 'Heap class>>#new' 'Array class>>#new:'
-	            'HashedCollection class>>#new:' 'HashedCollection class>>#new' 'Interval class>>#new'
-	            'OrderedDictionary class>>#new:' 'OrderedDictionary>>#initializeTenured:'
-	            'OrderedDictionary class>>#new' 'HashedCollection>>#initialize:' 'WeakValueAssociation class>>#new'
-	            'OrderedCollection class>>#new:' 'OrderedCollection class>>#new' 'ArrayedCollection class>>#new' ).
+	toBan := (self class package extensionMethods collect: #name) 
+			collect: [ :e | e copyReplaceAll: 'Tenured' with: '' ].
 	^ senders reject: [ :aMethodWithOffset | toBan includes: aMethodWithOffset name ]
 ]
 
@@ -97,6 +94,9 @@ CallSiteTransformer >> selectorMaker [
 
 { #category : 'api' }
 CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
+
+	(self removeAlreadyImplemented: { initialCaller })
+		ifEmpty: [ ^ self "Method has been already implemented" ].
 
 	transformedSenders := self removeAlreadyImplemented: senders.
 	"the stack is top to bottom so we need to reverse it"

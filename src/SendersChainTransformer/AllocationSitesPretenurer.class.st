@@ -33,6 +33,7 @@ AllocationSitesPretenurer >> mergeCallSites [
 	 "It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 
 	transformedCallSites := callSiteTransformers collect: [ :codeTransformer | codeTransformer transformedCallSite ].
+	transformedCallSites := transformedCallSites reject: #isNil.
 	transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites
 ]
 

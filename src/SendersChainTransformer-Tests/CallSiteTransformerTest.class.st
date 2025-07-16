@@ -29,6 +29,13 @@ CallSiteTransformerTest >> setUp [
 ]
 
 { #category : 'tests' }
+CallSiteTransformerTest >> testExtensionMethods [
+
+    codeTransformer class package extensionMethods do: [ :e |
+        self assert: (e name includesSubstring: 'Tenured') ]
+]
+
+{ #category : 'tests' }
 CallSiteTransformerTest >> testInstallMethodWithNewSelector [
 
 	| aMethodWithOffset tenuredNewSelector clonedCompiledMethod |
@@ -49,6 +56,16 @@ CallSiteTransformerTest >> testInstallMethodWithNewSelector [
 	self assert: clonedCompiledMethod bytecodes equals: aMethodWithOffset method bytecodes.
 	
 	clonedCompiledMethod methodClass removeSelector: clonedCompiledMethod selector
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTest >> testRemoveAlreadyImplemented [
+
+    self assert: (codeTransformer removeAlreadyImplemented: { (Bag class >> #new) }) isEmpty.
+    self assert:
+        (codeTransformer removeAlreadyImplemented: { (OrderedCollection class >> #new) }) isEmpty.
+
+    self deny: (codeTransformer removeAlreadyImplemented: { (Object >> #printString) }) isEmpty
 ]
 
 { #category : 'tests' }

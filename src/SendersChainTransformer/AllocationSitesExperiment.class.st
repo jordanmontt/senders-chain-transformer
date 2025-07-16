@@ -119,6 +119,7 @@ AllocationSitesExperiment >> rewriteToPretenureAllocationSites [
 								 method: edge sourceNode method
 								 offset: edge offset ] ]) ].
 
+	allocationSendersList := allocationSendersList select: #isNotEmpty.
 	pretenurator pretenureAllocations: allocationSendersList.
 	^ pretenurator
 ]

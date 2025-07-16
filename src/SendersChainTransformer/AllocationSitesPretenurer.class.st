@@ -22,7 +22,9 @@ AllocationSitesPretenurer >> installPretenuredMethods [
 
 	| installer |
 	installer := callSiteTransformers anyOne.
-	transformedCallSites do: [ :aCompiledMethod | installer installMethod: aCompiledMethod ].
+	transformedCallSites do: [ :aCompiledMethod | 
+		('Installing method ', aCompiledMethod name) traceCr.
+		installer installMethod: aCompiledMethod ].
 	callSiteTransformers do: [ :codeTransformer |
 		codeTransformer transformedSenders do: [ :aCompiledMethod | 
 			installer installMethod: aCompiledMethod ] ]

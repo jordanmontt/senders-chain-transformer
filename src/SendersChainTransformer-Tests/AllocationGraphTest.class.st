@@ -23,6 +23,8 @@ AllocationGraphTest >> setUp [
 	allocationGraph := AllocationGraph new
 		                   setUpForSamples: samples;
 		                   yourself.
+	
+	allocationGraph edges do: #beLongLived.
 ]
 
 { #category : 'tests' }

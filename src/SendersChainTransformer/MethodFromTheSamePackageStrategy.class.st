@@ -30,7 +30,8 @@ MethodFromTheSamePackageStrategy class >> packagesToMatch: aCol [
 { #category : 'api' }
 MethodFromTheSamePackageStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
-	^ self isMethodInTheSamePackage: anAllocationGraphNode
+    ^ (self isMethodInTheSamePackage: anAllocationGraphNode) and: [
+          aListOfEdges allSatisfy: [ :edge | edge isLongLived ] ]
 ]
 
 { #category : 'api' }

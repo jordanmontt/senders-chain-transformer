@@ -23,7 +23,7 @@ MethodWithOffset class >> method: aCompiledMethod offset: anInteger [
 MethodWithOffset >> = anObj [
 
 	self class = anObj class ifFalse: [ ^ false ].
-	^ compiledMethodOrBlock = anObj method and: [ offset = anObj offset ]
+	^ compiledMethodOrBlock parseTree = anObj method parseTree and: [ offset = anObj offset ]
 ]
 
 { #category : 'accessing' }

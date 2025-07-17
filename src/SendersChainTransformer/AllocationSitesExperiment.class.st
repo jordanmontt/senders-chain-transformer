@@ -17,7 +17,8 @@ Class {
 		'allocationSiteClassificator',
 		'toPretenureSites',
 		'rawAllocationsSamples',
-		'allocationGraph'
+		'allocationGraph',
+		'allocationSendersToPretenure'
 	],
 	#category : 'SendersChainTransformer-Experiment',
 	#package : 'SendersChainTransformer',
@@ -56,6 +57,28 @@ AllocationSitesExperiment >> computeLongLivedAllocationSites [
     allocationSiteClassificator
         setUpForAllocationGraph: allocationGraph;
         computeLongLivedAllocationSites
+]
+
+{ #category : 'api' }
+AllocationSitesExperiment >> exportAllocationSites [
+
+    
+]
+
+{ #category : 'api' }
+AllocationSitesExperiment >> getToPretenureAllocationSites [
+
+	allocationSendersToPretenure := OrderedCollection new.
+	toPretenureSites do: [ :allocationGraphNode |
+			allocationSendersToPretenure addAll:
+				(allocationGraphNode allocationPaths collect: [ :aCollection |
+						 aCollection collect: [ :edge |
+							 MethodWithOffset
+								 method: edge sourceNode method
+								 offset: edge offset ] ]) ].
+
+	allocationSendersToPretenure := allocationSendersToPretenure select: #isNotEmpty.
+	^ allocationSendersToPretenure
 ]
 
 { #category : 'initialization' }
@@ -107,28 +130,18 @@ AllocationSitesExperiment >> restoreOriginalState [
 ]
 
 { #category : 'api' }
-AllocationSitesExperiment >> rewriteToPretenureAllocationSites [
+AllocationSitesExperiment >> rewriteAllocationSites [
 
-	| allocationSendersList |
-	allocationSendersList := OrderedCollection new.
-	toPretenureSites do: [ :allocationGraphNode |
-			allocationSendersList addAll:
-				(allocationGraphNode allocationPaths collect: [ :aCollection |
-						 aCollection collect: [ :edge |
-							 MethodWithOffset
-								 method: edge sourceNode method
-								 offset: edge offset ] ]) ].
-
-	allocationSendersList := allocationSendersList select: #isNotEmpty.
-	pretenurator pretenureAllocations: allocationSendersList.
-	^ pretenurator
+    pretenurator pretenureAllocations: allocationSendersToPretenure.
+    ^ pretenurator
 ]
 
 { #category : 'api' }
 AllocationSitesExperiment >> run [
 
 	self processAllocationSites.
-	self rewriteToPretenureAllocationSites
+	self getToPretenureAllocationSites.
+	self exportAllocationSites
 ]
 
 { #category : 'api - accessing' }

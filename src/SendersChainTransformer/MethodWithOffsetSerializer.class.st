@@ -1,5 +1,5 @@
 Class {
-	#name : 'AllocationSitesSerializer',
+	#name : 'MethodWithOffsetSerializer',
 	#superclass : 'Object',
 	#category : 'SendersChainTransformer-Serializer',
 	#package : 'SendersChainTransformer',
@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'private' }
-AllocationSitesSerializer >> asClassName: aString [
+MethodWithOffsetSerializer >> asClassName: aString [
 
     | class |
     class := Smalltalk environment at: (aString substrings: ' ') first asSymbol.
@@ -16,7 +16,7 @@ AllocationSitesSerializer >> asClassName: aString [
 ]
 
 { #category : 'api' }
-AllocationSitesSerializer >> deserialize: aString [
+MethodWithOffsetSerializer >> deserialize: aString [
 
 	| deserializedArray methodsWithOffsets |
 	deserializedArray := (NeoJSONReader fromString: aString).
@@ -34,7 +34,7 @@ AllocationSitesSerializer >> deserialize: aString [
 ]
 
 { #category : 'api' }
-AllocationSitesSerializer >> serialize: anArray on: writeStream [
+MethodWithOffsetSerializer >> serialize: anArray on: writeStream [
 
 	| tempDict jsonString |
 	tempDict := anArray collect: [ :array |

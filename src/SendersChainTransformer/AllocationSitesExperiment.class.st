@@ -18,7 +18,7 @@ Class {
 		'toPretenureSites',
 		'rawAllocationsSamples',
 		'allocationGraph',
-		'allocationSendersToPretenure'
+		'sendersToPretenure'
 	],
 	#category : 'SendersChainTransformer-Experiment',
 	#package : 'SendersChainTransformer',
@@ -62,25 +62,25 @@ AllocationSitesExperiment >> computeLongLivedAllocationSites [
 { #category : 'api' }
 AllocationSitesExperiment >> exportAllocationSites: fileName [
 
-    AllocationSitesSerializer new
-		serialize: allocationSendersToPretenure
+    MethodWithOffsetSerializer new
+		serialize: sendersToPretenure
 		on: fileName asFileReference createFile writeStream
 ]
 
 { #category : 'api' }
 AllocationSitesExperiment >> getToPretenureAllocationSites [
 
-	allocationSendersToPretenure := OrderedCollection new.
+	sendersToPretenure := OrderedCollection new.
 	toPretenureSites do: [ :allocationGraphNode |
-			allocationSendersToPretenure addAll:
+			sendersToPretenure addAll:
 				(allocationGraphNode allocationPaths collect: [ :aCollection |
 						 aCollection collect: [ :edge |
 							 MethodWithOffset
 								 method: edge sourceNode method
 								 offset: edge offset ] ]) ].
 
-	allocationSendersToPretenure := allocationSendersToPretenure select: #isNotEmpty.
-	^ allocationSendersToPretenure
+	sendersToPretenure := sendersToPretenure select: #isNotEmpty.
+	^ sendersToPretenure
 ]
 
 { #category : 'initialization' }
@@ -134,7 +134,7 @@ AllocationSitesExperiment >> restoreOriginalState [
 { #category : 'api' }
 AllocationSitesExperiment >> rewriteAllocationSites [
 
-    pretenurator pretenureAllocations: allocationSendersToPretenure.
+    pretenurator pretenureAllocations: sendersToPretenure.
     ^ pretenurator
 ]
 
@@ -150,6 +150,12 @@ AllocationSitesExperiment >> run: aFileName [
     self processAllocationSites.
     self getToPretenureAllocationSites.
     self exportAllocationSites: aFileName
+]
+
+{ #category : 'api' }
+AllocationSitesExperiment >> sendersToPretenure: anArrayOfArrays [
+
+    sendersToPretenure := anArrayOfArrays
 ]
 
 { #category : 'api - accessing' }

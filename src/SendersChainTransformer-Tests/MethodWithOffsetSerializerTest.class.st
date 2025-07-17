@@ -2,7 +2,7 @@
 An AllocationSitesExperimentTest is a test class for testing the behavior of AllocationSitesExperiment
 "
 Class {
-	#name : 'AllocationSitesSerializerTest',
+	#name : 'MethodWithOffsetSerializerTest',
 	#superclass : 'TestCase',
 	#instVars : [
 		'senders',
@@ -14,7 +14,7 @@ Class {
 }
 
 { #category : 'running' }
-AllocationSitesSerializerTest >> setUp [
+MethodWithOffsetSerializerTest >> setUp [
 
     super setUp.
 
@@ -30,7 +30,7 @@ AllocationSitesSerializerTest >> setUp [
 ]
 
 { #category : 'running' }
-AllocationSitesSerializerTest >> tearDown [
+MethodWithOffsetSerializerTest >> tearDown [
 
     fileName asFileReference delete.
 
@@ -38,15 +38,15 @@ AllocationSitesSerializerTest >> tearDown [
 ]
 
 { #category : 'tests' }
-AllocationSitesSerializerTest >> testSerializeAndDeserialize [
+MethodWithOffsetSerializerTest >> testSerializeAndDeserialize [
 
     | deserializedArray writeStream |
     "Serialize"
     writeStream := fileName asFileReference createFile writeStream.
-    AllocationSitesSerializer new serialize: senders on: writeStream.
+    MethodWithOffsetSerializer new serialize: senders on: writeStream.
 
     "Deserialize"
-    deserializedArray := AllocationSitesSerializer new deserialize: fileName asFileReference contents.
+    deserializedArray := MethodWithOffsetSerializer new deserialize: fileName asFileReference contents.
     deserializedArray doWithIndex: [ :array :i |
             array doWithIndex: [ :methodWithOffset :j |
                     self assert: methodWithOffset method ast equals: ((senders at: i) at: j) method ast.

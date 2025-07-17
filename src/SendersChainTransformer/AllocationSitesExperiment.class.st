@@ -141,7 +141,7 @@ AllocationSitesExperiment >> rewriteAllocationSites [
 { #category : 'api' }
 AllocationSitesExperiment >> run [
 
-   self run: (Random new nextInteger: 100000000) asString
+    self run: (Random new nextInteger: 100000000) asString , '.json'
 ]
 
 { #category : 'api' }

@@ -60,9 +60,11 @@ AllocationSitesExperiment >> computeLongLivedAllocationSites [
 ]
 
 { #category : 'api' }
-AllocationSitesExperiment >> exportAllocationSites [
+AllocationSitesExperiment >> exportAllocationSites: fileName [
 
-    
+    AllocationSitesSerializer new
+		serialize: allocationSendersToPretenure
+		on: fileName asFileReference createFile writeStream
 ]
 
 { #category : 'api' }
@@ -139,9 +141,15 @@ AllocationSitesExperiment >> rewriteAllocationSites [
 { #category : 'api' }
 AllocationSitesExperiment >> run [
 
-	self processAllocationSites.
-	self getToPretenureAllocationSites.
-	self exportAllocationSites
+   self run: (Random new nextInteger: 100000000) asString
+]
+
+{ #category : 'api' }
+AllocationSitesExperiment >> run: aFileName [
+
+    self processAllocationSites.
+    self getToPretenureAllocationSites.
+    self exportAllocationSites: aFileName
 ]
 
 { #category : 'api - accessing' }

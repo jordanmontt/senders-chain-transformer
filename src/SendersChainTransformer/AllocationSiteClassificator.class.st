@@ -52,21 +52,26 @@ AllocationSiteClassificator >> binObjects [
 { #category : 'calculating' }
 AllocationSiteClassificator >> calculateMaxLiveSize [
 
-	| aliveObjects currentTime  aliveObjectsSize allocatedSamples |
-	maxLiveSize := 0.
-	allocatedSamples := allocationGraph allocatedSamples sorted: [ :v1 :v2 | v1 initializationTime < v2 initializationTime ].
-	aliveObjects := OrderedCollection with: allocatedSamples first.
+    | currentTime aliveObjectsSize allocatedSamples deathObjects |
+    maxLiveSize := 0.
+    allocatedSamples := allocationGraph allocatedSamples sorted: [ :v1 :v2 |
+				v1 initializationTime < v2 initializationTime ].
+    deathObjects := (allocationGraph allocatedSamples sorted: [ :v1 :v2 |
+				v1 finalizationTime < v2 finalizationTime ]) readStream.
 
-	allocatedSamples allButFirstDo: [ :illiEphemeron |
-		aliveObjectsSize := 0.
-		currentTime := illiEphemeron initializationTime - startTime.
-		aliveObjects := aliveObjects reject: [ :e | currentTime >= (e finalizationTime - startTime) ].
-		aliveObjects add: illiEphemeron.
+    aliveObjectsSize := 0.
+    allocatedSamples do: [ :illiEphemeron |
+		currentTime := illiEphemeron initializationTime.
 		
-		aliveObjects do: [ :e | aliveObjectsSize := aliveObjectsSize + e sizeInBytes ].
+		[ deathObjects peek finalizationTime <= currentTime ] whileTrue: [
+				| theDeadObject |
+				theDeadObject := deathObjects next.
+				aliveObjectsSize := aliveObjectsSize - theDeadObject sizeInBytes ].
+
+		aliveObjectsSize := aliveObjectsSize + illiEphemeron sizeInBytes.
 		maxLiveSize := maxLiveSize max: aliveObjectsSize ].
 
-	^ maxLiveSize
+    ^ maxLiveSize
 ]
 
 { #category : 'calculating' }
@@ -124,8 +129,6 @@ AllocationSiteClassificator >> isObjectImmortal: illEphe [
 	birthTime := illEphe initializationTime.
 	halfwayBirthtimeToEnd := birthTime + (endTime - illEphe initializationTime / 2).
 	^ timeOfDeath > halfwayBirthtimeToEnd
-
-	"^ totalTime - illEphe finalizationTime < illEphe lifetime"
 ]
 
 { #category : 'calculating' }

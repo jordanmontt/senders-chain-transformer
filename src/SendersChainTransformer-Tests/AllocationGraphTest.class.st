@@ -14,7 +14,7 @@ AllocationGraphTest >> setUp [
 
 	| profiler samples |
 	super setUp.
-	profiler := IllMemoryProfiler new
+	profiler := FiLiP new
 		            samplingRate: 1;
 		            profileOn: [ AllocationGraphFixture entryPoint ];
 		            yourself.

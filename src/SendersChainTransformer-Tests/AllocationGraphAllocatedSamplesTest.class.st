@@ -14,7 +14,7 @@ Class {
 { #category : 'tests' }
 AllocationGraphAllocatedSamplesTest >> testAllocatedSamples [
 
-	profiler := IllMemoryProfiler new
+	profiler := FiLiP new
 		            samplingRate: 1;
 		            profileOn: [ AllocationGraphFixture entryPoint ];
 		            yourself.
@@ -41,7 +41,7 @@ AllocationGraphAllocatedSamplesTest >> testAllocatedSamplesLongExecution [
 
 	self timeLimit: 5 minutes.
 
-	profiler := IllMemoryProfiler new
+	profiler := FiLiP new
 		            profileOn: [ 5 timesRepeat: [ StPlayground open close ] ];
 		            yourself.
 	samples := profiler objectAllocations.
@@ -55,7 +55,7 @@ AllocationGraphAllocatedSamplesTest >> testAllocatedSamplesLongExecution [
 { #category : 'tests' }
 AllocationGraphAllocatedSamplesTest >> testAllocatedSamplesNoFiltering [
 
-	profiler := IllMemoryProfiler new
+	profiler := FiLiP new
 		            samplingRate: 1;
 		            profileOn: [ AllocationGraphFixture entryPoint ];
 		            yourself.

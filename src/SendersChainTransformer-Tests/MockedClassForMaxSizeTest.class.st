@@ -35,79 +35,79 @@ MockedClassForMaxSizeTest >> initialize [
 	super initialize.
 	
 	initialTime := Time primUTCMicrosecondsClock.
-	a := IllEphemeron new
+	a := FiLiPEphemeron new
 		     initializationTime: initialTime + 1000000;
 		     finalizationTime: initialTime + 2000000;
 		     sizeInBytes: 10;
 		     key: #a;
 		     yourself.
-	b := IllEphemeron new
+	b := FiLiPEphemeron new
 		     initializationTime: initialTime + 2000000;
 		     finalizationTime: initialTime + 6000000;
 		     sizeInBytes: 10;
 		     key: #b;
 		     yourself.
-	c := IllEphemeron new
+	c := FiLiPEphemeron new
 		     initializationTime: initialTime + 4000000;
 		     finalizationTime: initialTime + 9000000;
 		     sizeInBytes: 10;
 		     key: #c;
 		     yourself.
-	d := IllEphemeron new
+	d := FiLiPEphemeron new
 		     initializationTime: initialTime + 5000000;
 		     finalizationTime: initialTime + 6000000;
 		     sizeInBytes: 10;
 		     key: #d;
 		     yourself.
-	e := IllEphemeron new
+	e := FiLiPEphemeron new
 		     initializationTime: initialTime + 3000000;
 		     finalizationTime: initialTime + 11000000;
 		     sizeInBytes: 10;
 		     key: #e;
 		     yourself.
-	f := IllEphemeron new
+	f := FiLiPEphemeron new
 		     initializationTime: initialTime + 4000000;
 		     finalizationTime: initialTime + 7000000;
 		     sizeInBytes: 10;
 		     key: #f;
 		     yourself.
-	g := IllEphemeron new
+	g := FiLiPEphemeron new
 		     initializationTime: initialTime + 5000000;
 		     finalizationTime: initialTime + 6000000;
 		     sizeInBytes: 10;
 		     key: #g;
 		     yourself.
-	h := IllEphemeron new
+	h := FiLiPEphemeron new
 		     initializationTime: initialTime + 5000000;
 		     finalizationTime: initialTime + 6000000;
 		     sizeInBytes: 10;
 		     key: #h;
 		     yourself.
-	i := IllEphemeron new
+	i := FiLiPEphemeron new
 		     initializationTime: initialTime + 8000000;
 		     finalizationTime: initialTime + 12000000;
 		     sizeInBytes: 10;
 		     key: #i;
 		     yourself.
-	j := IllEphemeron new
+	j := FiLiPEphemeron new
 		     initializationTime: initialTime + 13000000;
 		     finalizationTime: initialTime + 16000000;
 		     sizeInBytes: 100;
 		     key: #j;
 		     yourself.
-	k := IllEphemeron new
+	k := FiLiPEphemeron new
 		     initializationTime: initialTime + 14000000;
 		     finalizationTime: initialTime + 16000000;
 		     sizeInBytes: 10;
 		     key: #k;
 		     yourself.
-	l := IllEphemeron new
+	l := FiLiPEphemeron new
 		     initializationTime: initialTime + 15000000;
 		     finalizationTime: initialTime + 16000000;
 		     sizeInBytes: 10;
 		     key: #l;
 		     yourself.
-	m := IllEphemeron new
+	m := FiLiPEphemeron new
 		     initializationTime: initialTime + 11000000;
 		     finalizationTime: initialTime + 14000000;
 		     sizeInBytes: 40;

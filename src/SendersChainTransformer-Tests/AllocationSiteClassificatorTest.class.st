@@ -26,7 +26,7 @@ AllocationSiteClassificatorTest >> setUp [
 AllocationSiteClassificatorTest >> setUpAllocationGraph [
 	
 	| samples |
-	profiler := IllMemoryProfiler new
+	profiler := FiLiP new
 			samplingRate: 1;
 			profileOn: [ AllocationGraphFixture entryPoint ];
 			yourself.
@@ -83,19 +83,19 @@ AllocationSiteClassificatorTest >> testIsObjectImmortal [
 		endTime: endTime;
 		startTime: startTime.
 
-	illEphe := IllEphemeron new
+	illEphe := FiLiPEphemeron new
 		initializationTime: 30;
 		finalizationTime: 70;
 		yourself.
 	self deny: (classificator isObjectImmortal: illEphe).
 	
-	illEphe := IllEphemeron new
+	illEphe := FiLiPEphemeron new
 		initializationTime: 30;
 		finalizationTime: 71;
 		yourself.
 	self assert: (classificator isObjectImmortal: illEphe).
 	
-	illEphe := IllEphemeron new
+	illEphe := FiLiPEphemeron new
 		initializationTime: 10;
 		finalizationTime: 110;
 		yourself.
@@ -106,7 +106,7 @@ AllocationSiteClassificatorTest >> testIsObjectImmortal [
 		startTime: 0;
 		endTime: 17;
 		yourself.
-	illEphe := IllEphemeron new
+	illEphe := FiLiPEphemeron new
 		initializationTime: 10;
 		finalizationTime: 11;
 		yourself.

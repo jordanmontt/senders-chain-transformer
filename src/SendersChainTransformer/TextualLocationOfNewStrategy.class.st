@@ -16,3 +16,12 @@ TextualLocationOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllo
     ^ anAllocationGraphNode isTextualAllocationSite and: [
           aListOfEdges allSatisfy: [ :edge | edge isLongLived ] ]
 ]
+
+{ #category : 'api' }
+TextualLocationOfNewStrategy >> setupForGraph: allocationGraph andSamples: samples [
+
+	| textualAllocationMethods |
+	textualAllocationMethods := samples collect: #textualAllocatorMethod as: Set.
+	textualAllocationMethods do: [ :aMethod |
+		(allocationGraph nodeFor: aMethod) beTextualAllocationSite ]
+]

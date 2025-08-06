@@ -26,8 +26,8 @@ CallSiteTransformer >> cloneCompiledCode: anIllSender [
 
 	^ anIllSender method isCompiledBlock
 		  ifTrue: [ "Do not copy blocks as it does not work"
-		  		MethodWithOffset method: anIllSender method offset: anIllSender offset ]
-		  ifFalse: [ MethodWithOffset method: anIllSender method copy offset: anIllSender offset ]
+		  		IllMethodWithOffset method: anIllSender method offset: anIllSender offset ]
+		  ifFalse: [ IllMethodWithOffset method: anIllSender method copy offset: anIllSender offset ]
 ]
 
 { #category : 'initialization' }

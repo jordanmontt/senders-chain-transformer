@@ -15,8 +15,8 @@ SendersChainTransformerWithBlockClosureTest >> setUp [
 
 	super setUp.
 
-	initialCaller := MethodWithOffset
-		method: (SCMockClassWithDumbMethods >> #theMethodWithBlock) literals third "the desired block closure"
+	initialCaller := IllMethodWithOffset
+		method: (SCMockClassWithDumbMethods >> #theMethodWithBlock) literals third method "the desired block closure"
 		offset: 37.
 
 	codeTransformer := CallSiteTransformer new

@@ -19,11 +19,11 @@ CallSiteTransformerTest >> setUp [
 
 	super setUp.
 
-	initialCaller := MethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
+	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
 	senders := {
-		           (MethodWithOffset method: Association class >> #key:value: offset: 42).
-		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
-		           (MethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
+		           (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
+		           (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
+		           (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
 
 	codeTransformer := CallSiteTransformer new
 ]
@@ -127,7 +127,7 @@ CallSiteTransformerTest >> testTransformMessageSend [
 CallSiteTransformerTest >> testTransformMessageSendWithBinarySelector [
 
 	| aMethodWithOffset tenuredCompiledMethod expectedMethodsAST |
-	aMethodWithOffset := MethodWithOffset
+	aMethodWithOffset := IllMethodWithOffset
 			method: SCMockClassWithDumbMethods >> #binaryMethod
 			offset: 44.
 	expectedMethodsAST:= RBParser parseMethod: 'binaryMethod

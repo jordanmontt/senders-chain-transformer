@@ -21,12 +21,12 @@ MethodWithOffsetSerializerTest >> setUp [
 	 fileName := (Random new nextInteger: 100000) asString , '.json'.
     senders := {
 			{
-				(MethodWithOffset method: OrderedCollection >> #add: offset: 35).
-				(MethodWithOffset method: OrderedCollection >> #addLast: offset: 47).
-				(MethodWithOffset method: OrderedCollection >> #makeRoomAtLast offset: 83).
-				(MethodWithOffset method: OrderedCollection >> #growAtLast offset: 74) }.
+				(IllMethodWithOffset method: OrderedCollection >> #add: offset: 35).
+				(IllMethodWithOffset method: OrderedCollection >> #addLast: offset: 47).
+				(IllMethodWithOffset method: OrderedCollection >> #makeRoomAtLast offset: 83).
+				(IllMethodWithOffset method: OrderedCollection >> #growAtLast offset: 74) }.
 			{
-				(MethodWithOffset method: Association class >> #key:value: offset: 42) } }
+				(IllMethodWithOffset method: Association class >> #key:value: offset: 42) } }
 ]
 
 { #category : 'running' }

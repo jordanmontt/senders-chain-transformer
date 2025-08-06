@@ -111,6 +111,11 @@ AllocationSiteClassificator >> endTime: anInteger [
 	endTime := anInteger
 ]
 
+{ #category : 'accessing' }
+AllocationSiteClassificator >> groupedAllocationSites [
+	^ groupedAllocationSites
+]
+
 { #category : 'initialization' }
 AllocationSiteClassificator >> initialize [
 

@@ -21,18 +21,18 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> setUp [
 
 	pretenurator := AllocationSitesPretenurer new.
 
-	initialCaller := MethodWithOffset
+	initialCaller := IllMethodWithOffset
 		                 method: SCMockClassWithDumbMethods >> #addOccupant:
-		                 offset: 81.
+		                 offset: 79.
 	senders := {
-		           (MethodWithOffset method: Association class >> #key:value: offset: 42).
-		           (MethodWithOffset method: Dictionary >> #at:put: offset: 82).
-		           (MethodWithOffset method: (Dictionary >> #at:ifAbsentPut:) literals first offset: 21).
-		           (MethodWithOffset method: Dictionary >> #at:ifAbsent: offset: 54).
-		           (MethodWithOffset method: Dictionary >> #at:ifAbsentPut: offset: 48) }.
+		           (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
+		           (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
+		           (IllMethodWithOffset method: (Dictionary >> #at:ifAbsentPut:) literals first offset: 21).
+		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsent: offset: 54).
+		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsentPut: offset: 48) }.
 
-	initialCaller2 := MethodWithOffset
-		                  method: (SCMockClassWithDumbMethods >> #addOccupant: literalsAt: 4)
+	initialCaller2 := IllMethodWithOffset
+		                  method: (SCMockClassWithDumbMethods >> #addOccupant: literalsAt: 4) method
 		                  offset: 26.
 	senders2 := {  }.
 	toPretenureAllocationSites := { (senders , { initialCaller }). (senders2 , { initialCaller2 }) }

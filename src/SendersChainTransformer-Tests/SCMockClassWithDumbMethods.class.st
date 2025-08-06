@@ -59,3 +59,9 @@ SCMockClassWithDumbMethods >> theMethodWithBlock [
 		SCMockClassWithDumbMethods new "this is the selector to change" ].
 	^ self
 ]
+
+{ #category : 'api' }
+SCMockClassWithDumbMethods >> theOccupants [
+
+	^ Dictionary new
+]

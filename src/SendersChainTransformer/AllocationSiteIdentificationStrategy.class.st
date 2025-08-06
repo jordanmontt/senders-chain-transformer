@@ -23,3 +23,9 @@ AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode fromAl
 
 	^ self subclassResponsibility
 ]
+
+{ #category : 'api' }
+AllocationSiteIdentificationStrategy >> setupForGraph: allocationGraph andSamples: samples [
+
+	"Override me"
+]

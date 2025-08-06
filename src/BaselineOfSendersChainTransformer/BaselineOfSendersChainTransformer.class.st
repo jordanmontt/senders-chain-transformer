@@ -12,15 +12,13 @@ BaselineOfSendersChainTransformer >> baseline: spec [
 	spec for: #common do: [
 		"Packages"
 		spec package: 'SendersChainTransformer'.
-		spec package: 'SendersChainTransformer-TestUtilities'.
-		spec package: 'SendersChainTransformer-Tests'
-			with: [ spec requires: #( 'SendersChainTransformer'  'SendersChainTransformer-TestUtilities') ].
+		spec package: 'SendersChainTransformer-Tests' with: [ spec requires: #( 'SendersChainTransformer' ) ].
 
 		"External dependencies"
 		spec baseline: 'MethodProxies' with: [ spec repository: 'github://pharo-contributions/MethodProxies' ].
 		spec baseline: 'IllimaniProfiler' with: [ spec repository: 'github://jordanmontt/illimani-memory-profiler:dev' ].
 		"Linking external dependencies"
-		spec package: 'SendersChainTransformer-Tests' with: [ spec requires: #( 'MethodProxies' 'IllimaniProfiler') ].
+		spec package: 'SendersChainTransformer' with: [ spec requires: #( 'MethodProxies' 'IllimaniProfiler') ].
 
 		"Groups"
 		spec group: 'default' with: #( 'core' 'tests' ).

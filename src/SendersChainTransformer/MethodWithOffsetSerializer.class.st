@@ -29,7 +29,7 @@ MethodWithOffsetSerializer >> deserialize: aString [
 					source: (aDict at: 'sourceCode');
 					compile.
 				offset := NumberParser parse: (aDict at: 'offset').
-				MethodWithOffset method: compiledMethod offset: offset ] ].
+				IllMethodWithOffset method: compiledMethod offset: offset ] ].
 	^ methodsWithOffsets
 ]
 

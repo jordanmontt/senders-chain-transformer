@@ -211,10 +211,10 @@ CodeTransformationMergerTest >> testNew [
 	
 	originalMethod := SCMockClassWithDumbMethods >> #addOccupant:.
 	transformation1 := codeTransformer transformMessageSend:
-		                   (MethodWithOffset method: SCMockClassWithDumbMethods >> #addOccupant: offset: 81).
+		                   (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #addOccupant: offset: 79).
 	transformation2 := codeTransformer transformMessageSend:
-		                   (MethodWithOffset
-			                    method: ((SCMockClassWithDumbMethods >> #addOccupant:) literals detect: #isCompiledBlock)
+		                   (IllMethodWithOffset
+			                    method: ((SCMockClassWithDumbMethods >> #addOccupant:) literals detect: #isClosure) method
 			                    offset: 26).
 
 	transformedMethod := codeMerger mergeCompiledMethods: { transformation1. transformation2 } into: originalMethod.

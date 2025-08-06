@@ -75,7 +75,7 @@ AllocationSitesExperiment >> getToPretenureAllocationSites [
 			sendersToPretenure addAll:
 				(allocationGraphNode allocationPaths collect: [ :aCollection |
 						 aCollection collect: [ :edge |
-							 MethodWithOffset
+							 IllMethodWithOffset
 								 method: edge sourceNode method
 								 offset: edge offset ] ]) ].
 

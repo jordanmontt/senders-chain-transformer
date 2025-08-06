@@ -67,6 +67,8 @@ CallSiteTransformer >> mergeTransformedSenders [
 CallSiteTransformer >> removeAlreadyImplemented: senders [
 	"These methods are already implemented as extension methods as they are methods that require special treatment. So we need to ignore them because we will transform incorrectly the method."
 	| toBan |
+	self class package extensionMethods do: [ :e | self assert: (e name includesSubstring: 'Tenured') ].
+
 	toBan := (self class package extensionMethods collect: #name) 
 			collect: [ :e | e copyReplaceAll: 'Tenured' with: '' ].
 	^ senders reject: [ :aMethodWithOffset | toBan includes: aMethodWithOffset name ]

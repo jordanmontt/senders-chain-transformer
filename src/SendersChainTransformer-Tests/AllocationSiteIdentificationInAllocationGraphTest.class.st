@@ -53,7 +53,7 @@ AllocationSiteIdentificationInAllocationGraphTest >> testAllocationPaths [
 
 	| m2Node basicNewNode expectedPath actualPath |
 	allocationGraph identifyAllocationSitesUsing:
-		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
+		(MethodFromTheSamePackageStrategy packagesToMatch: { AllocationGraphFixture package }).
 	m2Node := allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2.
 	basicNewNode := allocationGraph nodeAtMethod: Behavior >> #basicNew.
 	expectedPath := (allocationGraph allPathsFrom: m2Node to: basicNewNode) first.
@@ -87,7 +87,7 @@ AllocationSiteIdentificationInAllocationGraphTest >> testAllocationSiteDetection
 
 	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).
 	allocationGraph identifyAllocationSitesUsing:
-		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
+		(MethodFromTheSamePackageStrategy packagesToMatch: { AllocationGraphFixture package }).
 
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.
@@ -122,7 +122,7 @@ AllocationSiteIdentificationInAllocationGraphTest >> testDetectAllocationSiteDef
 AllocationSiteIdentificationInAllocationGraphTest >> testDetectAllocationSitesUsingMethodInPackage [
 
 	allocationGraph identifyAllocationSitesUsing:
-		(MethodFromTheSamePackageStrategy packagesToMatch: { self class package }).
+		(MethodFromTheSamePackageStrategy packagesToMatch: { AllocationGraphFixture package }).
 
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.

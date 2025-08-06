@@ -205,17 +205,21 @@ CodeTransformationMergerTest >> testMergeCodeTransformationsInSeveralChanges [
 { #category : 'tests' }
 CodeTransformationMergerTest >> testNew [
 
-	| transformation1 transformation2 originalMethod transformedMethod expectedMethod codeTransformer |
+	| transformation1 transformation2 originalMethod transformedMethod expectedMethod codeTransformer aCompiledBlock|
 
 	codeTransformer := CallSiteTransformer new.
 	
 	originalMethod := SCMockClassWithDumbMethods >> #addOccupant:.
 	transformation1 := codeTransformer transformMessageSend:
-		                   (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #addOccupant: offset: 79).
+			(IllMethodWithOffset
+				method: SCMockClassWithDumbMethods >> #addOccupant:
+				offset: ((SCMockClassWithDumbMethods >> #addOccupant:) symbolicBytecodes detect: [ :e | e description = 'send: at:ifAbsentPut:' ]) offset).
+				
+	aCompiledBlock := ((SCMockClassWithDumbMethods >> #addOccupant:) literals at: 4) compiledBlock.
 	transformation2 := codeTransformer transformMessageSend:
 		                   (IllMethodWithOffset
-			                    method: ((SCMockClassWithDumbMethods >> #addOccupant:) literals detect: #isClosure) method
-			                    offset: 26).
+			                    method: aCompiledBlock
+			                    offset: (aCompiledBlock symbolicBytecodes detect: [ :e | e description = 'send: new' ]) offset).
 
 	transformedMethod := codeMerger mergeCompiledMethods: { transformation1. transformation2 } into: originalMethod.
 

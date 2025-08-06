@@ -13,10 +13,14 @@ Class {
 { #category : 'running' }
 SendersChainTransformerWithBlockClosureTest >> setUp [
 
+	
 	super setUp.
 
+	"The compiledBlock is necessary since in the newest versions of Pharo they added clean blocks. And clean blocks do not allocate the closure at run time.
+	They put the closure in the literal frame "
+	
 	initialCaller := IllMethodWithOffset
-		method: (SCMockClassWithDumbMethods >> #theMethodWithBlock) literals third method "the desired block closure"
+		method: (SCMockClassWithDumbMethods >> #theMethodWithBlock) literals third compiledBlock
 		offset: 37.
 
 	codeTransformer := CallSiteTransformer new

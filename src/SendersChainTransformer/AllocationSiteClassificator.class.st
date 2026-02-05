@@ -98,7 +98,7 @@ AllocationSiteClassificator >> classifyAllocationSites [
 ]
 
 { #category : 'api' }
-AllocationSiteClassificator >> computeLongLivedAllocationSites [
+AllocationSiteClassificator >> classifyEdgesByLifetime [
 
 	self binObjects.
 	self pruneAllocationSites.

@@ -14,7 +14,7 @@ SCHandler >> afterExecutionWithReceiver: anObject arguments: anArrayOfObjects re
 
 	| filteredContext |
 	filteredContext := thisContext sender. "this is the MethodProxies Handler"
-	calledMethods add: filteredContext selector.
+	calledMethods add: filteredContext sender selector.
 	^ returnValue
 ]
 

@@ -21,6 +21,7 @@ CallSiteTransformerTest >> setUp [
 
 	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
 	senders := {
+					 " (IllMethodWithOffset method: Behavior >> #basicNew offset: 73)."
 		           (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
 		           (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
 		           (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
@@ -39,7 +40,7 @@ CallSiteTransformerTest >> testExtensionMethods [
 CallSiteTransformerTest >> testInstallMethodWithNewSelector [
 
 	| aMethodWithOffset tenuredNewSelector clonedCompiledMethod |
-	aMethodWithOffset := senders last "SCAnotherMockClass >> #bar".
+	aMethodWithOffset := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47.
 	tenuredNewSelector := codeTransformer makeNewSelector: #bar.
 
 	"Make sure the method does not exist yet"
@@ -103,7 +104,7 @@ CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 CallSiteTransformerTest >> testTransformMessageSend [
 
 	| aMethodWithOffset tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
-	aMethodWithOffset := senders second. "Dictionary >> #at:put:"
+	aMethodWithOffset :=  IllMethodWithOffset method: Dictionary >> #at:put: offset: 82.
 	expectedSelector := codeTransformer makeNewSelector: (aMethodWithOffset method sourceNodeForPC: aMethodWithOffset offset) selector.
 
 	self

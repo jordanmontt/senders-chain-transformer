@@ -17,6 +17,7 @@ Class {
 { #category : 'running' }
 SendersChainTransformerTwoAllocationSitesSameMethodTest >> setUp [
 
+	| blockClosure |
 	super setUp.
 
 	pretenurator := AllocationSitesPretenurer new.
@@ -31,8 +32,9 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> setUp [
 		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsent: offset: 54).
 		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsentPut: offset: 48) }.
 
+	blockClosure := (SCMockClassWithDumbMethods >> #addOccupant:) literals detect: #isBlock.
 	initialCaller2 := IllMethodWithOffset
-		                  method: (SCMockClassWithDumbMethods >> #addOccupant: literalsAt: 4) compiledBlock
+		                  method: blockClosure compiledBlock
 		                  offset: 26.
 	senders2 := {  }.
 	toPretenureAllocationSites := { (senders , { initialCaller }). (senders2 , { initialCaller2 }) }

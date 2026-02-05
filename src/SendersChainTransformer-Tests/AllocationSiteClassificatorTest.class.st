@@ -32,7 +32,8 @@ AllocationSiteClassificatorTest >> setUpAllocationGraph [
 			yourself.
 
 	samples := profiler objectAllocations select: [ :ephemeron |
-			{ Array. Behavior } includes: ephemeron allocatedObjectClass ].
+			{ AllocationGraphFixtureArray . AllocationGraphFixtureElement }
+				includes: ephemeron allocatedObjectClass ].
 
 	allocationGraph := AllocationGraph onSamples: samples.
 	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).

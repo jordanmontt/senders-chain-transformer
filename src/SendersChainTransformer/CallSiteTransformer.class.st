@@ -123,7 +123,7 @@ CallSiteTransformer >> transformMessageSend: methodWithOffset [
 		ifTrue: [ (ast sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
 		ifFalse: [ ast sourceNodeForPC: offset ].
 
-	messageNodeToTransform selector: (self makeNewSelector: messageNodeToTransform selector).
+	messageNodeToTransform selector: (OCSelectorNode value: (self makeNewSelector: messageNodeToTransform selector)).
 
 	transformedCompiledMethod := ast methodNode generateIR generate.
 	transformedCompiledMethod propertyAt: #source put: ast formattedCode.

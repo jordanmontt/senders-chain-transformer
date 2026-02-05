@@ -28,7 +28,7 @@ CodeTransformationsMerger >> mergeCompiledMethods: compiledMethodsWithTransforma
 			with: (aCompiledMethod parseTree allChildren select: #isMessage)
 			do: [ :nodeToTransform :nodeWithChanges |
 				(self isTenuredSelector: nodeWithChanges selector) ifTrue: [
-					nodeToTransform selector: nodeWithChanges selector ] ] ].
+					nodeToTransform selector: (OCSelectorNode value: nodeWithChanges selector) ] ] ].
 	mergedCompiledMethod := astToTransform methodNode generateIR generate.
 	mergedCompiledMethod propertyAt: #source put: astToTransform formattedCode.
 	^ mergedCompiledMethod

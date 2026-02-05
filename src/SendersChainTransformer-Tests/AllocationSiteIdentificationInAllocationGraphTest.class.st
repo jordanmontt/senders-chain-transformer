@@ -18,7 +18,7 @@ AllocationSiteIdentificationInAllocationGraphTest >> setUp [
 		            profileOn: [ AllocationGraphFixture entryPoint ];
 		            yourself.
 	samples := profiler objectAllocations select: [ :ephemeron |
-		           { Array. Behavior } includes: ephemeron allocatedObjectClass ].
+		           { AllocationGraphFixtureElement . AllocationGraphFixtureArray } includes: ephemeron allocatedObjectClass ].
 	allocationGraph := AllocationGraph new
 		                   setUpForSamples: samples;
 		                   yourself.
@@ -175,5 +175,5 @@ AllocationSiteIdentificationInAllocationGraphTest >> testPruneGraphFromRoot [
 	"Check leaves"
 	self assert: (allocationGraph nodeAtMethod: Behavior >> #basicNew) allocatedSamples size equals: 10.
 	self assert: (allocationGraph nodeAtMethod: Behavior >> #basicNewTenured) allocatedSamples size equals: 30.
-	self assert: (allocationGraph nodeAtMethod: Array class >> #new:) allocatedSamples size equals: 20
+	self assert: (allocationGraph nodeAtMethod: ArrayedCollection class >> #new:) allocatedSamples size equals: 20
 ]

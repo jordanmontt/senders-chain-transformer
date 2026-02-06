@@ -5,9 +5,9 @@ Class {
 		'mockedObjectAllocations',
 		'initialTime'
 	],
-	#category : 'SendersChainTransformer-Tests-Tests',
+	#category : 'SendersChainTransformer-Tests-Classification',
 	#package : 'SendersChainTransformer-Tests',
-	#tag : 'Tests'
+	#tag : 'Classification'
 }
 
 { #category : 'initialization' }

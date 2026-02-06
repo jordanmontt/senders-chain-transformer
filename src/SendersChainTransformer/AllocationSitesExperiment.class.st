@@ -88,7 +88,7 @@ AllocationSitesExperiment >> extractLongLivedSendersChains [
 
 	allocationSiteNodes do: [ :node |
 		sendersToPretenure addAll:
-			(node allocationPaths collect: [ :aCollection |
+			(node allocationCallStacks collect: [ :aCollection |
 				aCollection collect: [ :edge |
 					IllMethodWithOffset method: edge sourceNode method offset: edge offset ] ]) ].
 

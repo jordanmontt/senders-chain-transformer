@@ -9,9 +9,9 @@ Class {
 		'profiler',
 		'allocationGraph'
 	],
-	#category : 'SendersChainTransformer-Tests-Tests',
+	#category : 'SendersChainTransformer-Tests-Classification',
 	#package : 'SendersChainTransformer-Tests',
-	#tag : 'Tests'
+	#tag : 'Classification'
 }
 
 { #category : 'running' }
@@ -32,12 +32,10 @@ AllocationSiteClassificatorTest >> setUpAllocationGraph [
 			yourself.
 
 	samples := profiler objectAllocations select: [ :ephemeron |
-			{ AllocationGraphFixtureArray . AllocationGraphFixtureElement }
-				includes: ephemeron allocatedObjectClass ].
+			{ AllocationGraphFixtureArray . AllocationGraphFixtureElement } includes: ephemeron allocatedObjectClass ].
 
 	allocationGraph := AllocationGraph onSamples: samples.
-	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).
-	allocationGraph identifyAllocationSitesUsing: TextualLocationOfNewStrategy new.
+	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint)
 ]
 
 { #category : 'tests' }

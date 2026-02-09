@@ -99,20 +99,20 @@ AllocationSitesExperiment >> extractLongLivedSendersChains [
 { #category : 'initialization' }
 AllocationSitesExperiment >> initialize [
 
-	super initialize.
+    super initialize.
 
-	allocationSiteClassificator := AllocationSiteClassificator new.
-	pretenurator := AllocationSitesPretenurer new.
-	self useTextualLocationStrategy
+    allocationSiteClassificator := AllocationSiteClassificator new.
+    pretenurator := AllocationSitesPretenurer new.
+    sendersToPretenure := OrderedCollection new.
+
+    self useTextualLocationStrategy
 ]
 
 { #category : 'inspector' }
 AllocationSitesExperiment >> inspector: aBuilder [
 
-	<inspectorPresentationOrder: 0 title: 'To Pretenure Sites'>
-	^( aBuilder instantiate: SpListPresenter)
-		items: sendersToPretenure ;
-		yourself
+    <inspectorPresentationOrder: 0 title: 'To Pretenure Sites'>
+    ^ sendersToPretenure inspectionItems: aBuilder
 ]
 
 { #category : 'removing' }

@@ -49,16 +49,16 @@ PaperStrategy >> applicationPackagesNames: aCollectionOfSymbols [
 ]
 
 { #category : 'api' }
-PaperStrategy >> hasIncomingShortLivedEdges: anAllocationGraphNode [
+PaperStrategy >> hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode [
 
-    ^ (anAllocationGraphNode incomingEdges select: #isShortLived) isNotEmpty
+    ^ (anAllocationGraphNode incomingEdges select: #isShortLived) isEmpty
 ]
 
 { #category : 'api' }
 PaperStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
     ^ (self isApplicationMethod: anAllocationGraphNode)
-      & (self hasIncomingShortLivedEdges: anAllocationGraphNode) not
+      & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
 ]
 
 { #category : 'api' }

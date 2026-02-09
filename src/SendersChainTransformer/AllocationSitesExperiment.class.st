@@ -143,7 +143,7 @@ AllocationSitesExperiment >> run [
 
    	self classifyEdgesByLifetime.
 
-	allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
+	allocationGraph traverseLongLivedSenderChainsUsing: allocationSiteStrategy.
    self extractLongLivedSendersChains.
 
 	"self rewriteAllocationSites"

@@ -1,5 +1,5 @@
 Class {
-	#name : 'DefaultStrategy',
+	#name : 'MethodInPackageStrategy',
 	#superclass : 'AllocationSiteIdentificationStrategy',
 	#instVars : [
 		'applicationPackages'
@@ -13,7 +13,7 @@ Class {
 }
 
 { #category : 'instance creation' }
-DefaultStrategy class >> applicationPackages: aCol [
+MethodInPackageStrategy class >> applicationPackages: aCol [
 
     ^ self new
           applicationPackages: aCol;
@@ -21,7 +21,7 @@ DefaultStrategy class >> applicationPackages: aCol [
 ]
 
 { #category : 'instance creation' }
-DefaultStrategy class >> applicationPackagesNames: aCol [
+MethodInPackageStrategy class >> applicationPackagesNames: aCol [
 
     ^ self new
           applicationPackagesNames: aCol;
@@ -29,7 +29,7 @@ DefaultStrategy class >> applicationPackagesNames: aCol [
 ]
 
 { #category : 'class initialization' }
-DefaultStrategy class >> initialize [
+MethodInPackageStrategy class >> initialize [
 
     | repo |
     repo := IceRepository registry detect: [ :each | each name = 'pharo' ].
@@ -37,37 +37,37 @@ DefaultStrategy class >> initialize [
 ]
 
 { #category : 'accessing' }
-DefaultStrategy >> applicationPackages: aCollectionOfPackages [
+MethodInPackageStrategy >> applicationPackages: aCollectionOfPackages [
 
     self applicationPackagesNames: (aCollectionOfPackages collect: #name)
 ]
 
 { #category : 'accessing' }
-DefaultStrategy >> applicationPackagesNames: aCollectionOfSymbols [
+MethodInPackageStrategy >> applicationPackagesNames: aCollectionOfSymbols [
 
     applicationPackages := aCollectionOfSymbols
 ]
 
 { #category : 'api' }
-DefaultStrategy >> hasIncomingShortLivedEdges: anAllocationGraphNode [
+MethodInPackageStrategy >> hasIncomingShortLivedEdges: anAllocationGraphNode [
 
     ^ (anAllocationGraphNode incomingEdges select: #isShortLived) isNotEmpty
 ]
 
 { #category : 'api' }
-DefaultStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
+MethodInPackageStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
     ^ self isApplicationMethod: anAllocationGraphNode
 ]
 
 { #category : 'api' }
-DefaultStrategy >> isApplicationMethod: anAllocationGraphNode [
+MethodInPackageStrategy >> isApplicationMethod: anAllocationGraphNode [
 
     ^ applicationPackages includes: anAllocationGraphNode method package name
 ]
 
 { #category : 'api' }
-DefaultStrategy >> isKernelMethod: anAllocationGraphNode [
+MethodInPackageStrategy >> isKernelMethod: anAllocationGraphNode [
 
     ^ KernelPackages includes: anAllocationGraphNode method package name
 ]

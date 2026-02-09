@@ -6,21 +6,25 @@ Class {
 	#tag : 'Allocation-Site-Identification'
 }
 
-{ #category : 'api' }
-TextualLocationOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
-    "It is expected that the allocation paht is set by this method."
+{ #category : 'initialization' }
+TextualLocationOfNewStrategy class >> setUpForGraph: anAllocationGraph [
 
-    "anAllocationGraphNode isTextualAllocationSite ""The profiler gives by default the textual allocation site""
-			ifTrue: [ anAllocationGraphNode appendPath: aListOfNodes ]."
-
-    ^ anAllocationGraphNode isTextualAllocationSite and: [
-          aListOfEdges allSatisfy: [ :edge | edge isLongLived ] ]
+    ^ self new
+          setupForGraph: anAllocationGraph;
+          yourself
 ]
 
 { #category : 'api' }
-TextualLocationOfNewStrategy >> setupForGraph: allocationGraph andSamples: samples [
+TextualLocationOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
-	| textualAllocationMethods |
+    ^ anAllocationGraphNode isTextualAllocationSite
+]
+
+{ #category : 'api' }
+TextualLocationOfNewStrategy >> setUpForGraph: allocationGraph [
+
+	| textualAllocationMethods samples |
+	samples := allocationGraph samples.
 	textualAllocationMethods := samples collect: #textualAllocatorMethod as: Set.
 	textualAllocationMethods do: [ :aMethod |
 		(allocationGraph nodeFor: aMethod) beTextualAllocationSite ]

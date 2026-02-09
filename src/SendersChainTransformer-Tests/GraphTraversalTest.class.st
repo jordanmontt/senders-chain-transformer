@@ -21,9 +21,7 @@ GraphTraversalTest >> setUp [
 		           { AllocationGraphFixtureElement . AllocationGraphFixtureArray } includes: ephemeron allocatedObjectClass ].
 	allocationGraph := AllocationGraph new
 		                   setUpForSamples: samples;
-		                   yourself.
-	
-	allocationGraph edges do: #beLongLived.
+		                   yourself
 ]
 
 { #category : 'tests' }
@@ -49,63 +47,10 @@ GraphTraversalTest >> testAllPathsFromTo [
 ]
 
 { #category : 'tests' }
-GraphTraversalTest >> testAllocationCallStackMatchesPath [
-
-	| m2Node basicNewNode expectedPath allocationCallStack |
-	allocationGraph identifyAllocationSitesUsing:
-		(DefaultStrategy applicationPackages: { AllocationGraphFixture package }).
-
-	m2Node := allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2.
-	basicNewNode := allocationGraph nodeAtMethod: Behavior >> #basicNew.
-	expectedPath := (allocationGraph allPathsFrom: m2Node to: basicNewNode) first.
-	allocationCallStack := m2Node allocationCallStacks first reversed.
-	
-	self assert: allocationCallStack first sourceNode equals: expectedPath first.
-	self assert: allocationCallStack first targetNode equals: expectedPath second.
-	self assert: allocationCallStack second targetNode equals: expectedPath third
-]
-
-{ #category : 'tests' }
-GraphTraversalTest >> testAllocationSiteDetectionAfterPruning [
-
-	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).
-	allocationGraph identifyAllocationSitesUsing: TextualLocationOfNewStrategy new.
-
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m3) isAllocationSite.
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m4) isAllocationSite.
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m5) isAllocationSite.
-
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m6) isAllocationSite.
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m7) isAllocationSite.
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint) isAllocationSite
-]
-
-{ #category : 'tests' }
-GraphTraversalTest >> testAllocationSiteDetectionAfterPruningMethodInPackage [
-
-	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint).
-	allocationGraph identifyAllocationSitesUsing:
-		(DefaultStrategy applicationPackages: { AllocationGraphFixture package }).
-
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m3) isAllocationSite.
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m4) isAllocationSite.
-	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m5) isAllocationSite.
-
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m6) isAllocationSite.
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m7) isAllocationSite.
-	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint) isAllocationSite
-]
-
-{ #category : 'tests' }
 GraphTraversalTest >> testDetectAllocationSiteDefault [
 
-	allocationGraph identifyAllocationSitesUsing: TextualLocationOfNewStrategy new.
+	allocationGraph edges do: #beLongLived.
+	allocationGraph traverseLongLivedSenderChainsUsing: (TextualLocationOfNewStrategy new setUpForGraph: allocationGraph).
 
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixtureUtilities class >> #mm) isAllocationSite.	
@@ -122,8 +67,15 @@ GraphTraversalTest >> testDetectAllocationSiteDefault [
 { #category : 'tests' }
 GraphTraversalTest >> testDetectAllocationSitesUsingMethodInPackage [
 
-	allocationGraph identifyAllocationSitesUsing:
-		(DefaultStrategy applicationPackages: { AllocationGraphFixture package }).
+	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
+	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.
+	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m3) isAllocationSite.
+	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m4) isAllocationSite.
+	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m5) isAllocationSite.
+	
+	allocationGraph edges do: #beLongLived.
+	allocationGraph traverseLongLivedSenderChainsUsing:
+		(MethodInPackageStrategy applicationPackages: { AllocationGraphFixture package }).
 
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.

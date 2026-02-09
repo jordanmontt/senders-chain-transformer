@@ -51,7 +51,7 @@ CodeTransformationsMerger >> mergeTransformedCompiledMethods: compiledMethods [
 		| originalCompiledMethod mergedCompiledMethod |
 		originalCompiledMethod := (OpalCompiler new source: methodName; evaluate).
 		mergedCompiledMethod := self mergeCompiledMethods: collection into: originalCompiledMethod.
-		repetitions at: methodName put: { mergedCompiledMethod } "Put the merged method" ].
+		repetitions at: methodName put: { mergedCompiledMethod } ].
 
 	^ repetitions values flattened
 ]

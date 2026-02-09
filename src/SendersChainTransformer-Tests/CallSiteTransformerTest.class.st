@@ -17,16 +17,15 @@ Class {
 { #category : 'running' }
 CallSiteTransformerTest >> setUp [
 
-	super setUp.
+    super setUp.
 
-	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
-	senders := {
-					 " (IllMethodWithOffset method: Behavior >> #basicNew offset: 73)."
-		           (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
-		           (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
-		           (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
+    initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
+    senders := {
+                   (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
+                   (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
+                   (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
 
-	codeTransformer := CallSiteTransformer new
+    codeTransformer := CallSiteTransformer new
 ]
 
 { #category : 'tests' }
@@ -96,7 +95,7 @@ CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 	self
 		shouldnt: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
-		
+
 	codeTransformer restoreOriginalState
 ]
 

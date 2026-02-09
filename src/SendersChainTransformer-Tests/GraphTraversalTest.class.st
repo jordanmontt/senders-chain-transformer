@@ -144,7 +144,7 @@ GraphTraversalTest >> testTraverseLongLivedSenderChains [
 	allocationGraph edges do: #beShortLived.
 	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: (AllocationGraphFixture class >> #entryPoint)).
 	expectedSendersChains := OrderedCollection new.
-	
+
 	expectedSendersChains add: {
 		(allocationGraph edgeFrom: AllocationGraphFixture class >> #m1 to: Behavior >> #basicNew).
 		(allocationGraph edgeFrom: AllocationGraphFixture class >> #m6 to: AllocationGraphFixture class >> #m1) }.
@@ -155,13 +155,35 @@ GraphTraversalTest >> testTraverseLongLivedSenderChains [
 		(allocationGraph edgeFrom: AllocationGraphFixture class >> #m4 to: Behavior >> #basicNewTenured).
 		(allocationGraph edgeFrom: AllocationGraphFixture class >> #m7 to: AllocationGraphFixture class >> #m4) }.
 	expectedSendersChains do: [ :col | col do: #beLongLived ].
-	
+
 	(allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m6) beAllocationSite.
 	(allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m7) beAllocationSite.
-	
+
 	allocationGraph traverseLongLivedSenderChainsUsing: NodeBasedAllocationSiteStrategy new.
 	sendersChains := (allocationGraph nodes select: #isAllocationSite) flatCollect: #allocationCallStacks.
 
 	self assert: expectedSendersChains size equals: sendersChains size.
 	self assertCollection: expectedSendersChains hasSameElements: sendersChains
+]
+
+{ #category : 'tests' }
+GraphTraversalTest >> testTraverseLongLivedSenderChainsLongChain [
+
+	| sendersChain expectedSendersChain |
+	allocationGraph edges do: #beShortLived.
+	allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: (AllocationGraphFixture class >> #entryPoint)).
+	expectedSendersChain := OrderedCollection new.
+
+	expectedSendersChain addAll: {
+		(allocationGraph edgeFrom: AllocationGraphFixture class >> #m4 to: Behavior >> #basicNewTenured).
+		(allocationGraph edgeFrom: AllocationGraphFixture class >> #m7 to: AllocationGraphFixture class >> #m4).
+		(allocationGraph edgeFrom: AllocationGraphFixture class >> #entryPoint to: AllocationGraphFixture class >> #m7) }.
+	expectedSendersChain do: #beLongLived.
+	(allocationGraph nodeAtMethod: AllocationGraphFixture class >> #entryPoint) beAllocationSite.
+
+	allocationGraph traverseLongLivedSenderChainsUsing: NodeBasedAllocationSiteStrategy new.
+	sendersChain := (allocationGraph nodes detect: #isAllocationSite) allocationCallStacks flattened.
+
+	self assert: expectedSendersChain size equals: sendersChain size.
+	self assertCollection: expectedSendersChain hasSameElements: sendersChain
 ]

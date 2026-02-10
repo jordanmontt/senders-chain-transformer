@@ -49,6 +49,13 @@ PaperStrategy >> applicationPackagesNames: aCollectionOfSymbols [
 ]
 
 { #category : 'api' }
+PaperStrategy >> edgesHaveOnlyOneAllocatedObjectType: aListOfEdges [
+
+    ^ aListOfEdges allSatisfy: [ :edge |
+          (edge allocatedSamples collect: #allocatedObjectClass as: Set) size = 1 ]
+]
+
+{ #category : 'api' }
 PaperStrategy >> hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode [
 
     ^ (anAllocationGraphNode incomingEdges select: #isShortLived) isEmpty
@@ -59,6 +66,7 @@ PaperStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aLi
 
     ^ (self isApplicationMethod: anAllocationGraphNode)
       & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
+      "& (self edgesHaveOnlyOneAllocatedObjectType: aListOfEdges)"
 ]
 
 { #category : 'api' }

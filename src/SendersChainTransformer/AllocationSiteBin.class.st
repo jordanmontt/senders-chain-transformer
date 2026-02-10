@@ -96,10 +96,11 @@ AllocationSiteBin >> initialize [
 ]
 
 { #category : 'inspector' }
-AllocationSiteBin >> inspectorAllocSite [
+AllocationSiteBin >> inspectorAllocSite: aBuilder [
 
-	<inspectorPresentationOrder: 901 title: 'Allocation site'>
-	^ (IllMethodWithOffset method: allocationSite sourceNode offset: allocationSite offset) inspectorPresenter
+    <inspectorPresentationOrder: 901 title: 'Allocation site'>
+    ^ (IllMethodWithOffset method: allocationSite sourceNode offset: allocationSite offset)
+          inspectorPresenter: aBuilder
 ]
 
 { #category : 'testing' }

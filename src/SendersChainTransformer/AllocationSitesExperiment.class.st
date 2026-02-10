@@ -17,7 +17,8 @@ Class {
 		'allocationSiteClassificator',
 		'rawAllocationsSamples',
 		'allocationGraph',
-		'sendersToPretenure'
+		'sendersToPretenure',
+		'edgesAllocationSites'
 	],
 	#category : 'SendersChainTransformer-Experiment',
 	#package : 'SendersChainTransformer',
@@ -82,18 +83,19 @@ AllocationSitesExperiment >> exportAllocationSites: fileName [
 { #category : 'api' }
 AllocationSitesExperiment >> extractLongLivedSendersChains [
 
-	| allocationSiteNodes |
-	allocationSiteNodes := allocationGraph nodes select: #isAllocationSite.
-	sendersToPretenure := OrderedCollection new.
+    | allocationSiteNodes |
+    allocationSiteNodes := allocationGraph nodes select: #isAllocationSite.
+    sendersToPretenure := OrderedCollection new.
+    edgesAllocationSites := OrderedCollection new.
 
-	allocationSiteNodes do: [ :node |
-		sendersToPretenure addAll:
-			(node allocationCallStacks collect: [ :aCollection |
-				aCollection collect: [ :edge |
-					IllMethodWithOffset method: edge sourceNode method offset: edge offset ] ]) ].
+    allocationSiteNodes do: [ :node |
+            edgesAllocationSites addAll: node allocationCallStacks.
+            sendersToPretenure addAll: (node allocationCallStacks collect: [ :aCollection |
+                     aCollection collect: [ :edge |
+                         IllMethodWithOffset method: edge sourceNode method offset: edge offset ] ]) ].
 
-	sendersToPretenure := sendersToPretenure select: #isNotEmpty.
-	^ sendersToPretenure
+    sendersToPretenure := sendersToPretenure select: #isNotEmpty.
+    ^ sendersToPretenure
 ]
 
 { #category : 'initialization' }

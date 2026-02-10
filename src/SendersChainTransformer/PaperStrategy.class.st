@@ -51,8 +51,11 @@ PaperStrategy >> applicationPackagesNames: aCollectionOfSymbols [
 { #category : 'api' }
 PaperStrategy >> edgesHaveOnlyOneAllocatedObjectType: aListOfEdges [
 
-    ^ aListOfEdges allSatisfy: [ :edge |
-          (edge allocatedSamples collect: #allocatedObjectClass as: Set) size = 1 ]
+    | typesInAllocatorEdge |
+    aListOfEdges ifEmpty: [ ^ true ].
+    typesInAllocatorEdge := aListOfEdges first allocatedSamples collect: #allocatedObjectClass as: Set.
+    ^ aListOfEdges allButFirst allSatisfy: [ :edge |
+        (edge allocatedSamples collect: #allocatedObjectClass as: Set) includesAll: typesInAllocatorEdge ]
 ]
 
 { #category : 'api' }
@@ -66,7 +69,7 @@ PaperStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aLi
 
     ^ (self isApplicationMethod: anAllocationGraphNode)
       & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
-      "& (self edgesHaveOnlyOneAllocatedObjectType: aListOfEdges)"
+      & (self edgesHaveOnlyOneAllocatedObjectType: aListOfEdges)
 ]
 
 { #category : 'api' }

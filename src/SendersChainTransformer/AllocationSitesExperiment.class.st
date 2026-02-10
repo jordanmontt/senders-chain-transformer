@@ -18,7 +18,7 @@ Class {
 		'rawAllocationsSamples',
 		'allocationGraph',
 		'sendersToPretenure',
-		'edgesAllocationSites'
+		'edgesToPretenure'
 	],
 	#category : 'SendersChainTransformer-Experiment',
 	#package : 'SendersChainTransformer',
@@ -86,10 +86,10 @@ AllocationSitesExperiment >> extractLongLivedSendersChains [
     | allocationSiteNodes |
     allocationSiteNodes := allocationGraph nodes select: #isAllocationSite.
     sendersToPretenure := OrderedCollection new.
-    edgesAllocationSites := OrderedCollection new.
+    edgesToPretenure := OrderedCollection new.
 
     allocationSiteNodes do: [ :node |
-            edgesAllocationSites addAll: node allocationCallStacks.
+            edgesToPretenure addAll: node allocationCallStacks.
             sendersToPretenure addAll: (node allocationCallStacks collect: [ :aCollection |
                      aCollection collect: [ :edge |
                          IllMethodWithOffset method: edge sourceNode method offset: edge offset ] ]) ].
@@ -106,6 +106,7 @@ AllocationSitesExperiment >> initialize [
     allocationSiteClassificator := AllocationSiteClassificator new.
     pretenurator := AllocationSitesPretenurer new.
     sendersToPretenure := OrderedCollection new.
+    edgesToPretenure := OrderedCollection new.
 
     self useTextualLocationStrategy
 ]
@@ -113,8 +114,15 @@ AllocationSitesExperiment >> initialize [
 { #category : 'inspector' }
 AllocationSitesExperiment >> inspector: aBuilder [
 
-    <inspectorPresentationOrder: 0 title: 'To Pretenure Sites'>
+    <inspectorPresentationOrder: 1 title: 'To Pretenure Sites'>
     ^ sendersToPretenure inspectionItems: aBuilder
+]
+
+{ #category : 'inspector' }
+AllocationSitesExperiment >> inspectorEdges: aBuilder [
+
+    <inspectorPresentationOrder: 0 title: 'To Pretenure Edges'>
+    ^ edgesToPretenure inspectionItems: aBuilder
 ]
 
 { #category : 'removing' }

@@ -21,6 +21,38 @@ TenuredSelectorMakerTest >> setUp [
 ]
 
 { #category : 'tests' }
+TenuredSelectorMakerTest >> testMakeSelectorForMethod [
+
+    | expectedSelector |
+    expectedSelector := #_pretenured_ , tenuredSelectorMaker randomPrefix , '_' , #foo.
+    self
+        assert: (tenuredSelectorMaker makeSelectorForMethod: SCMockClassWithDumbMethods >> #foo)
+        equals: expectedSelector
+]
+
+{ #category : 'tests' }
+TenuredSelectorMakerTest >> testMakeSelectorForMethodNotTransformMethods [
+
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: BlockClosure >> #value) equals: #value.
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: BlockClosure >> #value:) equals: #value:.
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: Semaphore >> #critical:) equals: #critical:
+]
+
+{ #category : 'tests' }
+TenuredSelectorMakerTest >> testMakeSelectorForSelector [
+
+    | expectedSelector |
+    expectedSelector := #_pretenured_ , tenuredSelectorMaker randomPrefix , '_' , #foo.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #foo) equals: expectedSelector
+]
+
+{ #category : 'tests' }
+TenuredSelectorMakerTest >> testMakeSelectorForSelectorNotTransformSelectors [
+
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #initialize) equals: #initialize
+]
+
+{ #category : 'tests' }
 TenuredSelectorMakerTest >> testMapBinarySelectorToString [
 
 	| result |

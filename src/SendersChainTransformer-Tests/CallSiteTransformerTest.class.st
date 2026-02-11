@@ -40,7 +40,7 @@ CallSiteTransformerTest >> testInstallMethodWithNewSelector [
 
 	| aMethodWithOffset tenuredNewSelector clonedCompiledMethod |
 	aMethodWithOffset := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47.
-	tenuredNewSelector := codeTransformer makeNewSelector: #bar.
+	tenuredNewSelector := codeTransformer makeNewSelectorForMethod: SCMockClassWithDumbMethods >> #bar.
 
 	"Make sure the method does not exist yet"
 	self should: [ SCMockClassWithDumbMethods new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
@@ -62,8 +62,10 @@ CallSiteTransformerTest >> testInstallMethodWithNewSelector [
 CallSiteTransformerTest >> testRemoveAlreadyImplemented [
 
     self assert: (codeTransformer removeAlreadyImplemented: { (Bag class >> #new) }) isEmpty.
-    self assert:
-        (codeTransformer removeAlreadyImplemented: { (OrderedCollection class >> #new) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (OrderedCollection class >> #new) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (OrderedCollection class >> #new:) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (ArrayedCollection class >> #new) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (ArrayedCollection class >> #new:) }) isEmpty.
 
     self deny: (codeTransformer removeAlreadyImplemented: { (Object >> #printString) }) isEmpty
 ]
@@ -72,13 +74,13 @@ CallSiteTransformerTest >> testRemoveAlreadyImplemented [
 CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 	"Make sure methods do not exist"
 	self
-		should: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelector: #bar) ]
+		should: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelectorForSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		should: [ Dictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		should: [ Association perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
 	codeTransformer
@@ -87,13 +89,13 @@ CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 		installTransformations.
 
 	self
-		shouldnt: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelector: #bar) ]
+		shouldnt: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelectorForSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Dictionary new perform: (codeTransformer makeNewSelector: #at:put:) withArguments: #( #key 2 ) ]
+		shouldnt: [ Dictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Association perform: (codeTransformer makeNewSelector: #key:value:) withArguments: #( #key #value ) ]
+		shouldnt: [ Association perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
 	codeTransformer restoreOriginalState
@@ -104,7 +106,7 @@ CallSiteTransformerTest >> testTransformMessageSend [
 
 	| aMethodWithOffset tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
 	aMethodWithOffset :=  IllMethodWithOffset method: Dictionary >> #at:put: offset: 82.
-	expectedSelector := codeTransformer makeNewSelector: (aMethodWithOffset method sourceNodeForPC: aMethodWithOffset offset) selector.
+	expectedSelector := codeTransformer makeNewSelectorForSelector: (aMethodWithOffset method sourceNodeForPC: aMethodWithOffset offset) selector.
 
 	self
 		shouldnt: [ aMethodWithOffset method valueWithReceiver: aMethodWithOffset methodClass new arguments: #( #key #value ) ]
@@ -132,7 +134,7 @@ CallSiteTransformerTest >> testTransformMessageSendWithBinarySelector [
 			offset: 44.
 	expectedMethodsAST:= RBParser parseMethod: 'binaryMethod
 
-	self foo: (self ', (codeTransformer selectorMaker makeSelector: #',,') ,' 1) andBar: 0'.
+	self foo: (self ', (codeTransformer selectorMaker makeSelectorForSelector: #',,') ,' 1) andBar: 0'.
 
 	tenuredCompiledMethod := codeTransformer transformMessageSend: aMethodWithOffset.
 

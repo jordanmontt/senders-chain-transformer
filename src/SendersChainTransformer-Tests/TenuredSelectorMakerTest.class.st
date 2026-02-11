@@ -47,6 +47,14 @@ TenuredSelectorMakerTest >> testMakeSelectorForSelector [
 ]
 
 { #category : 'tests' }
+TenuredSelectorMakerTest >> testMakeSelectorForSelectorBinary [
+
+    | expectedSelector |
+    expectedSelector := #_pretenured_ , tenuredSelectorMaker randomPrefix , '_' , 'zyIsf:'.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #'->') equals: expectedSelector
+]
+
+{ #category : 'tests' }
 TenuredSelectorMakerTest >> testMakeSelectorForSelectorNotTransformSelectors [
 
     self assert: (tenuredSelectorMaker makeSelectorForSelector: #initialize) equals: #initialize

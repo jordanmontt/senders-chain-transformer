@@ -51,9 +51,15 @@ CallSiteTransformer >> installTransformations [
 ]
 
 { #category : 'method manipulation' }
-CallSiteTransformer >> makeNewSelector: aByteSymbol [
+CallSiteTransformer >> makeNewSelectorForMethod: aCompiledMethod [
 
-	^ selectorMaker makeSelector: aByteSymbol
+    ^ selectorMaker makeSelectorForMethod: aCompiledMethod
+]
+
+{ #category : 'method manipulation' }
+CallSiteTransformer >> makeNewSelectorForSelector: aSymbol [
+
+    ^ selectorMaker makeSelectorForSelector: aSymbol
 ]
 
 { #category : 'method manipulation' }
@@ -77,7 +83,8 @@ CallSiteTransformer >> removeAlreadyImplemented: senders [
 { #category : 'method manipulation' }
 CallSiteTransformer >> renameSendersSelectors [
 
-	transformedSenders do: [ :aCompiledMethod | aCompiledMethod selector: (self makeNewSelector: aCompiledMethod selector) ]
+    transformedSenders do: [ :aCompiledMethod |
+        aCompiledMethod selector: (self makeNewSelectorForMethod: aCompiledMethod) ]
 ]
 
 { #category : 'backup' }
@@ -114,20 +121,21 @@ CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 { #category : 'method manipulation' }
 CallSiteTransformer >> transformMessageSend: methodWithOffset [
 
-	| compiledMethodOrBlock offset messageNodeToTransform ast transformedCompiledMethod |
-	compiledMethodOrBlock := methodWithOffset method.
-	offset := methodWithOffset offset.
-	ast := methodWithOffset parseTree.
+    | compiledMethodOrBlock offset messageNodeToTransform ast transformedCompiledMethod |
+    compiledMethodOrBlock := methodWithOffset method.
+    offset := methodWithOffset offset.
+    ast := methodWithOffset parseTree.
 
-	messageNodeToTransform := compiledMethodOrBlock isCompiledBlock
-		ifTrue: [ (ast sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
-		ifFalse: [ ast sourceNodeForPC: offset ].
+    messageNodeToTransform := compiledMethodOrBlock isCompiledBlock
+        ifTrue: [ (ast sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
+        ifFalse: [ ast sourceNodeForPC: offset ].
 
-	messageNodeToTransform selector: (OCSelectorNode value: (self makeNewSelector: messageNodeToTransform selector)).
+    messageNodeToTransform selector:
+        (OCSelectorNode value: (self makeNewSelectorForSelector: messageNodeToTransform selector)).
 
-	transformedCompiledMethod := ast methodNode generateIR generate.
-	transformedCompiledMethod propertyAt: #source put: ast formattedCode.
-	^ transformedCompiledMethod
+    transformedCompiledMethod := ast methodNode generateIR generate.
+    transformedCompiledMethod propertyAt: #source put: ast formattedCode.
+    ^ transformedCompiledMethod
 ]
 
 { #category : 'accessing' }

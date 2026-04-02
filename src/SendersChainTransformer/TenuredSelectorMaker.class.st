@@ -2,7 +2,9 @@ Class {
 	#name : 'TenuredSelectorMaker',
 	#superclass : 'Object',
 	#instVars : [
-		'randomPrefix'
+		'randomPrefix',
+		'doNotTransformMethods',
+		'doNotTransformSelectors'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -25,8 +27,14 @@ TenuredSelectorMaker >> defaultTenuredSelector: aByteSymbol [
 { #category : 'initialization' }
 TenuredSelectorMaker >> initialize [
 
-	super initialize.
-	randomPrefix := (Random new nextInteger: 1000000000) asString
+    super initialize.
+
+    randomPrefix := (Random new nextInteger: 1000000000) asString.
+
+    doNotTransformMethods := { BlockClosure>>#value. BlockClosure>>#value:. BlockClosure>>#value:value:.
+        BlockClosure>>#value:value:value:. BlockClosure>>#value:value:value:value:.
+        BlockClosure>>#valueNoContextSwitch. Semaphore>>#critical:. Mutex>>#critical: }.
+    doNotTransformSelectors := #( #initialize #value )
 ]
 
 { #category : 'api' }
@@ -35,23 +43,36 @@ TenuredSelectorMaker >> isTenuredSelector: aSymbol [
 	^ aSymbol includesSubstring: 'tenured' caseSensitive: false
 ]
 
-{ #category : 'api' }
-TenuredSelectorMaker >> makeSelector: aByteSymbol [
-	| specialSelectors |
+{ #category : 'private' }
+TenuredSelectorMaker >> makeSelector: aByeSymbol [
 	
 	"Allocator methods"
-	aByteSymbol = #new ifTrue: [ ^ #newTenured ].
-	aByteSymbol = #new: ifTrue: [ ^ #newTenured: ].
-	aByteSymbol = #basicNew ifTrue: [ ^ #basicNewTenured ].
-	aByteSymbol = #basicNew: ifTrue: [ ^ #basicNewTenured: ].
+	aByeSymbol = #new ifTrue: [ ^ #newTenured ].
+	aByeSymbol = #new: ifTrue: [ ^ #newTenured: ].
+	aByeSymbol = #basicNew ifTrue: [ ^ #basicNewTenured ].
+	aByeSymbol = #basicNew: ifTrue: [ ^ #basicNewTenured: ].
 
-	"Do not transform"
-	specialSelectors := #( #initialize #value #valueNoContextSwitch #critical: ).
-	(specialSelectors includes: aByteSymbol) ifTrue: [ ^ aByteSymbol ].
+	aByeSymbol isBinary ifTrue: [ ^ self defaultTenuredBinarySelector: aByeSymbol ].
+	^ self defaultTenuredSelector: aByeSymbol
+]
 
-	aByteSymbol isBinary ifTrue: [ ^ self defaultTenuredBinarySelector: aByteSymbol ].
+{ #category : 'api' }
+TenuredSelectorMaker >> makeSelectorForMethod: aCompiledMethod [
 
-	^ self defaultTenuredSelector: aByteSymbol
+    | selector |
+    selector := aCompiledMethod selector.
+
+    (doNotTransformSelectors includes: selector) ifTrue: [ ^ selector ].
+    (doNotTransformMethods includes: aCompiledMethod) ifTrue: [ ^ selector ].
+
+    ^ self makeSelector: selector
+]
+
+{ #category : 'api' }
+TenuredSelectorMaker >> makeSelectorForSelector: aSymbol [
+
+    (doNotTransformSelectors includes: aSymbol) ifTrue: [ ^ aSymbol ].
+    ^ self makeSelector: aSymbol
 ]
 
 { #category : 'internals' }

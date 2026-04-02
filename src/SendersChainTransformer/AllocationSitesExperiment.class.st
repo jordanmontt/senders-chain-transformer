@@ -15,10 +15,10 @@ Class {
 		'pretenurator',
 		'allocationSiteStrategy',
 		'allocationSiteClassificator',
-		'toPretenureSites',
 		'rawAllocationsSamples',
 		'allocationGraph',
-		'sendersToPretenure'
+		'sendersToPretenure',
+		'edgesToPretenure'
 	],
 	#category : 'SendersChainTransformer-Experiment',
 	#package : 'SendersChainTransformer',
@@ -52,14 +52,27 @@ AllocationSitesExperiment >> allocationSiteStrategy: aStrategy [
 ]
 
 { #category : 'calculating' }
-AllocationSitesExperiment >> computeLongLivedAllocationSites [
+AllocationSitesExperiment >> classifyEdgesByLifetime [
 
     allocationSiteClassificator
         setUpForAllocationGraph: allocationGraph;
-        computeLongLivedAllocationSites
+        classifyEdgesByLifetime
 ]
 
 { #category : 'api' }
+AllocationSitesExperiment >> constructAllocationGraph [
+
+    self removeKernelAllocations.
+    allocationGraph := AllocationGraph onSamples: rawAllocationsSamples
+]
+
+{ #category : 'api - exporting' }
+AllocationSitesExperiment >> exportAllocationSites [
+
+    self exportAllocationSites: (Random new nextInteger: 100000000) asString , '.json'
+]
+
+{ #category : 'api - exporting' }
 AllocationSitesExperiment >> exportAllocationSites: fileName [
 
     MethodWithOffsetSerializer new
@@ -68,53 +81,48 @@ AllocationSitesExperiment >> exportAllocationSites: fileName [
 ]
 
 { #category : 'api' }
-AllocationSitesExperiment >> getToPretenureAllocationSites [
+AllocationSitesExperiment >> extractLongLivedSendersChains [
 
-	sendersToPretenure := OrderedCollection new.
-	toPretenureSites do: [ :allocationGraphNode |
-			sendersToPretenure addAll:
-				(allocationGraphNode allocationPaths collect: [ :aCollection |
-						 aCollection collect: [ :edge |
-							 IllMethodWithOffset
-								 method: edge sourceNode method
-								 offset: edge offset ] ]) ].
+    | allocationSiteNodes |
+    allocationSiteNodes := allocationGraph nodes select: #isAllocationSite.
+    sendersToPretenure := OrderedCollection new.
+    edgesToPretenure := OrderedCollection new.
 
-	sendersToPretenure := sendersToPretenure select: #isNotEmpty.
-	^ sendersToPretenure
+    allocationSiteNodes do: [ :node |
+            edgesToPretenure addAll: node allocationCallStacks.
+            sendersToPretenure addAll: (node allocationCallStacks collect: [ :aCollection |
+                     aCollection collect: [ :edge |
+                         IllMethodWithOffset method: edge sourceNode method offset: edge offset ] ]) ].
+
+    sendersToPretenure := sendersToPretenure select: #isNotEmpty.
+    ^ sendersToPretenure
 ]
 
 { #category : 'initialization' }
 AllocationSitesExperiment >> initialize [
 
-	super initialize.
+    super initialize.
 
-	allocationSiteClassificator := AllocationSiteClassificator new.
-	pretenurator := AllocationSitesPretenurer new.
-	self useTextualLocationStrategy
+    allocationSiteClassificator := PretenuringAdviceAlgorithm new.
+    pretenurator := AllocationSitesPretenurer new.
+    sendersToPretenure := OrderedCollection new.
+    edgesToPretenure := OrderedCollection new.
+
+    self useTextualLocationStrategy
 ]
 
 { #category : 'inspector' }
 AllocationSitesExperiment >> inspector: aBuilder [
 
-	<inspectorPresentationOrder: 0 title: 'To Pretenure Sites'>
-	^( aBuilder instantiate: SpListPresenter)
-		items: toPretenureSites;
-		yourself
+    <inspectorPresentationOrder: 1 title: 'To Pretenure Sites'>
+    ^ sendersToPretenure inspectionItems: aBuilder
 ]
 
-{ #category : 'api' }
-AllocationSitesExperiment >> processAllocationSites [
+{ #category : 'inspector' }
+AllocationSitesExperiment >> inspectorEdges: aBuilder [
 
-	"Data cleaning"
-	self removeKernelAllocations.
-	"Initialize Graph"
-	allocationGraph := AllocationGraph onSamples: rawAllocationsSamples.
-   	"Get the allocation sites that are classified as long lived using BlackBurn Algorithm"
-	self computeLongLivedAllocationSites.
-	"Identify allocation sites using strategy"
-   allocationGraph identifyAllocationSitesUsing: allocationSiteStrategy.
-   	"Get the allocation sites to pretenure"
-	^ toPretenureSites := allocationGraph nodes select: #isAllocationSite
+    <inspectorPresentationOrder: 0 title: 'To Pretenure Edges'>
+    ^ edgesToPretenure inspectionItems: aBuilder
 ]
 
 { #category : 'removing' }
@@ -126,7 +134,7 @@ AllocationSitesExperiment >> removeKernelAllocations [
 ]
 
 { #category : 'api' }
-AllocationSitesExperiment >> restoreOriginalState [
+AllocationSitesExperiment >> restoreSourceCodeToOriginalState [
 
 	pretenurator restoreOriginalState
 ]
@@ -141,18 +149,17 @@ AllocationSitesExperiment >> rewriteAllocationSites [
 { #category : 'api' }
 AllocationSitesExperiment >> run [
 
-    self run: (Random new nextInteger: 100000000) asString , '.json'
+   self constructAllocationGraph.
+
+   	self classifyEdgesByLifetime.
+
+	allocationGraph traverseLongLivedSenderChainsUsing: allocationSiteStrategy.
+   self extractLongLivedSendersChains.
+
+	"self rewriteAllocationSites"
 ]
 
-{ #category : 'api' }
-AllocationSitesExperiment >> run: aFileName [
-
-    self processAllocationSites.
-    self getToPretenureAllocationSites.
-    self exportAllocationSites: aFileName
-]
-
-{ #category : 'api' }
+{ #category : 'api - accessing' }
 AllocationSitesExperiment >> sendersToPretenure: anArrayOfArrays [
 
     sendersToPretenure := anArrayOfArrays

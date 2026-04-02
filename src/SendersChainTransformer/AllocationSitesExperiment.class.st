@@ -103,7 +103,7 @@ AllocationSitesExperiment >> initialize [
 
     super initialize.
 
-    allocationSiteClassificator := AllocationSiteClassificator new.
+    allocationSiteClassificator := PretenuringAdviceAlgorithm new.
     pretenurator := AllocationSitesPretenurer new.
     sendersToPretenure := OrderedCollection new.
     edgesToPretenure := OrderedCollection new.

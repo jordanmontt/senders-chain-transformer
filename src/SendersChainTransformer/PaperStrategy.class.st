@@ -20,39 +20,26 @@ PaperStrategy class >> applicationPackages: aCol [
           yourself
 ]
 
-{ #category : 'instance creation' }
-PaperStrategy class >> applicationPackagesNames: aCol [
-
-    ^ self new
-          applicationPackagesNames: aCol;
-          yourself
-]
-
 { #category : 'class initialization' }
 PaperStrategy class >> initialize [
 
     | repo |
     repo := IceRepository registry detect: [ :each | each name = 'pharo' ].
-    KernelPackages := repo workingCopy packages collect: #name
+    KernelPackages := repo workingCopy packages collect: #packageName
 ]
 
 { #category : 'accessing' }
 PaperStrategy >> applicationPackages: aCollectionOfPackages [
 
-    self applicationPackagesNames: (aCollectionOfPackages collect: #name)
-]
-
-{ #category : 'accessing' }
-PaperStrategy >> applicationPackagesNames: aCollectionOfSymbols [
-
-    applicationPackages := aCollectionOfSymbols
+    applicationPackages := aCollectionOfPackages
 ]
 
 { #category : 'api' }
-PaperStrategy >> edgesHaveOnlyOneAllocatedObjectType: aListOfEdges [
+PaperStrategy >> edgesHaveSameAllocatedObjectTypes: aListOfEdges [
 
     | typesInAllocatorEdge |
     aListOfEdges ifEmpty: [ ^ true ].
+
     typesInAllocatorEdge := aListOfEdges first allocatedSamples collect: #allocatedObjectClass as: Set.
     ^ aListOfEdges allButFirst allSatisfy: [ :edge |
         (edge allocatedSamples collect: #allocatedObjectClass as: Set) includesAll: typesInAllocatorEdge ]
@@ -69,13 +56,13 @@ PaperStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aLi
 
     ^ (self isApplicationMethod: anAllocationGraphNode)
       & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
-      & (self edgesHaveOnlyOneAllocatedObjectType: aListOfEdges)
+      & (self edgesHaveSameAllocatedObjectTypes: aListOfEdges)
 ]
 
 { #category : 'api' }
 PaperStrategy >> isApplicationMethod: anAllocationGraphNode [
 
-    ^ applicationPackages includes: anAllocationGraphNode method package name
+    ^ applicationPackages includes: anAllocationGraphNode method package
 ]
 
 { #category : 'api' }

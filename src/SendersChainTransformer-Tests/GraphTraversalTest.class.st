@@ -67,15 +67,19 @@ GraphTraversalTest >> testDetectAllocationSiteDefault [
 { #category : 'tests' }
 GraphTraversalTest >> testDetectAllocationSitesUsingMethodInPackage [
 
+	self timeLimit: 5 minutes.
+
 	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.
 	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m3) isAllocationSite.
 	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m4) isAllocationSite.
 	self deny: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m5) isAllocationSite.
 	
+	allocationGraph := allocationGraph subgraphReachableFromMethod: (AllocationGraphFixture class >> #entryPoint).
 	allocationGraph edges do: #beLongLived.
+
 	allocationGraph traverseLongLivedSenderChainsUsing:
-		(MethodInPackageStrategy applicationPackages: { AllocationGraphFixture package }).
+		(PaperStrategy applicationPackages: { AllocationGraphFixture package }).
 
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.
@@ -94,7 +98,7 @@ GraphTraversalTest >> testTraverseLongLivedSenderChains [
 
 	| sendersChains expectedSendersChains|
 	allocationGraph edges do: #beShortLived.
-	allocationGraph := allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: (AllocationGraphFixture class >> #entryPoint)).
+	allocationGraph := allocationGraph subgraphReachableFromNode: (allocationGraph nodeAtMethod: (AllocationGraphFixture class >> #entryPoint)).
 	expectedSendersChains := OrderedCollection new.
 
 	expectedSendersChains add: {
@@ -123,7 +127,7 @@ GraphTraversalTest >> testTraverseLongLivedSenderChainsLongChain [
 
 	| sendersChain expectedSendersChain |
 	allocationGraph edges do: #beShortLived.
-	allocationGraph pruneFromRoot: (allocationGraph nodeAtMethod: (AllocationGraphFixture class >> #entryPoint)).
+	allocationGraph subgraphReachableFromNode: (allocationGraph nodeAtMethod: (AllocationGraphFixture class >> #entryPoint)).
 	expectedSendersChain := OrderedCollection new.
 
 	expectedSendersChain addAll: {

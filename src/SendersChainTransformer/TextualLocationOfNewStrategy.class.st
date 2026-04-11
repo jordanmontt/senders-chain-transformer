@@ -10,7 +10,7 @@ Class {
 TextualLocationOfNewStrategy class >> setUpForGraph: anAllocationGraph [
 
     ^ self new
-          setupForGraph: anAllocationGraph;
+          setUpForGraph: anAllocationGraph;
           yourself
 ]
 
@@ -26,6 +26,5 @@ TextualLocationOfNewStrategy >> setUpForGraph: allocationGraph [
 	| textualAllocationMethods samples |
 	samples := allocationGraph samples.
 	textualAllocationMethods := samples collect: #textualAllocatorMethod as: Set.
-	textualAllocationMethods do: [ :aMethod |
-		(allocationGraph nodeFor: aMethod) beTextualAllocationSite ]
+	textualAllocationMethods do: [ :aMethod | (allocationGraph nodeFor: aMethod) beTextualAllocationSite ]
 ]

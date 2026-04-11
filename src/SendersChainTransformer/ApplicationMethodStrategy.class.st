@@ -1,5 +1,5 @@
 Class {
-	#name : 'PaperStrategy',
+	#name : 'ApplicationMethodStrategy',
 	#superclass : 'AllocationSiteIdentificationStrategy',
 	#instVars : [
 		'applicationPackages'
@@ -13,7 +13,7 @@ Class {
 }
 
 { #category : 'instance creation' }
-PaperStrategy class >> applicationPackages: aCol [
+ApplicationMethodStrategy class >> applicationPackages: aCol [
 
     ^ self new
           applicationPackages: aCol;
@@ -21,7 +21,7 @@ PaperStrategy class >> applicationPackages: aCol [
 ]
 
 { #category : 'class initialization' }
-PaperStrategy class >> initialize [
+ApplicationMethodStrategy class >> initialize [
 
     | repo |
     repo := IceRepository registry detect: [ :each | each name = 'pharo' ].
@@ -29,13 +29,13 @@ PaperStrategy class >> initialize [
 ]
 
 { #category : 'accessing' }
-PaperStrategy >> applicationPackages: aCollectionOfPackages [
+ApplicationMethodStrategy >> applicationPackages: aCollectionOfPackages [
 
     applicationPackages := aCollectionOfPackages
 ]
 
 { #category : 'api' }
-PaperStrategy >> edgesHaveSameAllocatedObjectTypes: aListOfEdges [
+ApplicationMethodStrategy >> edgesHaveSameAllocatedObjectTypes: aListOfEdges [
 
     | typesInAllocatorEdge |
     aListOfEdges ifEmpty: [ ^ true ].
@@ -46,13 +46,13 @@ PaperStrategy >> edgesHaveSameAllocatedObjectTypes: aListOfEdges [
 ]
 
 { #category : 'api' }
-PaperStrategy >> hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode [
+ApplicationMethodStrategy >> hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode [
 
     ^ (anAllocationGraphNode incomingEdges select: #isShortLived) isEmpty
 ]
 
 { #category : 'api' }
-PaperStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
+ApplicationMethodStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
     ^ (self isApplicationMethod: anAllocationGraphNode)
       & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
@@ -60,13 +60,13 @@ PaperStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aLi
 ]
 
 { #category : 'api' }
-PaperStrategy >> isApplicationMethod: anAllocationGraphNode [
+ApplicationMethodStrategy >> isApplicationMethod: anAllocationGraphNode [
 
     ^ applicationPackages includes: anAllocationGraphNode method package
 ]
 
 { #category : 'api' }
-PaperStrategy >> isKernelMethod: anAllocationGraphNode [
+ApplicationMethodStrategy >> isKernelMethod: anAllocationGraphNode [
 
     ^ KernelPackages includes: anAllocationGraphNode method package name
 ]

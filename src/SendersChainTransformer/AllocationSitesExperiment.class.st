@@ -29,20 +29,17 @@ Class {
 AllocationSitesExperiment class >> onProfiler: aProfiler [
 
 	^ self new
-		  setForProfiler: aProfiler;
+		  setUpForProfiler: aProfiler;
 		  yourself
 ]
 
-{ #category : 'accessing' }
-AllocationSitesExperiment >> allocationGraph [
+{ #category : 'instance creation' }
+AllocationSitesExperiment class >> onProfiler: aProfiler traversalStrategy: aStrategy [
 
-	^ allocationGraph
-]
-
-{ #category : 'accessing' }
-AllocationSitesExperiment >> allocationSiteStrategy [
-
-	^ allocationSiteStrategy
+    ^ self new
+          setUpForProfiler: aProfiler;
+          allocationSiteStrategy: aStrategy;
+          yourself
 ]
 
 { #category : 'api - accessing' }
@@ -106,9 +103,7 @@ AllocationSitesExperiment >> initialize [
     allocationSiteClassificator := PretenuringAdviceAlgorithm new.
     pretenurator := AllocationSitesPretenurer new.
     sendersToPretenure := OrderedCollection new.
-    edgesToPretenure := OrderedCollection new.
-
-    self useTextualLocationStrategy
+    edgesToPretenure := OrderedCollection new
 ]
 
 { #category : 'inspector' }
@@ -125,7 +120,7 @@ AllocationSitesExperiment >> inspectorEdges: aBuilder [
     ^ edgesToPretenure inspectionItems: aBuilder
 ]
 
-{ #category : 'removing' }
+{ #category : 'calculating' }
 AllocationSitesExperiment >> removeKernelAllocations [
 
 	rawAllocationsSamples removeAllSuchThat: [ :illEphemeron |
@@ -153,6 +148,7 @@ AllocationSitesExperiment >> run [
 
    	self classifyEdgesByLifetime.
 
+	allocationSiteStrategy setUpForGraph: allocationGraph.
 	allocationGraph traverseLongLivedSenderChainsUsing: allocationSiteStrategy.
    self extractLongLivedSendersChains.
 
@@ -166,7 +162,7 @@ AllocationSitesExperiment >> sendersToPretenure: anArrayOfArrays [
 ]
 
 { #category : 'api - accessing' }
-AllocationSitesExperiment >> setForProfiler: aProfiler [
+AllocationSitesExperiment >> setUpForProfiler: aProfiler [
 
 	rawAllocationsSamples := aProfiler objectAllocations copy.
 	"The ephemerons of the profiler, the allocation samples, are always ordered by time."
@@ -174,10 +170,4 @@ AllocationSitesExperiment >> setForProfiler: aProfiler [
 		startTime: aProfiler objectAllocations first initializationTime;
 		endTime: aProfiler endTime
 
-]
-
-{ #category : 'api - accessing' }
-AllocationSitesExperiment >> useTextualLocationStrategy [
-
-	allocationSiteStrategy := TextualLocationOfNewStrategy new
 ]

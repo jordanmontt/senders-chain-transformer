@@ -20,7 +20,7 @@ TextualLocationOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllo
     ^ anAllocationGraphNode isTextualAllocationSite
 ]
 
-{ #category : 'private' }
+{ #category : 'api' }
 TextualLocationOfNewStrategy >> setUpForGraph: allocationGraph [
 
     | textualAllocationMethods samples |

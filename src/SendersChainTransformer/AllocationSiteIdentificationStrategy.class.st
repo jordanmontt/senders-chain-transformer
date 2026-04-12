@@ -46,3 +46,9 @@ AllocationSiteIdentificationStrategy >> isKernelMethod: anAllocationGraphNode [
 
     ^ KernelPackages includes: anAllocationGraphNode method package name
 ]
+
+{ #category : 'api' }
+AllocationSiteIdentificationStrategy >> setUpForGraph: allocationGraph [
+
+    
+]

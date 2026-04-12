@@ -1,10 +1,38 @@
 Class {
 	#name : 'AllocationSiteIdentificationStrategy',
 	#superclass : 'Object',
+	#classVars : [
+		'KernelPackages'
+	],
 	#category : 'SendersChainTransformer-Allocation-Site-Identification',
 	#package : 'SendersChainTransformer',
 	#tag : 'Allocation-Site-Identification'
 }
+
+{ #category : 'class initialization' }
+AllocationSiteIdentificationStrategy class >> initialize [
+
+    | repo |
+    repo := IceRepository registry detect: [ :each | each name = 'pharo' ].
+    KernelPackages := repo workingCopy packages collect: #packageName
+]
+
+{ #category : 'private' }
+AllocationSiteIdentificationStrategy >> edgesHaveSameAllocatedObjectTypes: aListOfEdges [
+
+    | typesInAllocatorEdge |
+    aListOfEdges ifEmpty: [ ^ true ].
+
+    typesInAllocatorEdge := aListOfEdges first allocatedSamples collect: #allocatedObjectClass as: Set.
+    ^ aListOfEdges allButFirst allSatisfy: [ :edge |
+        (edge allocatedSamples collect: #allocatedObjectClass as: Set) includesAll: typesInAllocatorEdge ]
+]
+
+{ #category : 'private' }
+AllocationSiteIdentificationStrategy >> hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode [
+
+    ^ (anAllocationGraphNode incomingEdges select: #isShortLived) isEmpty
+]
 
 { #category : 'api' }
 AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode fromAllocationPath: aListOfEdges [
@@ -13,8 +41,8 @@ AllocationSiteIdentificationStrategy >> isAllocationSite: anAllocatorNode fromAl
 	^ self subclassResponsibility
 ]
 
-{ #category : 'api' }
-AllocationSiteIdentificationStrategy >> setupForGraph: allocationGraph andSamples: samples [
+{ #category : 'private' }
+AllocationSiteIdentificationStrategy >> isKernelMethod: anAllocationGraphNode [
 
-	"Override me"
+    ^ KernelPackages includes: anAllocationGraphNode method package name
 ]

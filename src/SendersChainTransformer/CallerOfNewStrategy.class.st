@@ -1,5 +1,5 @@
 Class {
-	#name : 'FirstCallSiteOutsideNewStrategy',
+	#name : 'CallerOfNewStrategy',
 	#superclass : 'TextualLocationOfNewStrategy',
 	#category : 'SendersChainTransformer-Allocation-Site-Identification',
 	#package : 'SendersChainTransformer',
@@ -7,9 +7,10 @@ Class {
 }
 
 { #category : 'api' }
-FirstCallSiteOutsideNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
+CallerOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
-    ^ anAllocationGraphNode isTextualAllocationSite not
+    ^ anAllocationGraphNode isLeaf not
+      & (aListOfEdges size > 1) "if it has one edge it means that the node is the caller of basicNew"
       & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
       & (self edgesHaveSameAllocatedObjectTypes: aListOfEdges)
 ]

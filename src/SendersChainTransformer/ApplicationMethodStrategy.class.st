@@ -21,8 +21,8 @@ ApplicationMethodStrategy class >> setUpForApplicationPackages: aListOfPackages 
 ApplicationMethodStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
     ^ (self isApplicationMethod: anAllocationGraphNode)
-      & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
-      & (self edgesHaveSameAllocatedObjectTypes: aListOfEdges)
+      and: [ (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
+      and: [ self edgesHaveSameAllocatedObjectTypes: aListOfEdges ] ]
 ]
 
 { #category : 'private' }
@@ -34,5 +34,5 @@ ApplicationMethodStrategy >> isApplicationMethod: anAllocationGraphNode [
 { #category : 'private' }
 ApplicationMethodStrategy >> setUpForApplicationPackages: aListOfPackages [
 
-    applicationPackages := aListOfPackages
+    applicationPackages := aListOfPackages asSet
 ]

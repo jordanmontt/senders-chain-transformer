@@ -21,11 +21,15 @@ AllocationSiteIdentificationStrategy class >> initialize [
 AllocationSiteIdentificationStrategy >> edgesHaveSameAllocatedObjectTypes: aListOfEdges [
 
     | typesInAllocatorEdge |
-    aListOfEdges ifEmpty: [ ^ true ].
+    aListOfEdges size <= 1 ifTrue: [ ^ true ].
 
-    typesInAllocatorEdge := aListOfEdges first allocatedSamples collect: #allocatedObjectClass as: Set.
+    typesInAllocatorEdge := aListOfEdges first allocatedObjectTypes.
+    typesInAllocatorEdge ifEmpty: [ ^ true ].
+
     ^ aListOfEdges allButFirst allSatisfy: [ :edge |
-        (edge allocatedSamples collect: #allocatedObjectClass as: Set) includesAll: typesInAllocatorEdge ]
+        | edgeTypes |
+        edgeTypes := edge allocatedObjectTypes.
+        typesInAllocatorEdge allSatisfy: [ :type | edgeTypes includes: type ] ]
 ]
 
 { #category : 'private' }

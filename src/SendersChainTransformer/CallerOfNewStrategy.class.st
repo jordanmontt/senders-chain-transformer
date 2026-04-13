@@ -10,7 +10,7 @@ Class {
 CallerOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllocationPath: aListOfEdges [
 
     ^ anAllocationGraphNode isLeaf not
-      & (aListOfEdges size > 1) "if it has one edge it means that the node is the caller of basicNew"
-      & (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
-      & (self edgesHaveSameAllocatedObjectTypes: aListOfEdges)
+      and: [ (aListOfEdges size > 1) "if it has one edge it means that the node is the caller of basicNew"
+      and: [ (self hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode)
+      and: [ (self edgesHaveSameAllocatedObjectTypes: aListOfEdges) ] ] ]
 ]

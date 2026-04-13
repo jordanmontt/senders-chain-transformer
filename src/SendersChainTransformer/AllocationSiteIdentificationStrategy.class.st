@@ -33,6 +33,22 @@ AllocationSiteIdentificationStrategy >> edgesHaveSameAllocatedObjectTypes: aList
 ]
 
 { #category : 'private' }
+AllocationSiteIdentificationStrategy >> extractLongLivedSendersChains: allocationGraph [
+
+    | allocationSiteNodes sendersToPretenure |
+    allocationSiteNodes := allocationGraph nodes select: #isAllocationSite.
+    sendersToPretenure := OrderedCollection new.
+
+    allocationSiteNodes do: [ :node |
+            sendersToPretenure addAll: (node allocationCallStacks collect: [ :aCollection |
+                     aCollection collect: [ :edge |
+                         IllMethodWithOffset method: edge sourceNode method offset: edge offset ] ]) ].
+
+    sendersToPretenure := sendersToPretenure select: #isNotEmpty.
+    ^ sendersToPretenure
+]
+
+{ #category : 'private' }
 AllocationSiteIdentificationStrategy >> hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode [
 
     ^ anAllocationGraphNode incomingEdges noneSatisfy: #isShortLived

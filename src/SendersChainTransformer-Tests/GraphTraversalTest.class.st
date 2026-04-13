@@ -79,7 +79,7 @@ GraphTraversalTest >> testDetectAllocationSitesUsingMethodInPackage [
 	allocationGraph edges do: #beLongLived.
 
 	allocationGraph traverseLongLivedSenderChainsUsing:
-		(PaperStrategy applicationPackages: { AllocationGraphFixture package }).
+		(ApplicationMethodStrategy setUpForApplicationPackages: { AllocationGraphFixture package }).
 
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m1) isAllocationSite.
 	self assert: (allocationGraph nodeAtMethod: AllocationGraphFixture class >> #m2) isAllocationSite.

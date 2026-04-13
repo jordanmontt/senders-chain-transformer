@@ -7,10 +7,10 @@ Class {
 }
 
 { #category : 'initialization' }
-TextualLocationOfNewStrategy class >> setUpForGraph: anAllocationGraph [
+TextualLocationOfNewStrategy class >> setUpForGraph: allocationGarph [
 
     ^ self new
-          setupForGraph: anAllocationGraph;
+          setUpForGraph: allocationGarph;
           yourself
 ]
 
@@ -23,9 +23,8 @@ TextualLocationOfNewStrategy >> isAllocationSite: anAllocationGraphNode fromAllo
 { #category : 'api' }
 TextualLocationOfNewStrategy >> setUpForGraph: allocationGraph [
 
-	| textualAllocationMethods samples |
-	samples := allocationGraph samples.
-	textualAllocationMethods := samples collect: #textualAllocatorMethod as: Set.
-	textualAllocationMethods do: [ :aMethod |
-		(allocationGraph nodeFor: aMethod) beTextualAllocationSite ]
+    | textualAllocationMethods samples |
+    samples := allocationGraph samples.
+    textualAllocationMethods := samples collect: #textualAllocatorMethod as: Set.
+    textualAllocationMethods do: [ :aMethod | (allocationGraph nodeFor: aMethod) beTextualAllocationSite ]
 ]

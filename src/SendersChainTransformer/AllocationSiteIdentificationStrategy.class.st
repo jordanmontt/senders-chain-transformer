@@ -35,7 +35,7 @@ AllocationSiteIdentificationStrategy >> edgesHaveSameAllocatedObjectTypes: aList
 { #category : 'private' }
 AllocationSiteIdentificationStrategy >> hasNotAnyIncomingShortLivedEdges: anAllocationGraphNode [
 
-    ^ (anAllocationGraphNode incomingEdges select: #isShortLived) isEmpty
+    ^ anAllocationGraphNode incomingEdges noneSatisfy: #isShortLived
 ]
 
 { #category : 'api' }

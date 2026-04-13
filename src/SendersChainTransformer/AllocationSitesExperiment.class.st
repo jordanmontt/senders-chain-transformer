@@ -17,21 +17,12 @@ Class {
 		'allocationSiteClassificator',
 		'rawAllocationsSamples',
 		'allocationGraph',
-		'sendersToPretenure',
-		'edgesToPretenure'
+		'sendersToPretenure'
 	],
 	#category : 'SendersChainTransformer-Experiment',
 	#package : 'SendersChainTransformer',
 	#tag : 'Experiment'
 }
-
-{ #category : 'instance creation' }
-AllocationSitesExperiment class >> onProfiler: aProfiler [
-
-	^ self new
-		  setUpForProfiler: aProfiler;
-		  yourself
-]
 
 { #category : 'instance creation' }
 AllocationSitesExperiment class >> onProfiler: aProfiler traversalStrategy: aStrategy [
@@ -80,18 +71,7 @@ AllocationSitesExperiment >> exportAllocationSites: fileName [
 { #category : 'api' }
 AllocationSitesExperiment >> extractLongLivedSendersChains [
 
-    | allocationSiteNodes |
-    allocationSiteNodes := allocationGraph nodes select: #isAllocationSite.
-    sendersToPretenure := OrderedCollection new.
-    edgesToPretenure := OrderedCollection new.
-
-    allocationSiteNodes do: [ :node |
-            edgesToPretenure addAll: node allocationCallStacks.
-            sendersToPretenure addAll: (node allocationCallStacks collect: [ :aCollection |
-                     aCollection collect: [ :edge |
-                         IllMethodWithOffset method: edge sourceNode method offset: edge offset ] ]) ].
-
-    sendersToPretenure := sendersToPretenure select: #isNotEmpty.
+    sendersToPretenure := allocationSiteStrategy extractLongLivedSendersChains: allocationGraph.
     ^ sendersToPretenure
 ]
 
@@ -102,8 +82,7 @@ AllocationSitesExperiment >> initialize [
 
     allocationSiteClassificator := PretenuringAdviceAlgorithm new.
     pretenurator := AllocationSitesPretenurer new.
-    sendersToPretenure := OrderedCollection new.
-    edgesToPretenure := OrderedCollection new
+    sendersToPretenure := OrderedCollection new
 ]
 
 { #category : 'inspector' }
@@ -111,13 +90,6 @@ AllocationSitesExperiment >> inspector: aBuilder [
 
     <inspectorPresentationOrder: 1 title: 'To Pretenure Sites'>
     ^ sendersToPretenure inspectionItems: aBuilder
-]
-
-{ #category : 'inspector' }
-AllocationSitesExperiment >> inspectorEdges: aBuilder [
-
-    <inspectorPresentationOrder: 0 title: 'To Pretenure Edges'>
-    ^ edgesToPretenure inspectionItems: aBuilder
 ]
 
 { #category : 'calculating' }

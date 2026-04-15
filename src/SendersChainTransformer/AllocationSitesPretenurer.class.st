@@ -25,13 +25,15 @@ AllocationSitesPretenurer >> installPretenuredMethods [
     self flag: 'should debug why something there are an extra callsitetransformer initialized.'.
 
     installer := callSiteTransformers anyOne.
-    transformedCallSites do: [ :aCompiledMethod |
-            ('Installing method ' , aCompiledMethod name) traceCr.
-            installer installMethod: aCompiledMethod ].
+    "First install the senders as they have unique selectors and nobody calls them"
     callSiteTransformers do: [ :codeTransformer |
             codeTransformer transformedSenders do: [ :aCompiledMethod |
                     ('Installing method ' , aCompiledMethod name) traceCr.
-                    installer installMethod: aCompiledMethod ] ]
+                    installer installMethod: aCompiledMethod ] ].
+    "Then the call sites that they not have unique selectors "
+    transformedCallSites do: [ :aCompiledMethod |
+            ('Installing method ' , aCompiledMethod name) traceCr.
+            installer installMethod: aCompiledMethod ]
 ]
 
 { #category : 'internals' }

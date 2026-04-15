@@ -133,8 +133,7 @@ CallSiteTransformer >> transformMessageSend: methodWithOffset [
     messageNodeToTransform selector:
         (OCSelectorNode value: (self makeNewSelectorForSelector: messageNodeToTransform selector)).
 
-    transformedCompiledMethod := ast methodNode generateIR generate.
-    transformedCompiledMethod propertyAt: #source put: ast formattedCode.
+    transformedCompiledMethod := compiledMethodOrBlock methodClass compiler compile: ast formattedCode.
     ^ transformedCompiledMethod
 ]
 

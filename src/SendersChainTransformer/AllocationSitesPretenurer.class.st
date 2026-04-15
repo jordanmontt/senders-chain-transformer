@@ -20,14 +20,18 @@ AllocationSitesPretenurer >> initialize [
 { #category : 'api' }
 AllocationSitesPretenurer >> installPretenuredMethods [
 
-	| installer |
-	installer := callSiteTransformers anyOne.
-	transformedCallSites do: [ :aCompiledMethod | 
-		('Installing method ', aCompiledMethod name) traceCr.
-		installer installMethod: aCompiledMethod ].
-	callSiteTransformers do: [ :codeTransformer |
-		codeTransformer transformedSenders do: [ :aCompiledMethod | 
-			installer installMethod: aCompiledMethod ] ]
+    | installer |
+    callSiteTransformers := callSiteTransformers reject: [ :e | e transformedSenders isNil ].
+    self flag: 'should debug why something there are an extra callsitetransformer initialized.'.
+
+    installer := callSiteTransformers anyOne.
+    transformedCallSites do: [ :aCompiledMethod |
+            ('Installing method ' , aCompiledMethod name) traceCr.
+            installer installMethod: aCompiledMethod ].
+    callSiteTransformers do: [ :codeTransformer |
+            codeTransformer transformedSenders do: [ :aCompiledMethod |
+                    ('Installing method ' , aCompiledMethod name) traceCr.
+                    installer installMethod: aCompiledMethod ] ]
 ]
 
 { #category : 'internals' }

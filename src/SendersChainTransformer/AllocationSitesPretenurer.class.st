@@ -3,12 +3,33 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'transformedCallSites',
-		'callSiteTransformers'
+		'callSiteTransformers',
+		'pretenuredCompiledMethods'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
 	#tag : 'Code-Rewriter'
 }
+
+{ #category : 'api' }
+AllocationSitesPretenurer >> compilePretenuredPathsFrom: toPretenureCallSitesArray [
+
+	toPretenureCallSitesArray do: [ :callStack |
+		self pretenureAllocationCallSite: callStack last senders: callStack allButLast ].
+	self mergeCallSites
+]
+
+{ #category : 'api' }
+AllocationSitesPretenurer >> fetchPretenuredCompiledMethods [
+
+    callSiteTransformers := callSiteTransformers reject: [ :e | e transformedSenders isNil ].
+    self flag: 'should debug why something there are an extra callsitetransformer initialized.'.
+
+    "First install the senders as they have unique selectors and nobody calls them"
+    pretenuredCompiledMethods := callSiteTransformers flatCollect: [ :codeTransformer | codeTransformer transformedSenders ].
+    pretenuredCompiledMethods := pretenuredCompiledMethods , transformedCallSites.
+    ^ pretenuredCompiledMethods
+]
 
 { #category : 'initialization' }
 AllocationSitesPretenurer >> initialize [
@@ -21,17 +42,10 @@ AllocationSitesPretenurer >> initialize [
 AllocationSitesPretenurer >> installPretenuredMethods [
 
     | installer |
-    callSiteTransformers := callSiteTransformers reject: [ :e | e transformedSenders isNil ].
-    self flag: 'should debug why something there are an extra callsitetransformer initialized.'.
-
     installer := callSiteTransformers anyOne.
-    "First install the senders as they have unique selectors and nobody calls them"
-    callSiteTransformers do: [ :codeTransformer |
-            codeTransformer transformedSenders do: [ :aCompiledMethod |
-                    ('Installing method ' , aCompiledMethod name) traceCr.
-                    installer installMethod: aCompiledMethod ] ].
-    "Then the call sites that they not have unique selectors "
-    transformedCallSites do: [ :aCompiledMethod |
+
+    self fetchPretenuredCompiledMethods.
+    pretenuredCompiledMethods do: [ :aCompiledMethod |
             ('Installing method ' , aCompiledMethod name) traceCr.
             installer installMethod: aCompiledMethod ]
 ]
@@ -53,15 +67,6 @@ AllocationSitesPretenurer >> pretenureAllocationCallSite: methodWithOffset sende
 	callSiteTransformers add: sct.
 	sct backupSenders: callStack caller: methodWithOffset.
 	sct transformCallSite: methodWithOffset senders: callStack
-]
-
-{ #category : 'api' }
-AllocationSitesPretenurer >> pretenureAllocations: toPretenureCallSitesArray [
-
-	toPretenureCallSitesArray do: [ :callStack |
-		self pretenureAllocationCallSite: callStack last senders: callStack allButLast ].
-	self mergeCallSites.
-	self installPretenuredMethods
 ]
 
 { #category : 'api' }

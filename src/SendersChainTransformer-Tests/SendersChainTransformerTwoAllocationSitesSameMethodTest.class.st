@@ -57,7 +57,7 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> testTransformationsFo
 	self assert: (transformedInitialCaller sourceNodeForPC: initialCaller offset) selector equals: #at:ifAbsentPut:.
 
 	pretenurator
-		pretenureAllocations: toPretenureAllocationSites;
+		compilePretenuredPathsFrom: toPretenureAllocationSites;
 		installPretenuredMethods.
 
 	transformedInitialCaller := SCMockClassWithDumbMethods >> #addOccupant:.

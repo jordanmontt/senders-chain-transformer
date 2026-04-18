@@ -69,6 +69,12 @@ AllocationSitesPretenurer >> pretenureAllocationCallSite: methodWithOffset sende
 	sct transformCallSite: methodWithOffset senders: callStack
 ]
 
+{ #category : 'accessing' }
+AllocationSitesPretenurer >> pretenuredCompiledMethods [
+
+    ^ pretenuredCompiledMethods
+]
+
 { #category : 'api' }
 AllocationSitesPretenurer >> restoreOriginalState [
 

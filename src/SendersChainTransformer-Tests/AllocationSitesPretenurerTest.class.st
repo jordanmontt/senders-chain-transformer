@@ -49,6 +49,29 @@ AllocationSitesPretenurerTest >> tearDown [
 ]
 
 { #category : 'tests' }
+AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneSender [
+
+    initialCaller := IllMethodWithOffset
+        method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth
+        offset: 37.
+    senders := { (IllMethodWithOffset method: Color class >> #fromHexString: offset: 240) }.
+
+    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
+    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
+    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: 'Color fromHexString: colorString').
+
+    pretenurator
+        compilePretenuredPathsFrom: { senders , { initialCaller } };
+        installPretenuredMethods.
+
+    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
+    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
+    self assert:
+        ((Color class lookupSelector: pretenurator pretenuredCompiledMethods first selector) sourceCode includesSubstring: '_pretenured_').
+    self deny: ((Color class >> #fromHexString:) sourceCode includesSubstring: '_pretenured_')
+]
+
+{ #category : 'tests' }
 AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameMethod [
 
 	| transformedInitialCaller |

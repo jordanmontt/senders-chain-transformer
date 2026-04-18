@@ -121,17 +121,35 @@ CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 { #category : 'method manipulation' }
 CallSiteTransformer >> transformMessageSend: methodWithOffset [
 
-    | compiledMethodOrBlock offset messageNode transformedMessageNode transformedCompiledMethod |
-    compiledMethodOrBlock := methodWithOffset method.
+    | compiledMethodOrBlock offset ast messageNode transformedCompiledMethod rootMethod |
+    1halt.compiledMethodOrBlock := methodWithOffset method.
     offset := methodWithOffset offset.
-    
-    messageNode := compiledMethodOrBlock sourceNodeForPC: offset.
-    transformedMessageNode := messageNode copy.
-    transformedMessageNode selector: (OCSelectorNode value: (self makeNewSelectorForSelector: messageNode selector)).
-   
-    messageNode parent replaceNode: messageNode withNode: transformedMessageNode.
 
-    transformedCompiledMethod := compiledMethodOrBlock methodClass compiler compile: transformedMessageNode methodNode formattedCode.
+    "Walk up outerCode chain to find the root CompiledMethod"
+    rootMethod := compiledMethodOrBlock.
+    [ rootMethod isCompiledBlock ] whileTrue: [ rootMethod := rootMethod outerCode ].
+
+    ast := rootMethod parseTree.
+
+    "Navigate down into the block nesting to find the node at the right offset"
+    messageNode := compiledMethodOrBlock isCompiledBlock
+        ifTrue: [
+            | currentNode chain cursor |
+            currentNode := ast.
+            chain := OrderedCollection new.
+            cursor := compiledMethodOrBlock.
+
+            [ cursor isCompiledBlock ] whileTrue: [
+                chain addFirst: cursor.
+                cursor := cursor outerCode ].
+            "Walk down: for each compiled block in the chain, go one sourceNodeForPC level deeper"
+            chain do: [ :eachBlock | currentNode := currentNode sourceNodeForPC: eachBlock pcInOuter ].
+            currentNode sourceNodeForPC: offset ]
+        ifFalse: [ ast sourceNodeForPC: offset ].
+
+    messageNode selector: (OCSelectorNode value: (self makeNewSelectorForSelector: messageNode selector)).
+
+    transformedCompiledMethod := rootMethod methodClass compiler compile: ast methodNode formattedCode.
     ^ transformedCompiledMethod
 ]
 

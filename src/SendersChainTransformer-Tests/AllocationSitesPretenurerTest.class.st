@@ -32,7 +32,7 @@ AllocationSitesPretenurerTest >> setUp [
 		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsent: offset: 54).
 		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsentPut: offset: 48) }.
 
-	blockClosure := (SCMockClassWithDumbMethods >> #addOccupant:) literals detect: #isBlock.
+	blockClosure := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth.
 	initialCaller2 := IllMethodWithOffset
 		                  method: blockClosure compiledBlock
 		                  offset: 26.

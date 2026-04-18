@@ -121,19 +121,17 @@ CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 { #category : 'method manipulation' }
 CallSiteTransformer >> transformMessageSend: methodWithOffset [
 
-    | compiledMethodOrBlock offset messageNodeToTransform ast transformedCompiledMethod |
+    | compiledMethodOrBlock offset messageNode transformedMessageNode transformedCompiledMethod |
     compiledMethodOrBlock := methodWithOffset method.
     offset := methodWithOffset offset.
-    ast := methodWithOffset parseTree.
+    
+    messageNode := compiledMethodOrBlock sourceNodeForPC: offset.
+    transformedMessageNode := messageNode copy.
+    transformedMessageNode selector: (OCSelectorNode value: (self makeNewSelectorForSelector: messageNode selector)).
+   
+    messageNode parent replaceNode: messageNode withNode: transformedMessageNode.
 
-    messageNodeToTransform := compiledMethodOrBlock isCompiledBlock
-        ifTrue: [ (ast sourceNodeForPC: compiledMethodOrBlock pcInOuter) sourceNodeForPC: offset ]
-        ifFalse: [ ast sourceNodeForPC: offset ].
-
-    messageNodeToTransform selector:
-        (OCSelectorNode value: (self makeNewSelectorForSelector: messageNodeToTransform selector)).
-
-    transformedCompiledMethod := compiledMethodOrBlock methodClass compiler compile: ast formattedCode.
+    transformedCompiledMethod := compiledMethodOrBlock methodClass compiler compile: transformedMessageNode methodNode formattedCode.
     ^ transformedCompiledMethod
 ]
 

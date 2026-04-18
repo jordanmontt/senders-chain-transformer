@@ -49,6 +49,25 @@ AllocationSitesPretenurerTest >> tearDown [
 ]
 
 { #category : 'tests' }
+AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlock [
+
+    initialCaller := IllMethodWithOffset
+        method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth
+        offset: 37.
+
+    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
+    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
+    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: 'Color fromHexString: colorString').
+
+    pretenurator
+        compilePretenuredPathsFrom: { {  } , { initialCaller } };
+        installPretenuredMethods.
+
+    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
+    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString')
+]
+
+{ #category : 'tests' }
 AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneSender [
 
     initialCaller := IllMethodWithOffset

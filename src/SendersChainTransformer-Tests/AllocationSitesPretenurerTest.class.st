@@ -106,3 +106,25 @@ AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameM
 	self assert: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').
 	self deny: (transformedInitialCaller sourceNodeForPC: initialCaller offset) selector equals: #at:ifAbsentPut:
 ]
+
+{ #category : 'tests' }
+AllocationSitesPretenurerTest >> testTransformationsOneAllocationSitesSimpleBlock [
+
+	| block |
+	block := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth compiledBlock.
+	initialCaller2 := IllMethodWithOffset
+		                  method: block
+		                  offset: 26.
+	self deny: ((SCMockClassWithDumbMethods >> #addOccupant:) sourceCode includesSubstring: 'OrderedCollection newTenured').
+	self assert: (block sourceNodeForPC: 26) selector equals: #new.
+	self deny: (block sourceNodeForPC: 26) selector equals: #newTenured.
+
+	pretenurator
+		compilePretenuredPathsFrom: { {  } , { initialCaller2 } };
+		installPretenuredMethods.
+
+	block := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth compiledBlock.
+	self assert: ((SCMockClassWithDumbMethods >> #addOccupant:) sourceCode includesSubstring: 'OrderedCollection newTenured').
+	self deny: (block sourceNodeForPC: 34) selector equals: #new.
+	self assert: (block sourceNodeForPC: 34) selector equals: #newTenured
+]

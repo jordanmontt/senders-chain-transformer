@@ -22,12 +22,14 @@ AllocationSitesPretenurer >> compilePretenuredPathsFrom: toPretenureCallSitesArr
 { #category : 'api' }
 AllocationSitesPretenurer >> fetchPretenuredCompiledMethods [
 
+    | transformedSenders |
     callSiteTransformers := callSiteTransformers reject: [ :e | e transformedSenders isNil ].
     self flag: 'should debug why something there are an extra callsitetransformer initialized.'.
 
     "First install the senders as they have unique selectors and nobody calls them"
-    pretenuredCompiledMethods := callSiteTransformers flatCollect: [ :codeTransformer | codeTransformer transformedSenders ].
-    pretenuredCompiledMethods := pretenuredCompiledMethods , transformedCallSites.
+    transformedSenders := callSiteTransformers flatCollect: [ :codeTransformer | codeTransformer transformedSenders ].
+    "transformedCallSites were already merged by called self mergeCallSites"
+    pretenuredCompiledMethods := transformedSenders , transformedCallSites.
     ^ pretenuredCompiledMethods
 ]
 

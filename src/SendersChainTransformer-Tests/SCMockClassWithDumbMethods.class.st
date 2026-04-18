@@ -33,7 +33,7 @@ SCMockClassWithDumbMethods >> availableProbes [
 		color := [ Object perform: colorString asSymbol ]
 			onErrorDo: [ Color fromHexString: colorString ].
 
-		CMProbe new
+		Object new
 			name: pragma arguments first;
 			color: color;
 			method: pragma method;

@@ -122,7 +122,7 @@ CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 CallSiteTransformer >> transformMessageSend: methodWithOffset [
 
     | compiledMethodOrBlock offset ast messageNode transformedCompiledMethod rootMethod |
-    1halt.compiledMethodOrBlock := methodWithOffset method.
+    compiledMethodOrBlock := methodWithOffset method.
     offset := methodWithOffset offset.
 
     "Walk up outerCode chain to find the root CompiledMethod"

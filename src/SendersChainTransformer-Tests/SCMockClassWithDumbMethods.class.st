@@ -23,6 +23,24 @@ SCMockClassWithDumbMethods >> at: key ifAbsentPut: aBlock [
 ]
 
 { #category : 'api' }
+SCMockClassWithDumbMethods >> availableProbes [
+
+	| colorString color |
+
+	^ (Pragma allNamed: #probeNamed:color: in: self) collect: [ :pragma |
+		colorString := pragma arguments second.
+
+		color := [ CMColor perform: colorString asSymbol ]
+			onErrorDo: [ Color fromHexString: colorString ].
+
+		CMProbe new
+			name: pragma arguments first;
+			color: color;
+			method: pragma method;
+			yourself ].
+]
+
+{ #category : 'api' }
 SCMockClassWithDumbMethods >> bar [
 
 	Object new.

@@ -1,5 +1,5 @@
 Class {
-	#name : 'SendersChainTransformerTwoAllocationSitesSameMethodTest',
+	#name : 'AllocationSitesPretenurerTest',
 	#superclass : 'TestCase',
 	#instVars : [
 		'pretenurator',
@@ -15,7 +15,7 @@ Class {
 }
 
 { #category : 'running' }
-SendersChainTransformerTwoAllocationSitesSameMethodTest >> setUp [
+AllocationSitesPretenurerTest >> setUp [
 
 	| blockClosure |
 	super setUp.
@@ -41,7 +41,7 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> setUp [
 ]
 
 { #category : 'running' }
-SendersChainTransformerTwoAllocationSitesSameMethodTest >> tearDown [
+AllocationSitesPretenurerTest >> tearDown [
 
 	pretenurator restoreOriginalState.
 
@@ -49,7 +49,7 @@ SendersChainTransformerTwoAllocationSitesSameMethodTest >> tearDown [
 ]
 
 { #category : 'tests' }
-SendersChainTransformerTwoAllocationSitesSameMethodTest >> testTransformationsForTwoAllocationSitesInSameMethod [
+AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameMethod [
 
 	| transformedInitialCaller |
 	transformedInitialCaller := SCMockClassWithDumbMethods >> #addOccupant:.

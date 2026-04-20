@@ -86,8 +86,9 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneS
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
     self assert:
-        ((SCMockClassWithDumbMethods class lookupSelector: pretenurator pretenuredCompiledMethods first selector) sourceCode includesSubstring: '_pretenured_').
-    self deny: ((Color class >> #sendersFromHexString:) sourceCode includesSubstring: '_pretenured_')
+        ((SCMockClassWithDumbMethods class >> pretenurator pretenuredCompiledMethods first selector)
+            sourceCode includesSubstring: '_pretenured_').
+    self deny: ((SCMockClassWithDumbMethods class >> #sendersFromHexString:) sourceCode includesSubstring: '_pretenured_')
 ]
 
 { #category : 'tests' }

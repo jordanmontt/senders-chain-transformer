@@ -19,13 +19,15 @@ CallSiteTransformerTest >> setUp [
 
     super setUp.
 
+    codeTransformer := CallSiteTransformer new
+        methodProtocol: ('*' , self class package name);
+        yourself.
+
     initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
     senders := {
                    (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
                    (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
-                   (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
-
-    codeTransformer := CallSiteTransformer new
+                   (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }
 ]
 
 { #category : 'tests' }

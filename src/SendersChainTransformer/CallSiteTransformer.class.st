@@ -6,7 +6,8 @@ Class {
 		'originalSenders',
 		'selectorMaker',
 		'transformedSenders',
-		'transformedCallSite'
+		'transformedCallSite',
+		'methodProtocol'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -34,13 +35,17 @@ CallSiteTransformer >> cloneCompiledCode: anIllSender [
 CallSiteTransformer >> initialize [
 
 	super initialize.
-	selectorMaker := TenuredSelectorMaker new
+	selectorMaker := TenuredSelectorMaker new.
+	methodProtocol := 'automatically-generated'
 ]
 
 { #category : 'method manipulation' }
 CallSiteTransformer >> installMethod: aCompiledMethod [
 
-	aCompiledMethod methodClass methodDict at: aCompiledMethod selector put: aCompiledMethod
+    aCompiledMethod methodClass
+        addAndClassifySelector: aCompiledMethod selector
+        withMethod: aCompiledMethod
+        inProtocol: methodProtocol
 ]
 
 { #category : 'method manipulation' }
@@ -67,6 +72,12 @@ CallSiteTransformer >> mergeTransformedSenders [
 	"It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 	transformedSenders := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedSenders.
 	^ transformedSenders
+]
+
+{ #category : 'accessing' }
+CallSiteTransformer >> methodProtocol: aString [
+
+	methodProtocol := aString
 ]
 
 { #category : 'method manipulation' }

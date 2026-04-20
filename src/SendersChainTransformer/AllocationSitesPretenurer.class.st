@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'transformedCallSites',
 		'callSiteTransformers',
-		'pretenuredCompiledMethods'
+		'pretenuredCompiledMethods',
+		'methodProtocol'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -37,7 +38,8 @@ AllocationSitesPretenurer >> fetchPretenuredCompiledMethods [
 AllocationSitesPretenurer >> initialize [
 
 	super initialize.
-	callSiteTransformers := OrderedCollection new
+	callSiteTransformers := OrderedCollection new.
+	methodProtocol := 'automatically-generated'
 ]
 
 { #category : 'api' }
@@ -61,11 +63,17 @@ AllocationSitesPretenurer >> mergeCallSites [
 	transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites
 ]
 
+{ #category : 'api - accessing' }
+AllocationSitesPretenurer >> methodProtocol: aString [
+
+	methodProtocol := aString
+]
+
 { #category : 'internals' }
 AllocationSitesPretenurer >> pretenureAllocationCallSite: methodWithOffset senders: callStack [
 
 	| sct |
-	sct := CallSiteTransformer new.
+	sct := CallSiteTransformer new methodProtocol: methodProtocol; yourself.
 	callSiteTransformers add: sct.
 	sct backupSenders: callStack caller: methodWithOffset.
 	sct transformCallSite: methodWithOffset senders: callStack

@@ -10,7 +10,26 @@ Class {
 	#tag : 'Utilities'
 }
 
-{ #category : 'api' }
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods class >> sendersFromHexString: aColorHex [
+	"Returns a color instance from HEX (6 element elements)."
+
+	"(Color fromHexString: 'FFFFFF')>>> (Color white) "
+
+	| green red blue alpha hexString |
+	hexString := aColorHex withoutPrefix: '#'.
+	red := (Integer readFrom: (hexString first: 2) base: 16) / 255.
+	green := (Integer readFrom: (hexString copyFrom: 3 to: 4) base: 16) / 255.
+	blue := (Integer readFrom: (hexString copyFrom: 5 to: 6) base: 16) / 255.
+
+	alpha := hexString size = 8
+		ifFalse: [ 1.0 ]
+		ifTrue: [ (Integer readFrom: (hexString copyFrom: 7 to: 8) base: 16) / 255 ].
+
+	^ self r: red g: green b: blue alpha: alpha
+]
+
+{ #category : 'automatically-generated' }
 SCMockClassWithDumbMethods >> addOccupant: anObject [
 
 	(self theOccupants at: anObject class name ifAbsentPut: [ OrderedCollection new ]) add: anObject
@@ -22,7 +41,7 @@ SCMockClassWithDumbMethods >> at: key ifAbsentPut: aBlock [
 	^ self at: key ifAbsent: [ self at: key put: aBlock value ]
 ]
 
-{ #category : 'api' }
+{ #category : 'automatically-generated' }
 SCMockClassWithDumbMethods >> availableProbes [
 
 	| colorString color |
@@ -40,7 +59,7 @@ SCMockClassWithDumbMethods >> availableProbes [
 			yourself ].
 ]
 
-{ #category : 'api' }
+{ #category : 'automatically-generated' }
 SCMockClassWithDumbMethods >> bar [
 
 	Object new.
@@ -53,7 +72,7 @@ SCMockClassWithDumbMethods >> binaryMethod [
 	self foo: self ,, 1 andBar: 0
 ]
 
-{ #category : 'api' }
+{ #category : 'automatically-generated' }
 SCMockClassWithDumbMethods >> foo [
 
 	anotherFakeClass := SCMockClassWithDumbMethods new.

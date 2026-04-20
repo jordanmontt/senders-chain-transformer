@@ -73,7 +73,7 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneS
     initialCaller := IllMethodWithOffset
         method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth
         offset: 37.
-    senders := { (IllMethodWithOffset method: Color class >> #sendersFromHexString: offset: 178) }.
+    senders := { (IllMethodWithOffset method: SCMockClassWithDumbMethods class >> #sendersFromHexString: offset: 178) }.
 
     self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
     self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
@@ -86,7 +86,7 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneS
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
     self assert:
-        ((Color class lookupSelector: pretenurator pretenuredCompiledMethods first selector) sourceCode includesSubstring: '_pretenured_').
+        ((SCMockClassWithDumbMethods class lookupSelector: pretenurator pretenuredCompiledMethods first selector) sourceCode includesSubstring: '_pretenured_').
     self deny: ((Color class >> #sendersFromHexString:) sourceCode includesSubstring: '_pretenured_')
 ]
 

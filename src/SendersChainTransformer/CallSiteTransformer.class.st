@@ -196,14 +196,17 @@ CallSiteTransformer >> transformedSenders: aCollectionOfCompiledMethods [
 
 { #category : 'method manipulation' }
 CallSiteTransformer >> updateSourceCode: sourceCode oldSelector: oldSelector newSelector: newSelector [
-    |  firstLine rest updatedFirstLine |
+    "Replace the selector keywords in the first line of sourceCode with those of newSelector.
+    Keywords are replaced positionally (not by substring) to avoid corrupting already-replaced text.
+    For example, given old selector with:with: and new selector _pre_with:with:, the first line
+    'with: a with: b' becomes '_pre_with: a _pre_with: b'. The rest of the source is unchanged."
+
+    | firstLine rest words updatedFirstLine |
     firstLine := sourceCode lines first.
     rest := sourceCode lines allButFirst.
+    words := firstLine substrings.
+    newSelector keywords doWithIndex: [ :newKw :i | words at: 2 * i - 1 put: newKw ].
+    updatedFirstLine := ' ' join: words.
 
-    updatedFirstLine := firstLine.
-    oldSelector keywords
-        with: newSelector keywords
-        collect: [ :oldKw :newKw | updatedFirstLine := updatedFirstLine copyReplaceAll: oldKw with: newKw ].
-
-    ^ String cr join: ({ updatedFirstLine } , rest)
+    ^ String cr join: { updatedFirstLine } , rest
 ]

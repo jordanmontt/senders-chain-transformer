@@ -29,6 +29,13 @@ SCMockClassWithDumbMethods class >> sendersFromHexString: aColorHex [
 	^ self r: red g: green b: blue alpha: alpha
 ]
 
+{ #category : 'api' }
+SCMockClassWithDumbMethods >> @ anObject [
+
+	2 + 2.
+	self addOccupant: anObject
+]
+
 { #category : 'automatically-generated' }
 SCMockClassWithDumbMethods >> addOccupant: anObject [
 

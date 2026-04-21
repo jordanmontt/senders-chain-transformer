@@ -73,6 +73,61 @@ CallSiteTransformerTest >> testRemoveAlreadyImplemented [
 ]
 
 { #category : 'tests' }
+CallSiteTransformerTest >> testRenameSendersBinarySelectors [
+
+	| methodToRename renamedMethod |
+	methodToRename := (SCMockClassWithDumbMethods >> #@) copy.
+
+	self assert: methodToRename selector equals: #@.
+	self assert: methodToRename sourceCode lines first equals: '@ anObject'.
+	
+	codeTransformer transformedSenders: { methodToRename }.
+	codeTransformer renameSendersSelectors.
+	renamedMethod := codeTransformer transformedSenders first.
+	
+	self deny: methodToRename selector equals: #@.
+	self assert: (renamedMethod selector includesSubstring: 'pretenured').
+	self deny: methodToRename sourceCode lines first equals: '@ anObject'.
+	self assert: (renamedMethod sourceCode lines first includesSubstring: 'pretenured')
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTest >> testRenameSendersKeywordSelectors [
+
+	| methodToRename renamedMethod |
+	methodToRename := (SCMockClassWithDumbMethods >> #at:ifAbsentPut:) copy.
+
+	self assert: methodToRename selector equals: #at:ifAbsentPut:.
+	self assert: methodToRename sourceCode lines first equals: 'at: key ifAbsentPut: aBlock'.
+	
+	codeTransformer transformedSenders: { methodToRename }.
+	codeTransformer renameSendersSelectors.
+	renamedMethod := codeTransformer transformedSenders first.
+	
+	self deny: methodToRename selector equals:  #at:ifAbsentPut:.
+	self assert: (renamedMethod selector includesSubstring: 'pretenured').
+	self deny: methodToRename sourceCode lines first equals: 'at: key ifAbsentPut: aBlock'.
+	self assert: (renamedMethod sourceCode lines first includesSubstring: 'pretenured')
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTest >> testRenameSendersSelectors [
+
+	| methodToRename renamedMethod |
+	methodToRename := (SCMockClassWithDumbMethods >> #bar) copy.
+
+	self assert: methodToRename selector equals: #bar.
+	self assert: methodToRename sourceCode lines first equals: 'bar'.
+	
+	codeTransformer transformedSenders: { methodToRename }.
+	codeTransformer renameSendersSelectors.
+	renamedMethod := codeTransformer transformedSenders first.
+	
+	self assert: (renamedMethod selector includesSubstring: 'pretenured').
+	self assert: (renamedMethod sourceCode lines first includesSubstring: 'pretenured')
+]
+
+{ #category : 'tests' }
 CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 	"Make sure methods do not exist"
 	self

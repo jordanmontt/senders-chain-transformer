@@ -125,8 +125,7 @@ CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 	transformedSenders := self mergeTransformedSenders.
 	transformedCallSite := self transformMessageSend: initialCaller.
 
-	self renameSendersSelectors.
-	^ transformedSenders
+	self renameSendersSelectors
 ]
 
 { #category : 'method manipulation' }
@@ -180,4 +179,10 @@ CallSiteTransformer >> transformedCallSite: anObject [
 CallSiteTransformer >> transformedSenders [
 
 	^ transformedSenders
+]
+
+{ #category : 'accessing' }
+CallSiteTransformer >> transformedSenders: aCollectionOfCompiledMethods [
+
+	transformedSenders := aCollectionOfCompiledMethods
 ]

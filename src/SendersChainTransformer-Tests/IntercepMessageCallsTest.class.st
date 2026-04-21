@@ -32,8 +32,8 @@ IntercepMessageCallsTest >> setUp [
 
 	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
 	senders := {
-		           (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
-		           (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
+		           (IllMethodWithOffset method: SCMockAssociation class >> #key:value: offset: 42).
+		           (IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82).
 		           (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }.
 
 	codeTransformer := CallSiteTransformer new
@@ -45,8 +45,8 @@ IntercepMessageCallsTest >> setUpMethodProxies [
 	handler := SCHandler new.
 	p1 := MpMethodProxy onMethod: SCMockClassWithDumbMethods >> #foo handler: handler.
 	p2 := MpMethodProxy onMethod: SCMockClassWithDumbMethods >> #bar handler: handler.
-	p3 := MpMethodProxy onMethod: Dictionary >> #at:put: handler: handler.
-	p4 := MpMethodProxy onMethod: Association class >> #key:value: handler: handler.
+	p3 := MpMethodProxy onMethod: SCMockDictionary >> #at:put: handler: handler.
+	p4 := MpMethodProxy onMethod: SCMockAssociation class >> #key:value: handler: handler.
 	proxies := { p1. p2. p3. p4 }.
 ]
 

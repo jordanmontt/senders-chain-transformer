@@ -6,7 +6,7 @@ Class {
 	#tag : 'Utilities'
 }
 
-{ #category : 'automatically-generated' }
+{ #category : 'accessing' }
 SCMockDictionary >> at: key ifAbsent: aBlock [
 	"Answer the value associated with the key or, if key isn't found,
 	answer the result of evaluating aBlock."
@@ -16,7 +16,7 @@ SCMockDictionary >> at: key ifAbsent: aBlock [
 			ifNotNil: [:assoc | assoc]) value
 ]
 
-{ #category : 'automatically-generated' }
+{ #category : 'accessing' }
 SCMockDictionary >> at: key ifAbsentPut: aBlock [
 	"Return the value at the given key.
 	If the key is not included in the receiver store and return the result
@@ -29,8 +29,6 @@ SCMockDictionary >> at: key ifAbsentPut: aBlock [
 SCMockDictionary >> at: key put: anObject [
 	"Set the value at key to be anObject.  If key is not found, create a
 	new entry for key and set is value to anObject. Answer anObject."
-	"(Dictionary new at: #color put: #blue; yourself) >>> (Dictionary new add: #color->#blue; yourself)"
-	"(Dictionary new at: #color put: #blue; at: #color put: #red; yourself) >>> (Dictionary new add: #color->#red; yourself)"
 
 	| index assoc |
 	index := self findElementOrNil: key.

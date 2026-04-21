@@ -19,9 +19,7 @@ CallSiteTransformerTest >> setUp [
 
     super setUp.
 
-    codeTransformer := CallSiteTransformer new
-        methodProtocol: ('*' , self class package name);
-        yourself.
+    codeTransformer := CallSiteTransformer new.
 
     initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
     senders := {

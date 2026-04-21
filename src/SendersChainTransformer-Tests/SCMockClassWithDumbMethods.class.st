@@ -66,7 +66,7 @@ SCMockClassWithDumbMethods >> availableProbes [
 			yourself ].
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'automatically-generated' }
 SCMockClassWithDumbMethods >> bar [
 
 	Object new.

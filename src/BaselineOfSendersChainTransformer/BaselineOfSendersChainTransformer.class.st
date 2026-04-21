@@ -17,9 +17,8 @@ BaselineOfSendersChainTransformer >> baseline: spec [
 		"External dependencies"
 		spec baseline: 'MethodProxies' with: [ spec repository: 'github://pharo-contributions/MethodProxies' ].
 		spec baseline: 'IllimaniProfiler' with: [ spec repository: 'github://jordanmontt/illimani-memory-profiler:dev' ].
-		spec baseline: 'PretenuringAdviceAlgorithm' with: [ spec repository: 'github://jordanmontt/Pretenuring-Advice-Algorithm:main' ].
 		"Linking external dependencies"
-		spec package: 'SendersChainTransformer' with: [ spec requires: #( 'MethodProxies' 'IllimaniProfiler' 'PretenuringAdviceAlgorithm') ].
+		spec package: 'SendersChainTransformer' with: [ spec requires: #( 'MethodProxies' 'IllimaniProfiler') ].
 
 		"Groups"
 		spec group: 'default' with: #( 'core' 'tests' ).

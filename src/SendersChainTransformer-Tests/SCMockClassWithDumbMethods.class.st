@@ -66,7 +66,7 @@ SCMockClassWithDumbMethods >> availableProbes [
 			yourself ].
 ]
 
-{ #category : 'automatically-generated' }
+{ #category : 'as yet unclassified' }
 SCMockClassWithDumbMethods >> bar [
 
 	Object new.
@@ -90,7 +90,7 @@ SCMockClassWithDumbMethods >> foo [
 SCMockClassWithDumbMethods >> initialize [
 
 	super initialize.
-	aDictionary := Dictionary new
+	aDictionary := SCMockDictionary new
 ]
 
 { #category : 'api' }

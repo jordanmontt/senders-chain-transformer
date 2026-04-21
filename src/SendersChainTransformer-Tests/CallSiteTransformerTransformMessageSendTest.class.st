@@ -22,7 +22,7 @@ CallSiteTransformerTransformMessageSendTest >> setUp [
 CallSiteTransformerTransformMessageSendTest >> testTransformMessageSend [
 
 	| tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
-	methodWithOffsetToTransform :=  IllMethodWithOffset method: Dictionary >> #at:put: offset: 82.
+	methodWithOffsetToTransform :=  IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82.
 	expectedSelector := codeTransformer makeNewSelectorForSelector: (methodWithOffsetToTransform method sourceNodeForPC: methodWithOffsetToTransform offset) selector.
 
 	self

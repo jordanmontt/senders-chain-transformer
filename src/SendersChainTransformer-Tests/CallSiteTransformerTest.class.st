@@ -25,8 +25,8 @@ CallSiteTransformerTest >> setUp [
 
     initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 45.
     senders := {
-                   (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
-                   (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
+                   (IllMethodWithOffset method: SCMockAssociation class >> #key:value: offset: 42).
+                   (IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82).
                    (IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47) }
 ]
 
@@ -137,10 +137,10 @@ CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 		should: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelectorForSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [ Dictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
+		should: [ SCMockDictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		should: [ Association perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
+		should: [ SCMockAssociation perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
 	codeTransformer
@@ -152,10 +152,10 @@ CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
 		shouldnt: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelectorForSelector: #bar) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Dictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
+		shouldnt: [ SCMockDictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
 		raise: MessageNotUnderstood.
 	self
-		shouldnt: [ Association perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
+		shouldnt: [ SCMockAssociation perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
 		raise: MessageNotUnderstood.
 
 	codeTransformer restoreOriginalState

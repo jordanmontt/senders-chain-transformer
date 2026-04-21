@@ -26,11 +26,11 @@ AllocationSitesPretenurerTest >> setUp [
 		                 method: (SCMockClassWithDumbMethods >> #addOccupant:)
 		                 offset: (((SCMockClassWithDumbMethods >> #addOccupant:) symbolicBytecodes detect: [ :e | e description = 'send: at:ifAbsentPut:' ]) offset).
 	senders := {
-		           (IllMethodWithOffset method: Association class >> #key:value: offset: 42).
-		           (IllMethodWithOffset method: Dictionary >> #at:put: offset: 82).
-		           (IllMethodWithOffset method: (Dictionary >> #at:ifAbsentPut:) literals first offset: 21).
-		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsent: offset: 54).
-		           (IllMethodWithOffset method: Dictionary >> #at:ifAbsentPut: offset: 48) }.
+		           (IllMethodWithOffset method: SCMockAssociation class >> #key:value: offset: 42).
+		           (IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82).
+		           (IllMethodWithOffset method: (SCMockDictionary >> #at:ifAbsentPut:) literals first offset: 21).
+		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsent: offset: 54).
+		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsentPut: offset: 48) }.
 
 	blockClosure := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth.
 	initialCaller2 := IllMethodWithOffset

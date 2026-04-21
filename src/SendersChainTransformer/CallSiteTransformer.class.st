@@ -95,7 +95,14 @@ CallSiteTransformer >> removeAlreadyImplemented: senders [
 CallSiteTransformer >> renameSendersSelectors [
 
     transformedSenders do: [ :aCompiledMethod |
-        aCompiledMethod selector: (self makeNewSelectorForMethod: aCompiledMethod) ]
+        | newSelector updatedSource |
+        newSelector := self makeNewSelectorForMethod: aCompiledMethod.
+        updatedSource := self
+            updateSourceCode: aCompiledMethod sourceCode
+            oldSelector: aCompiledMethod selector
+            newSelector: newSelector.
+        aCompiledMethod propertyAt: #source put: updatedSource.
+        aCompiledMethod selector: newSelector ]
 ]
 
 { #category : 'backup' }
@@ -185,4 +192,18 @@ CallSiteTransformer >> transformedSenders [
 CallSiteTransformer >> transformedSenders: aCollectionOfCompiledMethods [
 
 	transformedSenders := aCollectionOfCompiledMethods
+]
+
+{ #category : 'method manipulation' }
+CallSiteTransformer >> updateSourceCode: sourceCode oldSelector: oldSelector newSelector: newSelector [
+    |  firstLine rest updatedFirstLine |
+    firstLine := sourceCode lines first.
+    rest := sourceCode lines allButFirst.
+
+    updatedFirstLine := firstLine.
+    oldSelector keywords
+        with: newSelector keywords
+        collect: [ :oldKw :newKw | updatedFirstLine := updatedFirstLine copyReplaceAll: oldKw with: newKw ].
+
+    ^ String cr join: ({ updatedFirstLine } , rest)
 ]

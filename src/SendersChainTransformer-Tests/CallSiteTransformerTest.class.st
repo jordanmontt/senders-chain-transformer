@@ -88,7 +88,8 @@ CallSiteTransformerTest >> testRenameSendersBinarySelectors [
 	self deny: methodToRename selector equals: #@.
 	self assert: (renamedMethod selector includesSubstring: 'pretenured').
 	self deny: methodToRename sourceCode lines first equals: '@ anObject'.
-	self assert: (renamedMethod sourceCode lines first includesSubstring: 'pretenured')
+	self assert: (renamedMethod sourceCode lines first includesSubstring: 'pretenured').
+	self assert: (renamedMethod sourceCode lines first includesSubstring: ':')
 ]
 
 { #category : 'tests' }
@@ -124,7 +125,9 @@ CallSiteTransformerTest >> testRenameSendersSelectors [
 	renamedMethod := codeTransformer transformedSenders first.
 	
 	self assert: (renamedMethod selector includesSubstring: 'pretenured').
-	self assert: (renamedMethod sourceCode lines first includesSubstring: 'pretenured')
+	self deny: methodToRename selector equals: #bar.
+	self assert: (renamedMethod sourceCode lines first includesSubstring: 'pretenured').
+	self deny: methodToRename sourceCode lines first equals: 'bar'
 ]
 
 { #category : 'tests' }

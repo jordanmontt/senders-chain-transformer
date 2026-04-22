@@ -63,7 +63,7 @@ TenuredSelectorMakerTest >> testMakeSelectorForSelectorNotTransformSelectors [
     self assert: (tenuredSelectorMaker makeSelectorForSelector: #basicNewTenured) equals: #basicNewTenured.
     self assert: (tenuredSelectorMaker makeSelectorForSelector: #basicNewTenured:) equals: #basicNewTenured:.
     self assert: (tenuredSelectorMaker makeSelectorForSelector: #newTenured) equals: #newTenured.
-    self assert: (tenuredSelectorMaker makeSelectorForSelector: #newTenured) equals: #newTenured
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #newTenured:) equals: #newTenured:
 ]
 
 { #category : 'tests' }

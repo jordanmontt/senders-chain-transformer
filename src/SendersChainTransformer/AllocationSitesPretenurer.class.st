@@ -21,6 +21,17 @@ AllocationSitesPretenurer >> compilePretenuredPathsFrom: toPretenureCallSitesArr
 ]
 
 { #category : 'api' }
+AllocationSitesPretenurer >> exportPretenuredMethods: writeStream [
+
+	"file name must end in .json"
+	self fetchPretenuredCompiledMethods.
+
+	CompiledMethodToSourceCodeSerializer new
+		serialize: pretenuredCompiledMethods
+		on: writeStream
+]
+
+{ #category : 'api' }
 AllocationSitesPretenurer >> fetchPretenuredCompiledMethods [
 
     | transformedSenders |

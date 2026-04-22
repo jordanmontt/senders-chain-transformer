@@ -57,7 +57,13 @@ TenuredSelectorMakerTest >> testMakeSelectorForSelectorBinary [
 { #category : 'tests' }
 TenuredSelectorMakerTest >> testMakeSelectorForSelectorNotTransformSelectors [
 
-    self assert: (tenuredSelectorMaker makeSelectorForSelector: #initialize) equals: #initialize
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #initialize) equals: #initialize.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #value:) equals: #value:.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #value:value:) equals: #value:value:.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #basicNewTenured) equals: #basicNewTenured.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #basicNewTenured:) equals: #basicNewTenured:.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #newTenured) equals: #newTenured.
+    self assert: (tenuredSelectorMaker makeSelectorForSelector: #newTenured) equals: #newTenured
 ]
 
 { #category : 'tests' }

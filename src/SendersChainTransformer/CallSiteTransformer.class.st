@@ -7,7 +7,8 @@ Class {
 		'selectorMaker',
 		'transformedSenders',
 		'transformedCallSite',
-		'methodProtocol'
+		'methodProtocol',
+		'alreadyImplementedMethods'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -34,9 +35,16 @@ CallSiteTransformer >> cloneCompiledCode: anIllSender [
 { #category : 'initialization' }
 CallSiteTransformer >> initialize [
 
-	super initialize.
-	selectorMaker := TenuredSelectorMaker new.
-	methodProtocol := 'automatically-generated'
+    super initialize.
+    selectorMaker := TenuredSelectorMaker new.
+    methodProtocol := 'automatically-generated'.
+
+    self class package extensionMethods do: [ :e | self assert: (e name includesSubstring: 'Tenured') ].
+    alreadyImplementedMethods := self class package extensionMethods , {
+            (Behavior >> #newTenured).
+            (Behavior >> #newTenured:).
+            (Behavior >> #basicNewTenured).
+            (Behavior >> #basicNewTenured:) }
 ]
 
 { #category : 'method manipulation' }
@@ -82,13 +90,18 @@ CallSiteTransformer >> methodProtocol: aString [
 
 { #category : 'method manipulation' }
 CallSiteTransformer >> removeAlreadyImplemented: senders [
-	"These methods are already implemented as extension methods as they are methods that require special treatment. So we need to ignore them because we will transform incorrectly the method."
-	| toBan |
-	self class package extensionMethods do: [ :e | self assert: (e name includesSubstring: 'Tenured') ].
+	"Filter out methods that are already implemented or conflict with special-case implementations."
 
-	toBan := (self class package extensionMethods collect: #name) 
-			collect: [ :e | e copyReplaceAll: 'Tenured' with: '' ].
-	^ senders reject: [ :aMethodWithOffset | toBan includes: aMethodWithOffset name ]
+	| normalizedImplementedNames implementedMethods |
+	
+	normalizedImplementedNames := (alreadyImplementedMethods collect: [ :method |
+		method name copyReplaceAll: 'Tenured' with: '' ]) asSet.
+	
+	implementedMethods := alreadyImplementedMethods asSet.
+
+	^ senders reject: [ :methodWithOffset |
+		(normalizedImplementedNames includes: methodWithOffset name)
+			or: [ implementedMethods includes: methodWithOffset method ] ]
 ]
 
 { #category : 'method manipulation' }

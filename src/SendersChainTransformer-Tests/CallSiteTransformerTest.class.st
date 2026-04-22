@@ -66,6 +66,10 @@ CallSiteTransformerTest >> testRemoveAlreadyImplemented [
     self assert: (codeTransformer removeAlreadyImplemented: { (OrderedCollection class >> #new:) }) isEmpty.
     self assert: (codeTransformer removeAlreadyImplemented: { (ArrayedCollection class >> #new) }) isEmpty.
     self assert: (codeTransformer removeAlreadyImplemented: { (ArrayedCollection class >> #new:) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (Behavior >> #newTenured:) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (Behavior >> #newTenured) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (Behavior >> #basicNewTenured) }) isEmpty.
+    self assert: (codeTransformer removeAlreadyImplemented: { (Behavior >> #basicNewTenured:) }) isEmpty.
 
     self deny: (codeTransformer removeAlreadyImplemented: { (Object >> #printString) }) isEmpty
 ]

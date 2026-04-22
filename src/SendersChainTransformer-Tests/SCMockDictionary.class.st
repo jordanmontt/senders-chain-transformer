@@ -6,7 +6,7 @@ Class {
 	#tag : 'Utilities'
 }
 
-{ #category : 'accessing' }
+{ #category : 'automatically-generated' }
 SCMockDictionary >> at: key ifAbsent: aBlock [
 	"Answer the value associated with the key or, if key isn't found,
 	answer the result of evaluating aBlock."
@@ -16,7 +16,7 @@ SCMockDictionary >> at: key ifAbsent: aBlock [
 			ifNotNil: [:assoc | assoc]) value
 ]
 
-{ #category : 'accessing' }
+{ #category : 'automatically-generated' }
 SCMockDictionary >> at: key ifAbsentPut: aBlock [
 	"Return the value at the given key.
 	If the key is not included in the receiver store and return the result

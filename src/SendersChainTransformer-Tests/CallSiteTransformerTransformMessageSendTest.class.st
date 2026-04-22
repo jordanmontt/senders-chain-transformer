@@ -43,6 +43,36 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSend [
 ]
 
 { #category : 'tests' }
+CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendBasicNewTenuredDoesNotChange [
+
+	| transformedMethod |
+	methodWithOffsetToTransform := IllMethodWithOffset
+		method: (SCMockClassWithDumbMethods class >> #newTenured)
+		offset: 42.
+
+	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
+
+	self deny: (transformedMethod sourceCode includesSubstring: '_pretenured_').
+	self deny: ((SCMockClassWithDumbMethods class >> #newTenured) sourceCode includesSubstring: '_pretenured_').
+	self assert: (transformedMethod sourceNodeForPC: 42) selector equals: #basicNewTenured
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendNewTenuredDoesNotChange [
+
+	| transformedMethod |
+	methodWithOffsetToTransform := IllMethodWithOffset
+		method: (SCMockClassWithDumbMethods class >> #createTenured)
+		offset: 34.
+
+	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
+
+	self deny: (transformedMethod sourceCode includesSubstring: '_pretenured_').
+	self deny: ((SCMockClassWithDumbMethods class >> #createTenured) sourceCode includesSubstring: '_pretenured_').
+	self assert: (transformedMethod sourceNodeForPC: 34) selector equals: #newTenured
+]
+
+{ #category : 'tests' }
 CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendOffsetWithBlock [
 
 	| transformedMethod |

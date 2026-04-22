@@ -34,7 +34,7 @@ TenuredSelectorMaker >> initialize [
     doNotTransformMethods := { BlockClosure>>#value. BlockClosure>>#value:. BlockClosure>>#value:value:.
         BlockClosure>>#value:value:value:. BlockClosure>>#value:value:value:value:.
         BlockClosure>>#valueNoContextSwitch. Semaphore>>#critical:. Mutex>>#critical: }.
-    doNotTransformSelectors := #( #initialize #value #value: #value:value:)
+    doNotTransformSelectors := #( #newTenured #newTenured: #basicNewTenured #basicNewTenured: #initialize #value #value: #value:value: )
 ]
 
 { #category : 'api' }

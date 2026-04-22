@@ -35,7 +35,11 @@ TenuredSelectorMakerTest >> testMakeSelectorForMethodNotTransformMethods [
 
     self assert: (tenuredSelectorMaker makeSelectorForMethod: BlockClosure >> #value) equals: #value.
     self assert: (tenuredSelectorMaker makeSelectorForMethod: BlockClosure >> #value:) equals: #value:.
-    self assert: (tenuredSelectorMaker makeSelectorForMethod: Semaphore >> #critical:) equals: #critical:
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: Semaphore >> #critical:) equals: #critical:.
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: Behavior >> #basicNewTenured) equals: #basicNewTenured.
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: Behavior >> #basicNewTenured:) equals: #basicNewTenured:.
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: Behavior >> #newTenured) equals: #newTenured.
+    self assert: (tenuredSelectorMaker makeSelectorForMethod: Behavior >> #newTenured) equals: #newTenured
 ]
 
 { #category : 'tests' }

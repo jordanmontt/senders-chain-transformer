@@ -2,10 +2,7 @@ Class {
 	#name : 'AllocationSitesPretenurerTest',
 	#superclass : 'TestCase',
 	#instVars : [
-		'pretenurator',
-		'initialCaller',
-		'senders',
-		'initialCaller2'
+		'pretenurator'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -15,23 +12,8 @@ Class {
 { #category : 'running' }
 AllocationSitesPretenurerTest >> setUp [
 
-	| blockClosure |
 	super setUp.
-
 	pretenurator := AllocationSitesPretenurer new.
-
-	initialCaller := IllMethodWithOffset method: (SCMockClassWithDumbMethods >> #addOccupant:) offset:  81.
-	senders := {
-		           (IllMethodWithOffset method: SCMockAssociation class >> #key:value: offset: 42).
-		           (IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82).
-		           (IllMethodWithOffset method: (SCMockDictionary >> #at:ifAbsentPut:) literals first offset: 21).
-		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsent: offset: 54).
-		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsentPut: offset: 48) }.
-
-	blockClosure := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth.
-	initialCaller2 := IllMethodWithOffset
-		                  method: blockClosure compiledBlock
-		                  offset: 26
 ]
 
 { #category : 'running' }
@@ -45,6 +27,7 @@ AllocationSitesPretenurerTest >> tearDown [
 { #category : 'tests' }
 AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlock [
 
+    | initialCaller |
     initialCaller := IllMethodWithOffset
         method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth
         offset: 37.
@@ -61,6 +44,7 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlock [
 { #category : 'tests' }
 AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneSender [
 
+    | initialCaller senders |
     initialCaller := IllMethodWithOffset
         method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth
         offset: 37.
@@ -82,7 +66,17 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneS
 { #category : 'tests' }
 AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameMethod [
 
-    | transformedInitialCaller toPretenurePaths |
+    | transformedInitialCaller toPretenurePaths senders initialCaller initialCaller2 |
+	initialCaller := IllMethodWithOffset method: (SCMockClassWithDumbMethods >> #addOccupant:) offset:  81.
+	senders := {
+		           (IllMethodWithOffset method: SCMockAssociation class >> #key:value: offset: 42).
+		           (IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82).
+		           (IllMethodWithOffset method: (SCMockDictionary >> #at:ifAbsentPut:) literals first offset: 21).
+		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsent: offset: 54).
+		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsentPut: offset: 48) }.
+	initialCaller2 := IllMethodWithOffset
+		             method: (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth compiledBlock
+		             offset: 26.	
     toPretenurePaths := { (senders , { initialCaller }) . ({ } , { initialCaller2 }) }.
 
     pretenurator
@@ -98,7 +92,7 @@ AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameM
 { #category : 'tests' }
 AllocationSitesPretenurerTest >> testTransformationsOneAllocationSitesSimpleBlock [
 
-	| block |
+	| block initialCaller |
 	block := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth compiledBlock.
 	initialCaller := IllMethodWithOffset method: block offset: 26.
 

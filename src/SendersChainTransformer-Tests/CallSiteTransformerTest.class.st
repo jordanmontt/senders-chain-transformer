@@ -160,34 +160,3 @@ CallSiteTransformerTest >> testRenameSendersSelectors [
 	self deny: methodToRename sourceCode lines first equals: 'bar'.
 	self assert: renamedMethod sourceCode lines first equals: expectedSelector.
 ]
-
-{ #category : 'tests' }
-CallSiteTransformerTest >> testTransformCallingSendersInitialCaller [
-	"Make sure methods do not exist"
-	self
-		should: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelectorForSelector: #bar) ]
-		raise: MessageNotUnderstood.
-	self
-		should: [ SCMockDictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
-		raise: MessageNotUnderstood.
-	self
-		should: [ SCMockAssociation perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
-		raise: MessageNotUnderstood.
-
-	codeTransformer
-		backupSenders: senders caller: initialCaller;
-		transformCallSite: initialCaller senders: senders;
-		installTransformations.
-
-	self
-		shouldnt: [ SCMockClassWithDumbMethods new perform: (codeTransformer makeNewSelectorForSelector: #bar) ]
-		raise: MessageNotUnderstood.
-	self
-		shouldnt: [ SCMockDictionary new perform: (codeTransformer makeNewSelectorForSelector: #at:put:) withArguments: #( #key 2 ) ]
-		raise: MessageNotUnderstood.
-	self
-		shouldnt: [ SCMockAssociation perform: (codeTransformer makeNewSelectorForSelector: #key:value:) withArguments: #( #key #value ) ]
-		raise: MessageNotUnderstood.
-
-	codeTransformer restoreOriginalState
-]

@@ -19,18 +19,25 @@ CodeTransformationsMerger >> isTenuredSelector: aSelector [
 ]
 
 { #category : 'internals' }
-CodeTransformationsMerger >> mergeCompiledMethods: compiledMethodsWithTransformations into: originalCompiledMethod [
+CodeTransformationsMerger >> mergeCompiledMethods: compiledMethodsWithTransformations [
+	| baseAst baseMessages mergedCompiledMethod |
 
-	| astToTransform mergedCompiledMethod |
-	astToTransform := originalCompiledMethod parseTree.
-	compiledMethodsWithTransformations do: [ :aCompiledMethod |
-		(astToTransform allChildren select: #isMessage)
-			with: (aCompiledMethod parseTree allChildren select: #isMessage)
-			do: [ :nodeToTransform :nodeWithChanges |
-				(self isTenuredSelector: nodeWithChanges selector) ifTrue: [
-					nodeToTransform selector: (OCSelectorNode value: nodeWithChanges selector) ] ] ].
-	mergedCompiledMethod := astToTransform methodNode generateIR generate.
-	mergedCompiledMethod propertyAt: #source put: astToTransform formattedCode.
+	baseAst := compiledMethodsWithTransformations first parseTree.
+	baseMessages := baseAst allChildren select: #isMessage.
+
+	compiledMethodsWithTransformations allButFirst do: [ :each |
+		| sourceMessages |
+		sourceMessages := each parseTree allChildren select: #isMessage.
+		baseMessages size = sourceMessages size ifFalse: [ self error: 'ASTs are not structurally compatible' ].
+
+		baseMessages
+			with: sourceMessages
+			do: [ :targetNode :sourceNode |
+				(self isTenuredSelector: sourceNode selector)
+					ifTrue: [ targetNode selector: (OCSelectorNode value: sourceNode selector) ] ] ].
+
+	mergedCompiledMethod := compiledMethodsWithTransformations first methodClass compiler compile: baseAst formattedCode.
+
 	^ mergedCompiledMethod
 ]
 
@@ -48,9 +55,8 @@ CodeTransformationsMerger >> mergeTransformedCompiledMethods: compiledMethods [
 			ifAbsentPut: [ OrderedCollection with: aCompiledMethod ] ].
 
 	(repetitions select: [ :col | col size > 1 ]) keysAndValuesDo: [ :methodName :collection |
-		| originalCompiledMethod mergedCompiledMethod |
-		originalCompiledMethod := (OpalCompiler new source: methodName; evaluate).
-		mergedCompiledMethod := self mergeCompiledMethods: collection into: originalCompiledMethod.
+		| mergedCompiledMethod |
+		mergedCompiledMethod := self mergeCompiledMethods: collection.
 		repetitions at: methodName put: { mergedCompiledMethod } ].
 
 	^ repetitions values flattened

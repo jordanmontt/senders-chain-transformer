@@ -77,20 +77,22 @@ IntercepMessageCallsTest >> testAllMessagesGetCalledWithoutTransformation [
 
 { #category : 'tests' }
 IntercepMessageCallsTest >> testInitialCallerActuallyCallsTransformedMethods [
+	| methodsToBackup |
+
+	methodsToBackup := (senders , { initialCaller }) collect: [ :m | m method method ].
 
 	codeTransformer
-		backupSenders: senders caller: initialCaller;
-		transformCallSite: initialCaller senders: senders;
+		backupMethods: methodsToBackup;
+		transformCallSites: { initialCaller } senders: senders;
 		installTransformations.
 
 	self installInstrumentation.
-	SCMockClassWithDumbMethods new foo.
-	self uninstallInstrumentation.
-	
+	[ SCMockClassWithDumbMethods new foo ] ensure: [ self uninstallInstrumentation ].
+
 	codeTransformer restoreOriginalState.
 
 	self assert: handler calledMethods size equals: 1.
-	self assert: handler calledMethods first equals: #foo
+	self assert: handler calledMethods first equals: #foo.
 ]
 
 { #category : 'running' }

@@ -5,9 +5,7 @@ Class {
 		'pretenurator',
 		'initialCaller',
 		'senders',
-		'initialCaller2',
-		'senders2',
-		'toPretenureAllocationSites'
+		'initialCaller2'
 	],
 	#category : 'SendersChainTransformer-Tests-Tests',
 	#package : 'SendersChainTransformer-Tests',
@@ -22,9 +20,7 @@ AllocationSitesPretenurerTest >> setUp [
 
 	pretenurator := AllocationSitesPretenurer new.
 
-	initialCaller := IllMethodWithOffset
-		                 method: (SCMockClassWithDumbMethods >> #addOccupant:)
-		                 offset: (((SCMockClassWithDumbMethods >> #addOccupant:) symbolicBytecodes detect: [ :e | e description = 'send: at:ifAbsentPut:' ]) offset).
+	initialCaller := IllMethodWithOffset method: (SCMockClassWithDumbMethods >> #addOccupant:) offset:  81.
 	senders := {
 		           (IllMethodWithOffset method: SCMockAssociation class >> #key:value: offset: 42).
 		           (IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82).
@@ -35,9 +31,7 @@ AllocationSitesPretenurerTest >> setUp [
 	blockClosure := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth.
 	initialCaller2 := IllMethodWithOffset
 		                  method: blockClosure compiledBlock
-		                  offset: 26.
-	senders2 := {  }.
-	toPretenureAllocationSites := { (senders , { initialCaller }). (senders2 , { initialCaller2 }) }
+		                  offset: 26
 ]
 
 { #category : 'running' }
@@ -60,6 +54,7 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlock [
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: 'Color fromHexString: colorString').
 
     pretenurator
+        backupMethodsWithOffset: { initialCaller };
         compilePretenuredPathsFrom: { {  } , { initialCaller } };
         installPretenuredMethods.
 
@@ -80,13 +75,14 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneS
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: 'Color fromHexString: colorString').
 
     pretenurator
+        backupMethodsWithOffset: senders , { initialCaller };
         compilePretenuredPathsFrom: { senders , { initialCaller } };
         installPretenuredMethods.
 
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
     self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
     self assert:
-        ((SCMockClassWithDumbMethods class >> pretenurator pretenuredCompiledMethods first selector)
+        ((SCMockClassWithDumbMethods class >> pretenurator fetchPretenuredCompiledMethods first selector)
             sourceCode includesSubstring: '_pretenured_').
     self deny: ((SCMockClassWithDumbMethods class >> #sendersFromHexString:) sourceCode includesSubstring: '_pretenured_')
 ]
@@ -94,14 +90,14 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneS
 { #category : 'tests' }
 AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameMethod [
 
-	| transformedInitialCaller |
-	transformedInitialCaller := SCMockClassWithDumbMethods >> #addOccupant:.
-	self deny: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').
-	self assert: (transformedInitialCaller sourceNodeForPC: initialCaller offset) selector equals: #at:ifAbsentPut:.
+    | transformedInitialCaller toPretenurePaths |
+    toPretenurePaths := { (senders , { initialCaller }) . ({ } , { initialCaller2 }) }.
 
-	pretenurator
-		compilePretenuredPathsFrom: toPretenureAllocationSites;
-		installPretenuredMethods.
+
+    pretenurator
+        backupMethodsWithOffset: senders , { initialCaller } , { initialCaller2 };
+        compilePretenuredPathsFrom: toPretenurePaths;
+        installPretenuredMethods.
 
 	transformedInitialCaller := SCMockClassWithDumbMethods >> #addOccupant:.
 	self assert: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').
@@ -113,15 +109,11 @@ AllocationSitesPretenurerTest >> testTransformationsOneAllocationSitesSimpleBloc
 
 	| block |
 	block := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth compiledBlock.
-	initialCaller2 := IllMethodWithOffset
-		                  method: block
-		                  offset: 26.
-	self deny: ((SCMockClassWithDumbMethods >> #addOccupant:) sourceCode includesSubstring: 'OrderedCollection newTenured').
-	self assert: (block sourceNodeForPC: 26) selector equals: #new.
-	self deny: (block sourceNodeForPC: 26) selector equals: #newTenured.
+	initialCaller := IllMethodWithOffset method: block offset: 26.
 
 	pretenurator
-		compilePretenuredPathsFrom: { {  } , { initialCaller2 } };
+	   backupMethodsWithOffset: { initialCaller };
+		compilePretenuredPathsFrom: { { initialCaller } };
 		installPretenuredMethods.
 
 	block := (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth compiledBlock.

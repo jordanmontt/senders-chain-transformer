@@ -3,9 +3,10 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'transformedCallSites',
-		'callSiteTransformers',
 		'pretenuredCompiledMethods',
-		'methodProtocol'
+		'methodProtocol',
+		'transformedSenders',
+		'callSiteTransformer'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -13,11 +14,20 @@ Class {
 }
 
 { #category : 'api' }
-AllocationSitesPretenurer >> compilePretenuredPathsFrom: toPretenureCallSitesArray [
+AllocationSitesPretenurer >> backupMethodsWithOffset: aListOfMethods [
 
-	toPretenureCallSitesArray do: [ :callStack |
-		self pretenureAllocationCallSite: callStack last senders: callStack allButLast ].
-	self mergeCallSites
+	callSiteTransformer backupMethods: (aListOfMethods collect: [ :m | m method method ])
+]
+
+{ #category : 'api' }
+AllocationSitesPretenurer >> compilePretenuredPathsFrom: toPretenurePaths [
+
+    | initialCallers senders |
+    initialCallers := toPretenurePaths collect: [ :stack |  stack last ].
+    senders := toPretenurePaths flatCollect: [ :stack | stack allButLast ].
+
+    callSiteTransformer transformCallSites: initialCallers senders: senders.
+    self mergeTransformations
 ]
 
 { #category : 'api' }
@@ -34,44 +44,38 @@ AllocationSitesPretenurer >> exportPretenuredMethods: writeStream [
 { #category : 'api' }
 AllocationSitesPretenurer >> fetchPretenuredCompiledMethods [
 
-    | transformedSenders |
-    callSiteTransformers := callSiteTransformers reject: [ :e | e transformedSenders isNil ].
-    self flag: 'should debug why something there are an extra callsitetransformer initialized.'.
-
-    "First install the senders as they have unique selectors and nobody calls them"
-    transformedSenders := callSiteTransformers flatCollect: [ :codeTransformer | codeTransformer transformedSenders ].
-    "transformedCallSites were already merged by called self mergeCallSites"
-    pretenuredCompiledMethods := transformedSenders , transformedCallSites.
-    ^ pretenuredCompiledMethods
+	pretenuredCompiledMethods := transformedSenders , transformedCallSites.
+	^ pretenuredCompiledMethods
 ]
 
 { #category : 'initialization' }
 AllocationSitesPretenurer >> initialize [
 
 	super initialize.
-	callSiteTransformers := OrderedCollection new.
+	callSiteTransformer := CallSiteTransformer new.
 	methodProtocol := 'automatically-generated'
 ]
 
 { #category : 'api' }
 AllocationSitesPretenurer >> installPretenuredMethods [
 
-    | installer |
-    installer := callSiteTransformers anyOne.
-
-    self fetchPretenuredCompiledMethods.
-    pretenuredCompiledMethods do: [ :aCompiledMethod |
+    transformedSenders do: [ :aCompiledMethod |
             ('Installing method ' , aCompiledMethod name) traceCr.
-            installer installMethod: aCompiledMethod ]
+            callSiteTransformer installMethod: aCompiledMethod ].
+    transformedCallSites do: [ :aCompiledMethod |
+            ('Installing method ' , aCompiledMethod name) traceCr.
+            callSiteTransformer installMethod: aCompiledMethod ]
 ]
 
 { #category : 'internals' }
-AllocationSitesPretenurer >> mergeCallSites [
-	 "It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
+AllocationSitesPretenurer >> mergeTransformations [
+    "It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 
-	transformedCallSites := callSiteTransformers collect: [ :codeTransformer | codeTransformer transformedCallSite ].
-	transformedCallSites := transformedCallSites reject: #isNil.
-	transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites
+    transformedCallSites := callSiteTransformer transformedCallSites reject: #isNil.
+    transformedSenders := callSiteTransformer transformedSenders reject: #isNil.
+	
+    transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites.
+    transformedSenders := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedSenders
 ]
 
 { #category : 'api - accessing' }
@@ -80,24 +84,8 @@ AllocationSitesPretenurer >> methodProtocol: aString [
 	methodProtocol := aString
 ]
 
-{ #category : 'internals' }
-AllocationSitesPretenurer >> pretenureAllocationCallSite: methodWithOffset senders: callStack [
-
-	| sct |
-	sct := CallSiteTransformer new methodProtocol: methodProtocol; yourself.
-	callSiteTransformers add: sct.
-	sct backupSenders: callStack caller: methodWithOffset.
-	sct transformCallSite: methodWithOffset senders: callStack
-]
-
-{ #category : 'accessing' }
-AllocationSitesPretenurer >> pretenuredCompiledMethods [
-
-    ^ pretenuredCompiledMethods
-]
-
 { #category : 'api' }
 AllocationSitesPretenurer >> restoreOriginalState [
 
-	callSiteTransformers do: #restoreOriginalState
+	callSiteTransformer restoreOriginalState
 ]

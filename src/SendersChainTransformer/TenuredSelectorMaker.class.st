@@ -29,7 +29,7 @@ TenuredSelectorMaker >> initialize [
 
     super initialize.
 
-    randomPrefix := (Random new nextInteger: 1000000000) asString.
+    randomPrefix := '286021818'.
 
     doNotTransformMethods := { BlockClosure>>#value. BlockClosure>>#value:. BlockClosure>>#value:value:.
         BlockClosure>>#value:value:value:. BlockClosure>>#value:value:value:value:.

@@ -17,13 +17,7 @@ SCMockClassWithDumbMethods class >> createTenured [
 ]
 
 { #category : 'automatically-generated' }
-SCMockClassWithDumbMethods class >> newTenured [
-
-	^ self basicNewTenured initialize
-]
-
-{ #category : 'automatically-generated' }
-SCMockClassWithDumbMethods class >> sendersFromHexString: aColorHex [
+SCMockClassWithDumbMethods class >> fromHexString: aColorHex [
 	"Returns a color instance from HEX (6 element elements)."
 
 	"(Color fromHexString: 'FFFFFF')>>> (Color white) "
@@ -39,6 +33,12 @@ SCMockClassWithDumbMethods class >> sendersFromHexString: aColorHex [
 		ifTrue: [ (Integer readFrom: (hexString copyFrom: 7 to: 8) base: 16) / 255 ].
 
 	^ self r: red g: green b: blue alpha: alpha
+]
+
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods class >> newTenured [
+
+	^ self basicNewTenured initialize
 ]
 
 { #category : 'automatically-generated' }

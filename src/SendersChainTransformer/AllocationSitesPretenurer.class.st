@@ -89,3 +89,15 @@ AllocationSitesPretenurer >> restoreOriginalState [
 
 	callSiteTransformer restoreOriginalState
 ]
+
+{ #category : 'api' }
+AllocationSitesPretenurer >> transformedCallSites [
+
+	^ transformedCallSites
+]
+
+{ #category : 'api' }
+AllocationSitesPretenurer >> transformedSenders [
+
+	^ transformedSenders
+]

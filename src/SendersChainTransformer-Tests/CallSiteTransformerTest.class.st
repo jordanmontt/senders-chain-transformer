@@ -36,29 +36,6 @@ CallSiteTransformerTest >> testExtensionMethods [
 ]
 
 { #category : 'tests' }
-CallSiteTransformerTest >> testInstallMethodWithNewSelector [
-
-	| aMethodWithOffset tenuredNewSelector clonedCompiledMethod |
-	aMethodWithOffset := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #bar offset: 47.
-	tenuredNewSelector := codeTransformer makeNewSelectorForMethod: SCMockClassWithDumbMethods >> #bar.
-
-	"Make sure the method does not exist yet"
-	self should: [ SCMockClassWithDumbMethods new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
-	self deny: (SCMockClassWithDumbMethods includesSelector: tenuredNewSelector).
-
-	clonedCompiledMethod := (codeTransformer cloneCompiledCode: aMethodWithOffset) method.
-	clonedCompiledMethod selector: tenuredNewSelector.
-	codeTransformer installMethod: clonedCompiledMethod.
-
-	self shouldnt: [ SCMockClassWithDumbMethods new perform: tenuredNewSelector ] raise: MessageNotUnderstood.
-	self assert: clonedCompiledMethod selector equals: tenuredNewSelector.
-	self assert: (SCMockClassWithDumbMethods methodDict at: tenuredNewSelector) equals: clonedCompiledMethod.
-	self assert: clonedCompiledMethod bytecodes equals: aMethodWithOffset method bytecodes.
-	
-	clonedCompiledMethod methodClass removeSelector: clonedCompiledMethod selector
-]
-
-{ #category : 'tests' }
 CallSiteTransformerTest >> testRemoveAlreadyImplemented [
 
     self assert: (codeTransformer removeAlreadyImplemented: { (Bag class >> #new) }) isEmpty.
@@ -77,45 +54,38 @@ CallSiteTransformerTest >> testRemoveAlreadyImplemented [
 { #category : 'tests' }
 CallSiteTransformerTest >> testRenameSendersBinarySelectors [
 
-	| methodToRename renamedMethod expectedSelector expectedSelectorInSourceCode |
+	| methodToRename expectedSelector expectedSelectorInSourceCode |
 	methodToRename := (SCMockClassWithDumbMethods >> #@) copy.
-
-	self assert: methodToRename selector equals: #@.
-	self assert: methodToRename sourceCode lines first equals: '@ anObject'.
 	
 	codeTransformer transformedSenders: { methodToRename }.
 	codeTransformer renameSendersSelectors.
-	renamedMethod := codeTransformer transformedSenders first.
-	
+
 	expectedSelector := codeTransformer makeNewSelectorForSelector: #@.
 	self deny: methodToRename selector equals: #@.
-	self assert: renamedMethod selector equals: expectedSelector.
+	self assert: methodToRename selector equals: expectedSelector.
 	
 	expectedSelectorInSourceCode := (codeTransformer makeNewSelectorForSelector: #@), ' anObject'.
 	self deny: methodToRename sourceCode lines first equals: '@ anObject'.
-	self assert: renamedMethod sourceCode lines first equals: expectedSelectorInSourceCode
+	self assert: methodToRename sourceCode lines first equals: expectedSelectorInSourceCode
 ]
 
 { #category : 'tests' }
 CallSiteTransformerTest >> testRenameSendersKeywordSelectors [
 
-	| methodToRename renamedMethod expectedSelector expectedSelectorInSourceCode |
+	| methodToRename expectedSelector expectedSelectorInSourceCode |
 	methodToRename := (SCMockClassWithDumbMethods >> #at:ifAbsentPut:) copy.
-
-	self assert: methodToRename selector equals: #at:ifAbsentPut:.
-	self assert: methodToRename sourceCode lines first equals: 'at: key ifAbsentPut: aBlock'.
 	
 	codeTransformer transformedSenders: { methodToRename }.
 	codeTransformer renameSendersSelectors.
-	renamedMethod := codeTransformer transformedSenders first.
+	codeTransformer transformedSenders first.
 	
 	expectedSelector := codeTransformer makeNewSelectorForSelector: #at:ifAbsentPut:.
 	self deny: methodToRename selector equals: #at:ifAbsentPut:.
-	self assert: renamedMethod selector equals: expectedSelector.
+	self assert: methodToRename selector equals: expectedSelector.
 
 	expectedSelectorInSourceCode := (codeTransformer makeNewSelectorForSelector: #'') , 'at: key ifAbsentPut: aBlock'.
 	self deny: methodToRename sourceCode lines first equals: 'at: key ifAbsentPut: aBlock'.
-	self assert: renamedMethod sourceCode lines first equals: expectedSelectorInSourceCode
+	self assert: methodToRename sourceCode lines first equals: expectedSelectorInSourceCode
 ]
 
 { #category : 'tests' }

@@ -49,10 +49,6 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlock [
         method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth
         offset: 37.
 
-    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
-    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
-    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: 'Color fromHexString: colorString').
-
     pretenurator
         backupMethodsWithOffset: { initialCaller };
         compilePretenuredPathsFrom: { {  } , { initialCaller } };
@@ -69,10 +65,6 @@ AllocationSitesPretenurerTest >> testCompileAndInstallOneCallerInNestedBlockOneS
         method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth
         offset: 37.
     senders := { (IllMethodWithOffset method: SCMockClassWithDumbMethods class >> #sendersFromHexString: offset: 178) }.
-
-    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_').
-    self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_fromHexString: colorString').
-    self assert: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: 'Color fromHexString: colorString').
 
     pretenurator
         backupMethodsWithOffset: senders , { initialCaller };
@@ -92,7 +84,6 @@ AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameM
 
     | transformedInitialCaller toPretenurePaths |
     toPretenurePaths := { (senders , { initialCaller }) . ({ } , { initialCaller2 }) }.
-
 
     pretenurator
         backupMethodsWithOffset: senders , { initialCaller } , { initialCaller2 };

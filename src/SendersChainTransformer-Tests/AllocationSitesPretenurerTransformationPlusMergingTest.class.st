@@ -51,11 +51,9 @@ AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransform
 	totoSender := transformedSenders detect: [ :m | m selector includesSubstring: #toto ].
 	pepeSender := transformedSenders detect: [ :m | m selector includesSubstring: #pepe ].
 
-	"Merged sender assertions"
 	self assert: (mergedSender sourceCode includesSubstring: '_pretenured_').
 	self assert: (mergedSender sourceCode includesSubstring: '_toto').
 	self assert: (mergedSender sourceCode includesSubstring: '_pepe').
-
 
 	self assert: (totoSender sourceCode includesSubstring: 'self basicNewTenured').
 	self assert: (pepeSender sourceCode includesSubstring: 'self newTenured')
@@ -83,12 +81,10 @@ AllocationSitesPretenurerTransformationPlusMergingTest >> testTransformationsFor
 	atPutSender := transformedSenders detect: [ :m | m selector includesSubstring: #at:put: ].
 	keyValueSender := transformedSenders detect: [ :m | m selector includesSubstring: #key:value: ].
 
-	"Merged sender assertions"
 	block := mergedSender literals first.
 	self assert: ((mergedSender sourceNodeForPC: 48) selector includesSubstring: '_pretenured_').
 	self assert: ((block sourceNodeForPC: 29) selector includesSubstring: '_pretenured_').
 
-	"Other senders assertions"
 	self assert: (atIfAbsentSender sourceNodeForPC: 54) selector equals: #value.
 	self assert: ((atPutSender sourceNodeForPC: 82) selector includesSubstring: #_pretenured_).
 	self assert: (keyValueSender sourceNodeForPC: 42) selector equals: #basicNewTenured

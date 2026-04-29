@@ -32,6 +32,26 @@ AllocationSitesPretenurerTransformationPlusMergingTest >> setUp [
 ]
 
 { #category : 'tests' }
+AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransformationsDataFrame [
+
+	| transformedInitialCaller transformedSenders mergedSender |
+
+	pretenurator compilePretenuredPathsFrom: SCPathFixture new dataFramePaths.
+	
+	transformedInitialCaller := pretenurator transformedCallSites first.
+	transformedSenders := pretenurator transformedSenders.
+
+	self assert: pretenurator transformedCallSites size equals: 1.
+	self assert: transformedSenders size equals: 10.
+
+	mergedSender := transformedSenders detect: [ :m | m selector includesSubstring: #readNextRecord ].
+	
+	self assert: (mergedSender sourceCode includesSubstring: '_pretenured_').
+	self assert: (mergedSender sourceCode includesSubstring: '_recordClassNew:').
+	self assert: (mergedSender sourceCode includesSubstring: '_readNextRecordWithoutFieldAccessors:')
+]
+
+{ #category : 'tests' }
 AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransformationsProblematic [
 
 	| transformedInitialCaller transformedSenders mergedSender totoSender pepeSender |

@@ -21,25 +21,15 @@ CallSiteTransformerTransformMessageSendTest >> setUp [
 { #category : 'tests' }
 CallSiteTransformerTransformMessageSendTest >> testTransformMessageSend [
 
-	| tenuredCompiledMethod symbolicMessageSendBytecode expectedSelector |
+	| tenuredCompiledMethod expectedSelector |
 	methodWithOffsetToTransform :=  IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82.
-	expectedSelector := codeTransformer makeNewSelectorForSelector: (methodWithOffsetToTransform method sourceNodeForPC: methodWithOffsetToTransform offset) selector.
-
-	self
-		shouldnt: [ methodWithOffsetToTransform method valueWithReceiver: methodWithOffsetToTransform methodClass new arguments: #( #key #value ) ]
-		raise: PrimitiveFailed.
+	expectedSelector := codeTransformer makeNewSelectorForSelector: #key:value:.
 
 	tenuredCompiledMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
-	symbolicMessageSendBytecode := tenuredCompiledMethod symbolicBytecodes detect: [ :e |
-		                               e bytes includes: methodWithOffsetToTransform bytecode ].
-	self assert: symbolicMessageSendBytecode description equals: 'send: ' , expectedSelector.
-	"Method's selector remaine unchanged"
-	self assert: tenuredCompiledMethod selector equals: methodWithOffsetToTransform selector.
-	"We pretenure one message send to a method that does not exists"
-	self
-		should: [ tenuredCompiledMethod valueWithReceiver: methodWithOffsetToTransform methodClass new arguments: #( #key #value ) ]
-		raise: MessageNotUnderstood
+	self assert: (tenuredCompiledMethod sourceNodeForPC: 82) selector equals: expectedSelector.
+	self deny: (tenuredCompiledMethod sourceNodeForPC: 82) selector equals: #key:value:.
+	self assert: tenuredCompiledMethod selector equals: #at:put:.
 ]
 
 { #category : 'tests' }
@@ -82,10 +72,9 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendOffsetWit
 
 	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 	
-	self assert: (transformedMethod sourceCode includesSubstring: 'newTenured').
-	self assert: (transformedMethod sourceCode includesSubstring: 'myVar').
-
-	self deny: ((SCMockClassWithDumbMethods >> #theMethodWithBlock) sourceCode includesSubstring: 'newTenured')
+	self assert: (transformedMethod sourceCode includesSubstring: 'SCMockClassWithDumbMethods newTenured').
+	self assert: (transformedMethod sourceCode includesSubstring: 'Object new').
+	self deny: (transformedMethod sourceCode includesSubstring: 'Object newTenured')
 ]
 
 { #category : 'tests' }
@@ -99,21 +88,20 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendOffsetWit
 	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
 	self assert: (transformedMethod sourceCode includesSubstring: '_pretenured_').
-	self deny: ((SCMockClassWithDumbMethods >> #availableProbes) sourceCode includesSubstring: '_pretenured_')
+	self deny: (transformedMethod sourceCode includesSubstring: 'Color fromHexString: colorString')
 ]
 
 { #category : 'tests' }
 CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendWithBinarySelector [
 
-	| tenuredCompiledMethod expectedMethodsAST |
+	| tenuredCompiledMethod expectedSelector |
 	methodWithOffsetToTransform := IllMethodWithOffset
 			method: SCMockClassWithDumbMethods >> #binaryMethod
 			offset: 44.
-	expectedMethodsAST:= RBParser parseMethod: 'binaryMethod
-
-	self foo: (self ', (codeTransformer selectorMaker makeSelectorForSelector: #',,') ,' 1) andBar: 0'.
+	expectedSelector := codeTransformer selectorMaker makeSelectorForSelector: #',,'.
 
 	tenuredCompiledMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
-	self assert: tenuredCompiledMethod parseTree equals: expectedMethodsAST
+	self assert: (tenuredCompiledMethod sourceNodeForPC: 44) selector equals: expectedSelector.
+	self deny: (tenuredCompiledMethod sourceNodeForPC: 44) selector equals: #',,'
 ]

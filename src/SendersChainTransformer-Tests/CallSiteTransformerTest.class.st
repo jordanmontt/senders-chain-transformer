@@ -77,7 +77,6 @@ CallSiteTransformerTest >> testRenameSendersKeywordSelectors [
 	
 	codeTransformer transformedSenders: { methodToRename }.
 	codeTransformer renameSendersSelectors.
-	codeTransformer transformedSenders first.
 	
 	expectedSelector := codeTransformer makeNewSelectorForSelector: #at:ifAbsentPut:.
 	self deny: methodToRename selector equals: #at:ifAbsentPut:.
@@ -91,7 +90,7 @@ CallSiteTransformerTest >> testRenameSendersKeywordSelectors [
 { #category : 'tests' }
 CallSiteTransformerTest >> testRenameSendersLongSelector [
 
-	| methodToRename renamedMethod expectedSelector expectedSelectorInSourceCode |
+	| methodToRename expectedSelector expectedSelectorInSourceCode |
 	methodToRename := (SCMockClassWithDumbMethods class >> #with:with:with:with:) copy.
 
 	self assert: methodToRename selector equals: #with:with:with:with:.
@@ -99,21 +98,20 @@ CallSiteTransformerTest >> testRenameSendersLongSelector [
 	
 	codeTransformer transformedSenders: { methodToRename }.
 	codeTransformer renameSendersSelectors.
-	renamedMethod := codeTransformer transformedSenders first.
 	
 	expectedSelector := codeTransformer makeNewSelectorForSelector: #with:with:with:with:.
 	self deny: methodToRename selector equals: #with:with:with:with:.
-	self assert: renamedMethod selector equals: expectedSelector.
+	self assert: methodToRename selector equals: expectedSelector.
 	
 	expectedSelectorInSourceCode := (codeTransformer makeNewSelectorForSelector: #with:) , ' firstObject with: secondObject with: thirdObject with: fourthObject'. 
 	self deny: methodToRename sourceCode lines first equals: 'with: firstObject with: secondObject with: thirdObject with: fourthObject'.
-	self assert: renamedMethod sourceCode lines first equals: expectedSelectorInSourceCode
+	self assert: methodToRename sourceCode lines first equals: expectedSelectorInSourceCode
 ]
 
 { #category : 'tests' }
 CallSiteTransformerTest >> testRenameSendersSelectors [
 
-	| methodToRename renamedMethod expectedSelector |
+	| methodToRename expectedSelector |
 	methodToRename := (SCMockClassWithDumbMethods >> #bar) copy.
 
 	self assert: methodToRename selector equals: #bar.
@@ -121,12 +119,11 @@ CallSiteTransformerTest >> testRenameSendersSelectors [
 	
 	codeTransformer transformedSenders: { methodToRename }.
 	codeTransformer renameSendersSelectors.
-	renamedMethod := codeTransformer transformedSenders first.
 	
 	expectedSelector := codeTransformer makeNewSelectorForSelector: #bar.
 	self deny: methodToRename selector equals: #bar.
-	self assert: renamedMethod selector equals: expectedSelector.
+	self assert: methodToRename selector equals: expectedSelector.
 	
 	self deny: methodToRename sourceCode lines first equals: 'bar'.
-	self assert: renamedMethod sourceCode lines first equals: expectedSelector.
+	self assert: methodToRename sourceCode lines first equals: expectedSelector.
 ]

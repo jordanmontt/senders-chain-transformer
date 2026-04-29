@@ -21,15 +21,23 @@ CallSiteTransformerTransformMessageSendTest >> setUp [
 { #category : 'tests' }
 CallSiteTransformerTransformMessageSendTest >> testTransformMessageSend [
 
-	| tenuredCompiledMethod expectedSelector |
+	| tenuredCompiledMethod expectedSelector expectedSourceCodeLine |
 	methodWithOffsetToTransform :=  IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82.
 	expectedSelector := codeTransformer makeNewSelectorForSelector: #key:value:.
 
 	tenuredCompiledMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
+	"Check the selector was changed at the correct PC"
 	self assert: (tenuredCompiledMethod sourceNodeForPC: 82) selector equals: expectedSelector.
 	self deny: (tenuredCompiledMethod sourceNodeForPC: 82) selector equals: #key:value:.
+
+	"Check the method-level selector was not changed"
 	self assert: tenuredCompiledMethod selector equals: #at:put:.
+
+	"Check the source code reflects the transformed selector"
+	expectedSourceCodeLine := expectedSelector asString, ' value'.
+	self assert: (tenuredCompiledMethod sourceCode includesSubstring: expectedSelector asString).
+	self deny: (tenuredCompiledMethod sourceCode includesSubstring: 'key:value:')
 ]
 
 { #category : 'tests' }
@@ -42,9 +50,12 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendBasicNewT
 
 	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
+	"Check the selector was not changed (basicNewTenured is a pre-tenuring method)"
+	self assert: (transformedMethod sourceNodeForPC: 42) selector equals: #basicNewTenured.
+
+	"Check the source code was not modified with pretenuring markers"
 	self deny: (transformedMethod sourceCode includesSubstring: '_pretenured_').
-	self deny: ((SCMockClassWithDumbMethods class >> #newTenured) sourceCode includesSubstring: '_pretenured_').
-	self assert: (transformedMethod sourceNodeForPC: 42) selector equals: #basicNewTenured
+	self deny: ((SCMockClassWithDumbMethods class >> #newTenured) sourceCode includesSubstring: '_pretenured_')
 ]
 
 { #category : 'tests' }
@@ -57,9 +68,12 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendNewTenure
 
 	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
+	"Check the selector was not changed (newTenured is a pre-tenuring method)"
+	self assert: (transformedMethod sourceNodeForPC: 34) selector equals: #newTenured.
+
+	"Check the source code was not modified with pretenuring markers"
 	self deny: (transformedMethod sourceCode includesSubstring: '_pretenured_').
-	self deny: ((SCMockClassWithDumbMethods class >> #createTenured) sourceCode includesSubstring: '_pretenured_').
-	self assert: (transformedMethod sourceNodeForPC: 34) selector equals: #newTenured
+	self deny: ((SCMockClassWithDumbMethods class >> #createTenured) sourceCode includesSubstring: '_pretenured_')
 ]
 
 { #category : 'tests' }
@@ -72,9 +86,14 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendOffsetWit
 
 	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 	
+	"Check the source code reflects the correct receiver transformations"
 	self assert: (transformedMethod sourceCode includesSubstring: 'SCMockClassWithDumbMethods newTenured').
 	self assert: (transformedMethod sourceCode includesSubstring: 'Object new').
-	self deny: (transformedMethod sourceCode includesSubstring: 'Object newTenured')
+	self deny: (transformedMethod sourceCode includesSubstring: 'Object newTenured').
+
+	"Check the selectors at the correct PC were transformed"
+	self assert: (transformedMethod sourceNodeForPC: 37) selector equals: #basicNewTenured.
+	self deny: (transformedMethod sourceNodeForPC: 37) selector equals: #newTenured
 ]
 
 { #category : 'tests' }
@@ -87,8 +106,12 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendOffsetWit
 
 	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
+	"Check the source code reflects the pretenuring transformation"
 	self assert: (transformedMethod sourceCode includesSubstring: '_pretenured_').
-	self deny: (transformedMethod sourceCode includesSubstring: 'Color fromHexString: colorString')
+	self deny: (transformedMethod sourceCode includesSubstring: 'Color fromHexString: colorString').
+
+	"Check the selector at the correct PC was transformed"
+	self assert: ((transformedMethod sourceNodeForPC: 37) selector asString includesSubstring: '_pretenured_')
 ]
 
 { #category : 'tests' }
@@ -102,6 +125,11 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendWithBinar
 
 	tenuredCompiledMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
+	"Check the selector was changed at the correct PC"
 	self assert: (tenuredCompiledMethod sourceNodeForPC: 44) selector equals: expectedSelector.
-	self deny: (tenuredCompiledMethod sourceNodeForPC: 44) selector equals: #',,'
+	self deny: (tenuredCompiledMethod sourceNodeForPC: 44) selector equals: #',,'.
+
+	"Check the source code reflects the transformed selector"
+	self assert: (tenuredCompiledMethod sourceCode includesSubstring: expectedSelector asString).
+	self deny: (tenuredCompiledMethod sourceCode includesSubstring: ',,')
 ]

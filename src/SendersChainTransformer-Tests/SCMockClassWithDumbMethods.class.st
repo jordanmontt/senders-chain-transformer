@@ -119,6 +119,18 @@ SCMockClassWithDumbMethods >> initialize [
 	aDictionary := SCMockDictionary new
 ]
 
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> pepe [
+
+	self new
+]
+
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> tata [
+
+	^ self uaua
+]
+
 { #category : 'api' }
 SCMockClassWithDumbMethods >> theMethodWithBlock [
 
@@ -134,4 +146,17 @@ SCMockClassWithDumbMethods >> theMethodWithBlock [
 SCMockClassWithDumbMethods >> theOccupants [
 
 	^ Dictionary new
+]
+
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> toto [
+
+	self basicNew
+]
+
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> uaua [
+
+	self toto.
+	self pepe
 ]

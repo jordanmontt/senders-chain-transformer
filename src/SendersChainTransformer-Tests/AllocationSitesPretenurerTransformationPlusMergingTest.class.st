@@ -34,17 +34,31 @@ AllocationSitesPretenurerTransformationPlusMergingTest >> setUp [
 { #category : 'tests' }
 AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransformationsProblematic [
 
-	"| bar toto result originalCaller expected pepe |
-	originalCaller := OpalCompiler new source: 'foo self bar'; compile.
-	bar := OpalCompiler new source: 'bar self toto. self pepe'; compile.
-	toto := OpalCompiler new source: 'toto ^ 42'; compile.
-	pepe := OpalCompiler new source: 'pepe ^ 24'; compile.
+	| transformedInitialCaller transformedSenders mergedSender totoSender pepeSender |
 
-	path1 := self preparePath: { originalCaller. bar . toto }.
-	path2 := self preparePath: { originalCaller . bar . pepe }.
+	pretenurator compilePretenuredPathsFrom: SCPathFixture new fooPaths.
 	
-	result := codeMerger mergeTransformedCompiledMethods: path1.
-	result := codeMerger mergeTransformedCompiledMethods: path2."
+	transformedInitialCaller := pretenurator transformedCallSites first.
+	transformedSenders := pretenurator transformedSenders.
+
+	self assert: pretenurator transformedCallSites size equals: 1.
+	self assert: transformedSenders size equals: 3.
+
+	self assert: (transformedInitialCaller sourceCode includesSubstring: '_pretenured_').
+	self assert: (transformedInitialCaller sourceCode includesSubstring: '_uaua').
+
+	mergedSender := transformedSenders detect: [ :m | m selector includesSubstring: #uaua ].
+	totoSender := transformedSenders detect: [ :m | m selector includesSubstring: #toto ].
+	pepeSender := transformedSenders detect: [ :m | m selector includesSubstring: #pepe ].
+
+	"Merged sender assertions"
+	self assert: (mergedSender sourceCode includesSubstring: '_pretenured_').
+	self assert: (mergedSender sourceCode includesSubstring: '_toto').
+	self assert: (mergedSender sourceCode includesSubstring: '_pepe').
+
+
+	self assert: (totoSender sourceCode includesSubstring: 'self basicNewTenured').
+	self assert: (pepeSender sourceCode includesSubstring: 'self newTenured')
 ]
 
 { #category : 'tests' }

@@ -36,7 +36,8 @@ AllocationSitesPretenurerTest >> testCompileOneCallerInNestedBlock [
     transformedCaller := pretenurator transformedCallSites first.
 
     self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_').
-    self assert: (transformedCaller sourceCode includesSubstring: '_fromHexString: colorString')
+    self assert: (transformedCaller sourceCode includesSubstring: '_fromHexString: colorString').
+    self assert: transformedCaller selector equals: #availableProbes
 ]
 
 { #category : 'tests' }
@@ -55,9 +56,14 @@ AllocationSitesPretenurerTest >> testCompileOneCallerInNestedBlockOneSender [
 
     self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_').
     self assert: (transformedCaller sourceCode includesSubstring: '_fromHexString: colorString').
-    self deny: (transformedCaller selector includesSubstring: #pretenured).
-    self assert:(transformedSender sourceCode includesSubstring: '_pretenured_').
-    self assert:(transformedSender selector includesSubstring: '_pretenured_').
+    self assert: transformedCaller selector equals: #availableProbes.
+
+    self assert: (transformedSender sourceCode includesSubstring: '_pretenured_').
+    self assert: (transformedSender selector includesSubstring: '_pretenured_').
+
+    self deny: (transformedSender sourceNodeForPC: 186) selector equals: #readFrom:base:.
+    self assert: ((transformedSender sourceNodeForPC: 186) selector includesSubstring: #_pretenured_).
+    self assert: ((transformedSender sourceNodeForPC: 186) selector includesSubstring: #_readFrom:base:)
 ]
 
 { #category : 'tests' }
@@ -84,7 +90,7 @@ AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameM
 ]
 
 { #category : 'tests' }
-AllocationSitesPretenurerTest >> testTransformationsOneAllocationSitesSimpleBlock [
+AllocationSitesPretenurerTest >> testTransformationsOneAllocationSiteSimpleBlock [
 
 	| initialCaller transformedCaller |
 	initialCaller := IllMethodWithOffset
@@ -94,5 +100,28 @@ AllocationSitesPretenurerTest >> testTransformationsOneAllocationSitesSimpleBloc
 	pretenurator compilePretenuredPathsFrom: { { initialCaller } }.
 	transformedCaller := pretenurator transformedCallSites first.
 
-	self assert: (transformedCaller sourceCode includesSubstring: 'OrderedCollection newTenured')
+	self assert: (transformedCaller sourceCode includesSubstring: 'OrderedCollection newTenured').
+	self assert: transformedCaller selector equals: #addOccupant:
+]
+
+{ #category : 'tests' }
+AllocationSitesPretenurerTest >> testTransformationsOneAllocationSiteSimpleMethod [
+
+	| initialCaller transformedCaller |
+	initialCaller := IllMethodWithOffset
+	    method: (SCMockClassWithDumbMethods >> #foo)
+	    offset: 45.
+
+	pretenurator compilePretenuredPathsFrom: { { initialCaller } }.
+	transformedCaller := pretenurator transformedCallSites first.
+
+	self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_').
+	self assert: (transformedCaller sourceCode includesSubstring: '_bar').
+	self deny: (transformedCaller sourceCode includesSubstring: 'anotherFakeClass bar').
+	
+	self assert: transformedCaller selector equals: #foo.
+	
+	self deny: (transformedCaller sourceNodeForPC: 45) selector equals: #bar.
+	self assert: ((transformedCaller sourceNodeForPC: 45) selector includesSubstring: #_pretenured_).
+	self assert: ((transformedCaller sourceNodeForPC: 45) selector includesSubstring: #_bar)
 ]

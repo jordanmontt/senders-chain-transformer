@@ -25,6 +25,20 @@ AllocationSitesPretenurerTest >> tearDown [
 ]
 
 { #category : 'tests' }
+AllocationSitesPretenurerTest >> testCompileDoesNotGenerateStringNewTenured [
+
+    | initialCaller transformedCaller senders |
+    initialCaller := IllMethodWithOffset method: (SCMockClassWithDumbMethods >> #callsStringNew) offset: 43.
+    senders := { IllMethodWithOffset method: (String class >> #new:) offset: 63 }.
+
+    pretenurator compilePretenuredPathsFrom: { senders , { initialCaller } }.
+    transformedCaller := pretenurator transformedCallSites first.
+
+    self assert: transformedCaller ast body formattedCode equals: 'String newTenured: 10'.
+    self assert: pretenurator transformedSenders isEmpty
+]
+
+{ #category : 'tests' }
 AllocationSitesPretenurerTest >> testCompileOneCallerInNestedBlock [
 
     | initialCaller transformedCaller |

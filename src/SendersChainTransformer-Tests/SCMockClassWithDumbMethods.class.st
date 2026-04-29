@@ -106,6 +106,12 @@ SCMockClassWithDumbMethods >> binaryMethod [
 ]
 
 { #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> callsStringNew [
+
+	String new: 10
+]
+
+{ #category : 'automatically-generated' }
 SCMockClassWithDumbMethods >> foo [
 
 	anotherFakeClass := SCMockClassWithDumbMethods new.

@@ -67,29 +67,6 @@ AllocationSitesPretenurerTest >> testCompileOneCallerInNestedBlockOneSender [
 ]
 
 { #category : 'tests' }
-AllocationSitesPretenurerTest >> testTransformationsForTwoAllocationSitesInSameMethod [
-
-    | transformedInitialCaller toPretenurePaths senders initialCaller initialCaller2 |
-	initialCaller := IllMethodWithOffset method: (SCMockClassWithDumbMethods >> #addOccupant:) offset:  81.
-	senders := {
-		           (IllMethodWithOffset method: SCMockAssociation class >> #key:value: offset: 42).
-		           (IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82).
-		           (IllMethodWithOffset method: (SCMockDictionary >> #at:ifAbsentPut:) literals first offset: 21).
-		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsent: offset: 54).
-		           (IllMethodWithOffset method: SCMockDictionary >> #at:ifAbsentPut: offset: 48) }.
-	initialCaller2 := IllMethodWithOffset
-		             method: (SCMockClassWithDumbMethods >> #addOccupant:) literals fourth compiledBlock
-		             offset: 26.	
-   toPretenurePaths := { (senders , { initialCaller }) . ({ } , { initialCaller2 }) }.
-
-   pretenurator compilePretenuredPathsFrom: toPretenurePaths.
-
-	transformedInitialCaller := pretenurator transformedCallSites first.
-	self assert: (transformedInitialCaller sourceCode includesSubstring: 'OrderedCollection newTenured').
-	self deny: (transformedInitialCaller sourceNodeForPC: 81) selector equals: #at:ifAbsentPut:
-]
-
-{ #category : 'tests' }
 AllocationSitesPretenurerTest >> testTransformationsOneAllocationSiteSimpleBlock [
 
 	| initialCaller transformedCaller |

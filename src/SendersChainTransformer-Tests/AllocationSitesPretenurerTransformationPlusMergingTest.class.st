@@ -9,6 +9,12 @@ Class {
 	#tag : 'Tests'
 }
 
+{ #category : 'helpers' }
+AllocationSitesPretenurerTransformationPlusMergingTest >> senderWithSelectorSubstring: aSubstring in: transformedSenders [
+
+	^ transformedSenders detect: [ :m | m selector includesSubstring: aSubstring ]
+]
+
 { #category : 'running' }
 AllocationSitesPretenurerTransformationPlusMergingTest >> setUp [
 
@@ -17,53 +23,37 @@ AllocationSitesPretenurerTransformationPlusMergingTest >> setUp [
 	pretenurator := AllocationSitesPretenurer new
 ]
 
-{ #category : 'assertions' }
-AllocationSitesPretenurerTransformationPlusMergingTest >> assertMergedSenderIn: transformedSenders containsAll: substrings [
+{ #category : 'tests' }
+AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransformationsDataFrameExample [
 
 	| mergedSender |
+	pretenurator compilePretenuredPathsFrom: SCPathFixture new dataFramePaths.
 
-	mergedSender := transformedSenders detect: [ :m | m selector includesSubstring: #readNextRecord ].
+	self assert: pretenurator transformedCallSites size equals: 1.
+	self assert: pretenurator transformedSenders size equals: 10.
+	
+	mergedSender := self senderWithSelectorSubstring: #readNextRecord in: pretenurator transformedSenders.
 
-	substrings do: [ :substring |
-		self assert: (mergedSender sourceCode includesSubstring: substring)
-	]
-]
-
-{ #category : 'helpers' }
-AllocationSitesPretenurerTransformationPlusMergingTest >> senderWithSelectorSubstring: aSubstring in: transformedSenders [
-
-	^ transformedSenders detect: [ :m | m selector includesSubstring: aSubstring ]
+	#('_pretenured_' '_recordClassNew:' '_readNextRecordWithoutFieldAccessors:') do: [ :substring |
+			self assert: (mergedSender sourceCode includesSubstring: substring) ]
 ]
 
 { #category : 'tests' }
-AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransformationsDataFrame [
+AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransformationsFooExample [
 
-	| result |
+	| mergedSender totoSender pepeSender |
 
-	result := pretenurator compilePretenuredPathsFrom: SCPathFixture new dataFramePaths.
+	pretenurator compilePretenuredPathsFrom: SCPathFixture new fooPaths.
 
-	self assert: result transformedCallSites size equals: 1 description: 'Should have one transformed call site'.
-	self assert: result transformedSenders size equals: 10 description: 'Should have ten transformed senders'.
+	self assert: pretenurator transformedCallSites size equals: 1.
+	self assert: pretenurator transformedSenders size equals: 3.
 
-	self assertMergedSenderIn: result transformedSenders containsAll: #('_pretenured_' '_recordClassNew:' '_readNextRecordWithoutFieldAccessors:')
-]
+	self assert: (pretenurator transformedCallSites first sourceCode includesSubstring: '_pretenured_').
+	self assert: (pretenurator transformedCallSites first sourceCode includesSubstring: '_uaua').
 
-{ #category : 'tests' }
-AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransformationsProblematic [
-
-	| result mergedSender totoSender pepeSender |
-
-	result := pretenurator compilePretenuredPathsFrom: SCPathFixture new fooPaths.
-
-	self assert: result transformedCallSites size equals: 1 description: 'Should have one transformed call site'.
-	self assert: result transformedSenders size equals: 3 description: 'Should have three transformed senders'.
-
-	self assert: (result transformedCallSites first sourceCode includesSubstring: '_pretenured_').
-	self assert: (result transformedCallSites first sourceCode includesSubstring: '_uaua').
-
-	mergedSender := self senderWithSelectorSubstring: #uaua in: result transformedSenders.
-	totoSender := self senderWithSelectorSubstring: #toto in: result transformedSenders.
-	pepeSender := self senderWithSelectorSubstring: #pepe in: result transformedSenders.
+	mergedSender := self senderWithSelectorSubstring: #uaua in: pretenurator transformedSenders.
+	totoSender := self senderWithSelectorSubstring: #toto in: pretenurator transformedSenders.
+	pepeSender := self senderWithSelectorSubstring: #pepe in: pretenurator transformedSenders.
 
 	self assert: (mergedSender sourceCode includesSubstring: '_pretenured_').
 	self assert: (mergedSender sourceCode includesSubstring: '_toto').
@@ -76,21 +66,21 @@ AllocationSitesPretenurerTransformationPlusMergingTest >> testMergeCodeTransform
 { #category : 'tests' }
 AllocationSitesPretenurerTransformationPlusMergingTest >> testTransformationsForTwoAllocationSitesInSameMethod [
 
-	| result mergedSender atIfAbsentSender atPutSender keyValueSender block |
+	| mergedSender atIfAbsentSender atPutSender keyValueSender block |
 
-	result := pretenurator compilePretenuredPathsFrom: SCPathFixture new cormasPaths.
+	pretenurator compilePretenuredPathsFrom: SCPathFixture new cormasPaths.
 
-	self assert: result transformedCallSites size equals: 1 description: 'Should have one transformed call site'.
-	self assert: result transformedSenders size equals: 4 description: 'Should have four transformed senders'.
+	self assert: pretenurator transformedCallSites size equals: 1.
+	self assert: pretenurator transformedSenders size equals: 4.
 
-	self assert: (result transformedCallSites first sourceCode includesSubstring: 'OrderedCollection newTenured').
-	self assert: ((result transformedCallSites first sourceNodeForPC: 81) selector includesSubstring: #_pretenured_).
-	self assert: ((result transformedCallSites first sourceNodeForPC: 81) selector includesSubstring: #_at:).
+	self assert: (pretenurator transformedCallSites first sourceCode includesSubstring: 'OrderedCollection newTenured').
+	self assert: ((pretenurator transformedCallSites first sourceNodeForPC: 81) selector includesSubstring: #_pretenured_).
+	self assert: ((pretenurator transformedCallSites first sourceNodeForPC: 81) selector includesSubstring: #_at:).
 
-	mergedSender := self senderWithSelectorSubstring: #at:ifAbsentPut: in: result transformedSenders.
-	atIfAbsentSender := self senderWithSelectorSubstring: #at:ifAbsent: in: result transformedSenders.
-	atPutSender := self senderWithSelectorSubstring: #at:put: in: result transformedSenders.
-	keyValueSender := self senderWithSelectorSubstring: #key:value: in: result transformedSenders.
+	mergedSender := self senderWithSelectorSubstring: #at:ifAbsentPut: in: pretenurator transformedSenders.
+	atIfAbsentSender := self senderWithSelectorSubstring: #at:ifAbsent: in: pretenurator transformedSenders.
+	atPutSender := self senderWithSelectorSubstring: #at:put: in: pretenurator transformedSenders.
+	keyValueSender := self senderWithSelectorSubstring: #key:value: in: pretenurator transformedSenders.
 
 	block := mergedSender literals first.
 	self assert: ((mergedSender sourceNodeForPC: 48) selector includesSubstring: '_pretenured_').

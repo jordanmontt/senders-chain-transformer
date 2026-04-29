@@ -49,8 +49,7 @@ AllocationSitesPretenurerTest >> testCompileOneCallerInNestedBlock [
     pretenurator compilePretenuredPathsFrom: { { initialCaller } }.
     transformedCaller := pretenurator transformedCallSites first.
 
-    self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_').
-    self assert: (transformedCaller sourceCode includesSubstring: '_fromHexString: colorString').
+    self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_fromHexString: colorString').
     self assert: transformedCaller selector equals: #availableProbes
 ]
 
@@ -68,16 +67,13 @@ AllocationSitesPretenurerTest >> testCompileOneCallerInNestedBlockOneSender [
     transformedCaller := pretenurator transformedCallSites first.
     transformedSender := pretenurator transformedSenders first.
 
-    self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_').
-    self assert: (transformedCaller sourceCode includesSubstring: '_fromHexString: colorString').
+    self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_fromHexString: colorString').
     self assert: transformedCaller selector equals: #availableProbes.
 
-    self assert: (transformedSender sourceCode includesSubstring: '_pretenured_').
-    self assert: (transformedSender selector includesSubstring: '_pretenured_').
+    self assert: (transformedSender sourceCode includesSubstring: '_pretenured_fromHexString:').
+    self assert: transformedSender selector equals: #_pretenured_fromHexString:.
 
-    self deny: (transformedSender sourceNodeForPC: 186) selector equals: #readFrom:base:.
-    self assert: ((transformedSender sourceNodeForPC: 186) selector includesSubstring: #_pretenured_).
-    self assert: ((transformedSender sourceNodeForPC: 186) selector includesSubstring: #_readFrom:base:)
+    self assert: ((transformedSender sourceNodeForPC: 186) selector includesSubstring: #_pretenured_readFrom:base:)
 ]
 
 { #category : 'tests' }
@@ -106,13 +102,10 @@ AllocationSitesPretenurerTest >> testTransformationsOneAllocationSiteSimpleMetho
 	pretenurator compilePretenuredPathsFrom: { { initialCaller } }.
 	transformedCaller := pretenurator transformedCallSites first.
 
-	self assert: (transformedCaller sourceCode includesSubstring: '_pretenured_').
-	self assert: (transformedCaller sourceCode includesSubstring: '_bar').
-	self deny: (transformedCaller sourceCode includesSubstring: 'anotherFakeClass bar').
+	self assert: (transformedCaller sourceCode includesSubstring: 'anotherFakeClass _pretenured_bar').
 	
 	self assert: transformedCaller selector equals: #foo.
 	
 	self deny: (transformedCaller sourceNodeForPC: 45) selector equals: #bar.
-	self assert: ((transformedCaller sourceNodeForPC: 45) selector includesSubstring: #_pretenured_).
-	self assert: ((transformedCaller sourceNodeForPC: 45) selector includesSubstring: #_bar)
+	self assert: ((transformedCaller sourceNodeForPC: 45) selector includesSubstring: #_pretenured_bar)
 ]

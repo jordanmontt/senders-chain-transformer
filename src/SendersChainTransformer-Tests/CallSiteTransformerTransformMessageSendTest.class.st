@@ -21,19 +21,13 @@ CallSiteTransformerTransformMessageSendTest >> setUp [
 { #category : 'tests' }
 CallSiteTransformerTransformMessageSendTest >> testTransformMessageSend [
 
-	| tenuredCompiledMethod expectedSelector |
+	| tenuredCompiledMethod |
 	methodWithOffsetToTransform :=  IllMethodWithOffset method: SCMockDictionary >> #at:put: offset: 82.
-	expectedSelector := codeTransformer makeNewSelectorForSelector: #key:value:.
-
 	tenuredCompiledMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
-	self assert: (tenuredCompiledMethod sourceNodeForPC: 82) selector equals: expectedSelector.
-	self deny: (tenuredCompiledMethod sourceNodeForPC: 82) selector equals: #key:value:.
-
+	self assert: (tenuredCompiledMethod sourceNodeForPC: 82) selector equals: #_pretenured_key:value:.
 	self assert: tenuredCompiledMethod selector equals: #at:put:.
-
-	self assert: (tenuredCompiledMethod sourceCode includesSubstring: 'SCMockAssociation _pretenured_').
-	self deny: (tenuredCompiledMethod sourceCode includesSubstring: 'key:value:')
+	self assert: (tenuredCompiledMethod sourceCode includesSubstring: 'SCMockAssociation _pretenured_key: key value: anObject')
 ]
 
 { #category : 'tests' }
@@ -88,19 +82,17 @@ CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendOffsetWit
 { #category : 'tests' }
 CallSiteTransformerTransformMessageSendTest >> testTransformMessageSendOffsetWithNestedBlock [
 
-	| transformedMethod block expectedSelector |
+	| transformedMethod block |
 	methodWithOffsetToTransform := IllMethodWithOffset
 		method: (SCMockClassWithDumbMethods >> #availableProbes) literals fourth literals fourth compiledBlock
 		offset: 37.
-	expectedSelector := codeTransformer makeNewSelectorForSelector: #fromHexString:.
 
 	transformedMethod := codeTransformer transformMessageSend: methodWithOffsetToTransform.
 
-	self assert: (transformedMethod sourceCode includesSubstring: '_pretenured_').
-	self deny: (transformedMethod sourceCode includesSubstring: 'Color fromHexString: colorString').
+	self assert: (transformedMethod sourceCode includesSubstring: '_pretenured_fromHexString: colorString').
 
 	block := transformedMethod literals fourth literals fourth compiledBlock.
-	self assert: (block sourceNodeForPC: 37) selector equals: expectedSelector
+	self assert: (block sourceNodeForPC: 37) selector equals: #_pretenured_fromHexString:
 ]
 
 { #category : 'tests' }

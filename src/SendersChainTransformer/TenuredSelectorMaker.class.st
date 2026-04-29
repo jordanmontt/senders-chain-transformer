@@ -2,7 +2,6 @@ Class {
 	#name : 'TenuredSelectorMaker',
 	#superclass : 'Object',
 	#instVars : [
-		'randomPrefix',
 		'doNotTransformMethods',
 		'doNotTransformSelectors'
 	],
@@ -21,15 +20,13 @@ TenuredSelectorMaker >> defaultTenuredBinarySelector: aByteSymbol [
 { #category : 'internals' }
 TenuredSelectorMaker >> defaultTenuredSelector: aByteSymbol [
 
-	^ #_pretenured_ , randomPrefix , '_' , aByteSymbol
+	^ #_pretenured_ , aByteSymbol
 ]
 
 { #category : 'initialization' }
 TenuredSelectorMaker >> initialize [
 
     super initialize.
-
-    randomPrefix := '286021818'.
 
     doNotTransformMethods := { BlockClosure>>#value. BlockClosure>>#value:. BlockClosure>>#value:value:.
         BlockClosure>>#value:value:value:. BlockClosure>>#value:value:value:value:.
@@ -93,10 +90,4 @@ TenuredSelectorMaker >> mapBinarySelectorToString: binarySelector [
 			number := number // base ].
 	stream isEmpty ifTrue: [ ^ 'A' ].
 	^ stream contents
-]
-
-{ #category : 'accessing' }
-TenuredSelectorMaker >> randomPrefix [
-
-	^ randomPrefix
 ]

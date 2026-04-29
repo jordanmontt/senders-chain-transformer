@@ -24,7 +24,7 @@ TenuredSelectorMakerTest >> setUp [
 TenuredSelectorMakerTest >> testMakeSelectorForMethod [
 
     | expectedSelector |
-    expectedSelector := #_pretenured_ , tenuredSelectorMaker randomPrefix , '_' , #foo.
+    expectedSelector := #_pretenured_foo.
     self
         assert: (tenuredSelectorMaker makeSelectorForMethod: SCMockClassWithDumbMethods >> #foo)
         equals: expectedSelector
@@ -46,7 +46,7 @@ TenuredSelectorMakerTest >> testMakeSelectorForMethodNotTransformMethods [
 TenuredSelectorMakerTest >> testMakeSelectorForSelector [
 
     | expectedSelector |
-    expectedSelector := #_pretenured_ , tenuredSelectorMaker randomPrefix , '_' , #foo.
+    expectedSelector := #_pretenured_foo.
     self assert: (tenuredSelectorMaker makeSelectorForSelector: #foo) equals: expectedSelector
 ]
 
@@ -54,7 +54,7 @@ TenuredSelectorMakerTest >> testMakeSelectorForSelector [
 TenuredSelectorMakerTest >> testMakeSelectorForSelectorBinary [
 
     | expectedSelector |
-    expectedSelector := #_pretenured_ , tenuredSelectorMaker randomPrefix , '_' , 'zyIsf:'.
+    expectedSelector := #_pretenured_zyIsf:.
     self assert: (tenuredSelectorMaker makeSelectorForSelector: #'->') equals: expectedSelector
 ]
 

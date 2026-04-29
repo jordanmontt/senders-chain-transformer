@@ -72,18 +72,15 @@ CallSiteTransformerTest >> testRenameSendersBinarySelectors [
 { #category : 'tests' }
 CallSiteTransformerTest >> testRenameSendersKeywordSelectors [
 
-	| methodToRename expectedSelector expectedSelectorInSourceCode |
+	| methodToRename expectedSelectorInSourceCode |
 	methodToRename := (SCMockClassWithDumbMethods >> #at:ifAbsentPut:) copy.
 	
 	codeTransformer transformedSenders: { methodToRename }.
 	codeTransformer renameSendersSelectors.
 	
-	expectedSelector := codeTransformer makeNewSelectorForSelector: #at:ifAbsentPut:.
-	self deny: methodToRename selector equals: #at:ifAbsentPut:.
-	self assert: methodToRename selector equals: expectedSelector.
+	self assert: methodToRename selector equals: #_pretenured_at:ifAbsentPut:.
 
-	expectedSelectorInSourceCode := (codeTransformer makeNewSelectorForSelector: #'') , 'at: key ifAbsentPut: aBlock'.
-	self deny: methodToRename sourceCode lines first equals: 'at: key ifAbsentPut: aBlock'.
+	expectedSelectorInSourceCode := '_pretenured_at: key ifAbsentPut: aBlock'.
 	self assert: methodToRename sourceCode lines first equals: expectedSelectorInSourceCode
 ]
 

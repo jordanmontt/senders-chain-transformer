@@ -5,6 +5,6 @@ String class >> newTenured: sizeRequested [
 	"Return a new instance with the number of indexable variables specified by the argument."
 
 	^ self == String
-		  ifTrue: [ ByteString newTenured: sizeRequested ]
+		  ifTrue: [ ByteString new: sizeRequested ]
 		  ifFalse: [ self basicNewTenured: sizeRequested ]
 ]

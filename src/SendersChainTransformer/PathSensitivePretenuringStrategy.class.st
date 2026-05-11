@@ -12,3 +12,9 @@ PathSensitivePretenuringStrategy >> isAllocationSite: anAllocatorNode fromAlloca
 	pathUntilNow ifEmpty: [ ^ false ].
 	^ pathUntilNow last isLongLived
 ]
+
+{ #category : 'instance creation' }
+PathSensitivePretenuringStrategy >> newClassificationAlgorithm [
+
+	^ PathSensitivePretenuringAdviceAlgorithm new
+]

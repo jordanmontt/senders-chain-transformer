@@ -67,6 +67,12 @@ AllocationSiteIdentificationStrategy >> isKernelMethod: anAllocationGraphNode [
     ^ KernelPackages includes: anAllocationGraphNode method package name
 ]
 
+{ #category : 'instance creation' }
+AllocationSiteIdentificationStrategy >> newClassificationAlgorithm [
+
+	^ MerlinPretenuringAdviceAlgorithm new
+]
+
 { #category : 'api' }
 AllocationSiteIdentificationStrategy >> setUpForGraph: allocationGraph [
 

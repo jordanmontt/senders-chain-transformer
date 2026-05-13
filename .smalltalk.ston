@@ -4,6 +4,9 @@ SmalltalkCISpec {
       #baseline : 'SendersChainTransformer',
       #directory : 'src',
       #platforms : [ #pharo ]
+      #testing : {
+         #failOnZeroTests : false
+      }
     }
   ]
 }

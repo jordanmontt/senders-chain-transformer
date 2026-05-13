@@ -3,7 +3,7 @@ SmalltalkCISpec {
     SCIMetacelloLoadSpec {
       #baseline : 'SendersChainTransformer',
       #directory : 'src',
-      #platforms : [ #pharo ]
+      #platforms : [ #pharo ],
       #testing : {
          #failOnZeroTests : false
       }

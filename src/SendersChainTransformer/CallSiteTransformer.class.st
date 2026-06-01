@@ -3,11 +3,11 @@ Class {
 	#superclass : 'Object',
 	#instVars : [
 		'selectorMaker',
-		'transformedSenders',
 		'methodProtocol',
 		'alreadyImplementedMethods',
 		'transformedCallSites',
-		'originalMethods'
+		'originalMethods',
+		'transformedCalleeChains'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -57,9 +57,26 @@ CallSiteTransformer >> installMethod: aCompiledMethod [
 ]
 
 { #category : 'method manipulation' }
+CallSiteTransformer >> installPretenuredMethod: aCompiledMethod [
+
+		| oldSelector |
+	oldSelector := selectorMaker untenureSelector: aCompiledMethod selector.
+	self
+		assert: (aCompiledMethod methodClass includesSelector: oldSelector)
+		description: 'If we install a pretenured method in a class, the class should implemented the non pretenured version to keep the Behevior consistent.'.
+
+	"Install aliases to the new selector to keep behavior"
+	aCompiledMethod methodClass allSubclassesDo: [ :s |
+			(s includesLocalSelector: oldSelector) ifTrue: [
+				s methodDict at: aCompiledMethod selector put: s >> oldSelector ] ].
+		
+	self installMethod: aCompiledMethod
+]
+
+{ #category : 'method manipulation' }
 CallSiteTransformer >> installTransformations [
 
-	transformedSenders do: [ :aMethodWithOffset | self installMethod: aMethodWithOffset method ].
+	transformedCalleeChains do: [ :aMethodWithOffset | self installPretenuredMethod: aMethodWithOffset method ].
 	transformedCallSites do: [ :aMethodWithOffset | self installMethod: aMethodWithOffset method ]
 ]
 
@@ -78,7 +95,7 @@ CallSiteTransformer >> makeNewSelectorForSelector: aSymbol [
 { #category : 'method manipulation' }
 CallSiteTransformer >> mergeTransformations [
 
-    transformedSenders := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedSenders.
+    transformedCalleeChains := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCalleeChains.
     transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites
 	
 ]
@@ -108,7 +125,7 @@ CallSiteTransformer >> removeAlreadyImplemented: senders [
 { #category : 'method manipulation' }
 CallSiteTransformer >> renameSendersSelectors [
 
-    transformedSenders do: [ :aCompiledMethod |
+    transformedCalleeChains do: [ :aCompiledMethod |
         | newSelector updatedSource |
         newSelector := self makeNewSelectorForMethod: aCompiledMethod.
         updatedSource := self
@@ -124,7 +141,7 @@ CallSiteTransformer >> restoreOriginalState [
 
     originalMethods do: [ :aCompiledMethod | self installMethod: aCompiledMethod ].
 
-    transformedSenders do: [ :aCompiledMethod | aCompiledMethod methodClass removeSelector: aCompiledMethod selector ]
+    transformedCalleeChains do: [ :aCompiledMethod | aCompiledMethod methodClass removeSelector: aCompiledMethod selector ]
 ]
 
 { #category : 'accessing' }
@@ -137,9 +154,9 @@ CallSiteTransformer >> selectorMaker [
 CallSiteTransformer >> transformCallSites: initialCallers senders: senders [
 
     transformedCallSites := self removeAlreadyImplemented: initialCallers.
-    transformedSenders := self removeAlreadyImplemented: senders.
+    transformedCalleeChains := self removeAlreadyImplemented: senders.
 
-    transformedSenders := transformedSenders collect: [ :aMethodWithOffset |
+    transformedCalleeChains := transformedCalleeChains collect: [ :aMethodWithOffset |
             self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
 	
     transformedCallSites := transformedCallSites collect: [ :aMethodWithOffset | 
@@ -192,13 +209,13 @@ CallSiteTransformer >> transformedCallSites [
 { #category : 'accessing' }
 CallSiteTransformer >> transformedSenders [
 
-	^ transformedSenders
+	^ transformedCalleeChains
 ]
 
 { #category : 'accessing' }
 CallSiteTransformer >> transformedSenders: aCollectionOfCompiledMethods [
 
-	transformedSenders := aCollectionOfCompiledMethods
+	transformedCalleeChains := aCollectionOfCompiledMethods
 ]
 
 { #category : 'method manipulation' }

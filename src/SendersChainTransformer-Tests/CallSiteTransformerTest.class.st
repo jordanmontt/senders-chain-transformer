@@ -36,6 +36,68 @@ CallSiteTransformerTest >> testExtensionMethods [
 ]
 
 { #category : 'tests' }
+CallSiteTransformerTest >> testInstallPretenuredMethodCopiesDownToAllSubclasses [
+
+	| pretenuredSelector compiledMethod nonPretenuredSelector |
+	pretenuredSelector :=  #_pretenured_foo.
+	nonPretenuredSelector := #foo.
+	self deny: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
+	self assert: (SCMockClassWithDumbMethods includesSelector: nonPretenuredSelector).
+	
+	self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
+	self deny: (SCMockClassSubclass includesSelector: nonPretenuredSelector).
+	
+	self deny: (SCMockClassSubSubclass includesSelector: pretenuredSelector).
+	self assert: (SCMockClassSubSubclass includesSelector: nonPretenuredSelector).
+
+	compiledMethod := OpalCompiler new
+		source: pretenuredSelector;
+		class: SCMockClassWithDumbMethods;
+		compile.
+
+	[
+		codeTransformer installPretenuredMethod: compiledMethod.
+
+		self assert: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
+		self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
+		self assert: (SCMockClassSubSubclass includesSelector: pretenuredSelector) ]
+	ensure: [ 
+		{ SCMockClassWithDumbMethods . SCMockClassSubSubclass }
+				do: [ :aClass | aClass removeSelector: pretenuredSelector ] ]
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTest >> testInstallPretenuredMethodFailsIfSelectorIsNotPretenured [
+
+	| nonExistingSelector compiledMethod |
+	nonExistingSelector :=  #noNExisTingSELect0r.
+	compiledMethod := OpalCompiler new
+		source: nonExistingSelector;
+		class: SCMockClassWithDumbMethods;
+		compile.
+
+	self should: [ codeTransformer installPretenuredMethod: compiledMethod ] raise: Error
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTest >> testInstallPretenuredMethodWithoutNonPretenuredVersionImplemented [
+
+	| pretenuredSelector compiledMethod |
+	pretenuredSelector :=  #_pretenured_noNExisTingSELect0r.
+	
+	(OrderedCollection withAll: SCMockClassWithDumbMethods allSubclasses)
+		add: SCMockClassWithDumbMethods;
+		do: [ :aClass |  self deny: (aClass includesSelector: pretenuredSelector) ].
+
+	compiledMethod := OpalCompiler new
+		source: pretenuredSelector;
+		class: SCMockClassWithDumbMethods;
+		compile.
+
+	self should: [ codeTransformer installPretenuredMethod: compiledMethod ] raise: AssertionFailure
+]
+
+{ #category : 'tests' }
 CallSiteTransformerTest >> testRemoveAlreadyImplemented [
 
     self assert: (codeTransformer removeAlreadyImplemented: { (Bag class >> #new) }) isEmpty.

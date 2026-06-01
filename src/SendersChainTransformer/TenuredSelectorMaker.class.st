@@ -92,3 +92,11 @@ TenuredSelectorMaker >> mapBinarySelectorToString: binarySelector [
 	stream isEmpty ifTrue: [ ^ 'A' ].
 	^ stream contents
 ]
+
+{ #category : 'api' }
+TenuredSelectorMaker >> untenureSelector: aSymbol [
+
+	(self isTenuredSelector: aSymbol) ifFalse: [ self error: 'The selector #', aSymbol , ' is not tenured.' ].
+
+	^ (aSymbol allButFirst: #_pretenured_ size) asSymbol
+]

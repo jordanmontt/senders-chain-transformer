@@ -68,6 +68,27 @@ CallSiteTransformerTest >> testInstallBinaryPretenuredMethodCopiesDownToAllSubcl
 ]
 
 { #category : 'tests' }
+CallSiteTransformerTest >> testInstallBinaryPretenuredMethodWithoutNonPretenuredVersionImplemented [
+
+	| nonPretenuredSelector pretenuredSelector compiledMethod |
+	nonPretenuredSelector := #,.
+	pretenuredSelector := TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
+
+	(OrderedCollection withAll: SCMockClassWithDumbMethods allSubclasses)
+		add: SCMockClassWithDumbMethods;
+		do: [ :aClass | 
+			self deny: (aClass includesSelector: pretenuredSelector).
+			self deny: (aClass includesSelector: nonPretenuredSelector) ].
+
+	compiledMethod := OpalCompiler new
+		source: (pretenuredSelector, ' anObj');
+		class: SCMockClassWithDumbMethods;
+		compile.
+
+	self should: [ codeTransformer installPretenuredMethod: compiledMethod ] raise: AssertionFailure
+]
+
+{ #category : 'tests' }
 CallSiteTransformerTest >> testInstallPretenuredMethodCopiesDownToAllSubclasses [
 
 	| pretenuredSelector compiledMethod nonPretenuredSelector |
@@ -114,18 +135,15 @@ CallSiteTransformerTest >> testInstallPretenuredMethodFailsIfSelectorIsNotPreten
 { #category : 'tests' }
 CallSiteTransformerTest >> testInstallPretenuredMethodWithoutNonPretenuredVersionImplemented [
 
-	| nonPretenuredSelector pretenuredSelector compiledMethod |
-	nonPretenuredSelector := #,.
-	pretenuredSelector :=  TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
-
+	| pretenuredSelector compiledMethod |
+	pretenuredSelector :=  #_pretenured_noNExisTingSELect0r.
+	
 	(OrderedCollection withAll: SCMockClassWithDumbMethods allSubclasses)
 		add: SCMockClassWithDumbMethods;
-		do: [ :aClass | 
-			self deny: (aClass includesSelector: pretenuredSelector).
-			self deny: (aClass includesSelector: nonPretenuredSelector) ].
+		do: [ :aClass |  self deny: (aClass includesSelector: pretenuredSelector) ].
 
 	compiledMethod := OpalCompiler new
-		source: (pretenuredSelector, ' anObj');
+		source: pretenuredSelector;
 		class: SCMockClassWithDumbMethods;
 		compile.
 

@@ -56,6 +56,12 @@ SCMockClassWithDumbMethods class >> with: firstObject with: secondObject with: t
 ]
 
 { #category : 'api' }
+SCMockClassWithDumbMethods >> , anObject [
+
+   4 * 4
+]
+
+{ #category : 'api' }
 SCMockClassWithDumbMethods >> <->,/>+@<-<>@>>-+,,/<@ anObject [
 
    2 + 2

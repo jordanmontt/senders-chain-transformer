@@ -39,7 +39,7 @@ CallSiteTransformerTest >> testExtensionMethods [
 CallSiteTransformerTest >> testInstallBinaryPretenuredMethodCopiesDownToAllSubclasses [
 
 	| pretenuredSelector compiledMethod nonPretenuredSelector |
-	nonPretenuredSelector := #@.
+	nonPretenuredSelector := #,.
 	pretenuredSelector := TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
 	
 	self deny: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
@@ -71,7 +71,7 @@ CallSiteTransformerTest >> testInstallBinaryPretenuredMethodCopiesDownToAllSubcl
 CallSiteTransformerTest >> testInstallBinaryPretenuredMethodWithoutNonPretenuredVersionImplemented [
 
 	| nonPretenuredSelector pretenuredSelector compiledMethod |
-	nonPretenuredSelector := #,.
+	nonPretenuredSelector := #/.
 	pretenuredSelector := TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
 
 	(OrderedCollection withAll: SCMockClassWithDumbMethods allSubclasses)
@@ -170,17 +170,17 @@ CallSiteTransformerTest >> testRemoveAlreadyImplemented [
 CallSiteTransformerTest >> testRenameSendersBinarySelectors [
 
 	| methodToRename expectedSelector expectedSelectorInSourceCode |
-	methodToRename := (SCMockClassWithDumbMethods >> #@) copy.
+	methodToRename := (SCMockClassWithDumbMethods >> #,) copy.
 	
 	codeTransformer transformedSenders: { methodToRename }.
 	codeTransformer renameSendersSelectors.
 
-	expectedSelector := codeTransformer makeNewSelectorForSelector: #@.
-	self deny: methodToRename selector equals: #@.
+	expectedSelector := codeTransformer makeNewSelectorForSelector: #,.
+	self deny: methodToRename selector equals: #,.
 	self assert: methodToRename selector equals: expectedSelector.
 	
-	expectedSelectorInSourceCode := (codeTransformer makeNewSelectorForSelector: #@), ' anObject'.
-	self deny: methodToRename sourceCode lines first equals: '@ anObject'.
+	expectedSelectorInSourceCode := (codeTransformer makeNewSelectorForSelector: #,), ' anObject'.
+	self deny: methodToRename sourceCode lines first equals: ', anObject'.
 	self assert: methodToRename sourceCode lines first equals: expectedSelectorInSourceCode
 ]
 

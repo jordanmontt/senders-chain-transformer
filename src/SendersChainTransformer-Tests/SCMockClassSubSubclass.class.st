@@ -7,7 +7,13 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
+SCMockClassSubSubclass >> @ anObj [
+
+   ^ 42
+]
+
+{ #category : 'as yet unclassified' }
 SCMockClassSubSubclass >> foo [
 
-	
+   ^ 42
 ]

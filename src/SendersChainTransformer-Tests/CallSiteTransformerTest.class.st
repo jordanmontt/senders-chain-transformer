@@ -36,6 +36,38 @@ CallSiteTransformerTest >> testExtensionMethods [
 ]
 
 { #category : 'tests' }
+CallSiteTransformerTest >> testInstallBinaryPretenuredMethodCopiesDownToAllSubclasses [
+
+	| pretenuredSelector compiledMethod nonPretenuredSelector |
+	nonPretenuredSelector := #@.
+	pretenuredSelector := TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
+	
+	self deny: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
+	self assert: (SCMockClassWithDumbMethods includesSelector: nonPretenuredSelector).
+	
+	self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
+	self deny: (SCMockClassSubclass includesSelector: nonPretenuredSelector).
+	
+	self deny: (SCMockClassSubSubclass includesSelector: pretenuredSelector).
+	self assert: (SCMockClassSubSubclass includesSelector: nonPretenuredSelector).
+
+	compiledMethod := OpalCompiler new
+		source: (pretenuredSelector , ' anObj');
+		class: SCMockClassWithDumbMethods;
+		compile.
+
+	[
+		codeTransformer installPretenuredMethod: compiledMethod.
+
+		self assert: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
+		self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
+		self assert: (SCMockClassSubSubclass includesSelector: pretenuredSelector) ]
+	ensure: [ 
+		{ SCMockClassWithDumbMethods . SCMockClassSubSubclass }
+				do: [ :aClass | aClass removeSelector: pretenuredSelector ] ]
+]
+
+{ #category : 'tests' }
 CallSiteTransformerTest >> testInstallPretenuredMethodCopiesDownToAllSubclasses [
 
 	| pretenuredSelector compiledMethod nonPretenuredSelector |

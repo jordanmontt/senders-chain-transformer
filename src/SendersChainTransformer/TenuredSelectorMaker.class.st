@@ -76,55 +76,40 @@ TenuredSelectorMaker >> makeSelectorForSelector: aSymbol [
 
 { #category : 'internals' }
 TenuredSelectorMaker >> mapBinarySelectorToString: binarySelector [
-	"Encode a binary selector into a reversible, identifier-safe string.
-	The encoding is a leading '0' marker followed by two uppercase hex digits per
-	character. The leading digit is what lets #untenureSelector: tell an encoded
-	binary selector apart from a plain unary/keyword selector, since real selectors
-	can never start with a digit. See #mapStringToBinarySelector: for the inverse."
+	"The encoding starts by a leading '0'.
+	The leading digit is what lets #untenureSelector: know is an encoded binary selector.
+	See #mapStringToBinarySelector: for the inverse."
 
 	| stream |
-	binarySelector ifEmpty: [ ^ binarySelector ].
-
 	stream := WriteStream on: String new.
 	stream nextPut: $0.
-	binarySelector do: [ :char |
-			| hex |
-			hex := char asInteger printString: 16.
-			hex size = 1 ifTrue: [ hex := '0' , hex ].
-			stream nextPutAll: hex ].
-	^ stream contents
+	binarySelector do: [ :char | stream nextPutAll: char hex ].
+	^ stream contents asSymbol
 ]
 
 { #category : 'internals' }
 TenuredSelectorMaker >> mapStringToBinarySelector: aString [
-	"Inverse of #mapBinarySelectorToString:. Drops the leading marker and decodes
-	each following pair of hex digits back into a character."
+	"Inverse of #mapBinarySelectorToString:. Drops the leading marker 0"
 
-	| hexPart stream |
-	aString ifEmpty: [ ^ aString asSymbol ].
-
-	hexPart := aString allButFirst.
-	stream := WriteStream on: String new.
-	1 to: hexPart size by: 2 do: [ :i |
-			| pair |
-			pair := hexPart copyFrom: i to: i + 1.
-			stream nextPut: (Character value: ('16r' , pair) asNumber) ].
-	^ stream contents asSymbol
+    | hexPart stream |
+    hexPart := aString allButFirst.
+    stream := WriteStream on: String new.
+    (hexPart splitOn: '16r') allButFirst do: [ :hex |
+        | integerValue |
+        integerValue := NumberParser parse: ('16r' , hex).
+        stream nextPut: (Character value: integerValue) ].
+    ^ stream contents asSymbol
 ]
 
 { #category : 'api' }
 TenuredSelectorMaker >> untenureSelector: aSymbol [
 
-	| core |
-	(self isTenuredSelector: aSymbol) ifFalse: [ self error: 'The selector #', aSymbol , ' is not tenured.' ].
+   | core |
+   (self isTenuredSelector: aSymbol) ifFalse: [ self error: 'The selector #' , aSymbol , ' is not tenured.' ].
 
-	core := aSymbol allButFirst: #_pretenured_ size.
-
-	"An encoded binary selector's core starts with a digit (the marker) and ends with
-	the ':' added by #defaultTenuredBinarySelector:. A real unary/keyword selector can
-	never start with a digit, so this branch is unambiguous."
-	(core notEmpty and: [ core first isDigit ]) ifTrue: [
-		^ self mapStringToBinarySelector: core allButLast ].
-
-	^ core asSymbol
+   core := aSymbol allButFirst: #_pretenured_ size.
+   "An encoded binary selector starts with a digit 0 always."
+   ^ core first isDigit
+        ifTrue: [ self mapStringToBinarySelector: core allButLast ]
+        ifFalse: [ core asSymbol ]
 ]

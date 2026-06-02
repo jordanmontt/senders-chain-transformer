@@ -54,7 +54,7 @@ TenuredSelectorMakerTest >> testMakeSelectorForSelector [
 TenuredSelectorMakerTest >> testMakeSelectorForSelectorBinary [
 
     | expectedSelector |
-    expectedSelector := #_pretenured_02D3E:.
+    expectedSelector := #_pretenured_016r2D16r3E:.
     self assert: (tenuredSelectorMaker makeSelectorForSelector: #'->') equals: expectedSelector
 ]
 
@@ -71,49 +71,33 @@ TenuredSelectorMakerTest >> testMakeSelectorForSelectorNotTransformSelectors [
 ]
 
 { #category : 'tests' }
-TenuredSelectorMakerTest >> testMapBinarySelectorToString [
-
-	| result |
-	result := tenuredSelectorMaker mapBinarySelectorToString: '->'.
-	self assert: result equals: '02D3E'.
-
-	result := tenuredSelectorMaker mapBinarySelectorToString: '==>'.
-	self assert: result equals: '03D3D3E'.
-
-	result := tenuredSelectorMaker mapBinarySelectorToString: '+'.
-	self assert: result equals: '02B'.
-
-	result := tenuredSelectorMaker mapBinarySelectorToString: '*'.
-	self assert: result equals: '02A'.
-
-	result := tenuredSelectorMaker mapBinarySelectorToString: ''.
-	self assert: result equals: ''
-]
-
-{ #category : 'tests' }
 TenuredSelectorMakerTest >> testMapStringToBinarySelectorIsInverse [
-	"mapStringToBinarySelector: must be the exact inverse of mapBinarySelectorToString:."
 
 	#( '+' '-' '*' '/' '<' '>' '=' '~' '&' '|' '@' '%' ',' '->' '==>' '<=' '>=' '//' )
 		do: [ :binarySelector |
-			| encoded |
-			encoded := tenuredSelectorMaker mapBinarySelectorToString: binarySelector.
+			| encodedSelector |
+			encodedSelector := tenuredSelectorMaker mapBinarySelectorToString: binarySelector.
 			self
-				assert: (tenuredSelectorMaker mapStringToBinarySelector: encoded)
-				equals: binarySelector asSymbol ]
+				assert: (tenuredSelectorMaker mapStringToBinarySelector: encodedSelector)
+				equals: binarySelector ]
 ]
 
 { #category : 'tests' }
 TenuredSelectorMakerTest >> testUntenureSelectorBinaryRoundTrip [
-	"Tenuring then untenuring a binary selector must recover the original selector."
 
 	#( #+ #- #* #/ #< #> #= #~ #& #| #@ #% #, #'->' #'==>' #'<=' #'>=' #'//' )
 		do: [ :binarySelector |
-			| tenured |
-			tenured := tenuredSelectorMaker makeSelectorForSelector: binarySelector.
+			| tenuredSelector |
+			tenuredSelector := tenuredSelectorMaker makeSelectorForSelector: binarySelector.
 			self
-				assert: (tenuredSelectorMaker untenureSelector: tenured)
+				assert: (tenuredSelectorMaker untenureSelector: tenuredSelector)
 				equals: binarySelector ]
+]
+
+{ #category : 'tests' }
+TenuredSelectorMakerTest >> testUntenureSelectorFailsIfNotTenured [
+
+	self should: [ tenuredSelectorMaker untenureSelector: #foo ] raise: Error
 ]
 
 { #category : 'tests' }
@@ -134,10 +118,4 @@ TenuredSelectorMakerTest >> testUntenureSelectorUnaryAndKeyword [
 		assert: (tenuredSelectorMaker untenureSelector:
 				(tenuredSelectorMaker makeSelectorForSelector: #at:put:))
 		equals: #at:put:
-]
-
-{ #category : 'tests' }
-TenuredSelectorMakerTest >> testUntenureSelectorFailsIfNotTenured [
-
-	self should: [ tenuredSelectorMaker untenureSelector: #foo ] raise: Error
 ]

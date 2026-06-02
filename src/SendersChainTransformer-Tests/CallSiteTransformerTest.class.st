@@ -114,15 +114,18 @@ CallSiteTransformerTest >> testInstallPretenuredMethodFailsIfSelectorIsNotPreten
 { #category : 'tests' }
 CallSiteTransformerTest >> testInstallPretenuredMethodWithoutNonPretenuredVersionImplemented [
 
-	| pretenuredSelector compiledMethod |
-	pretenuredSelector :=  #_pretenured_noNExisTingSELect0r.
-	
+	| nonPretenuredSelector pretenuredSelector compiledMethod |
+	nonPretenuredSelector := #,.
+	pretenuredSelector :=  TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
+
 	(OrderedCollection withAll: SCMockClassWithDumbMethods allSubclasses)
 		add: SCMockClassWithDumbMethods;
-		do: [ :aClass |  self deny: (aClass includesSelector: pretenuredSelector) ].
+		do: [ :aClass | 
+			self deny: (aClass includesSelector: pretenuredSelector).
+			self deny: (aClass includesSelector: nonPretenuredSelector) ].
 
 	compiledMethod := OpalCompiler new
-		source: pretenuredSelector;
+		source: (pretenuredSelector, ' anObj');
 		class: SCMockClassWithDumbMethods;
 		compile.
 

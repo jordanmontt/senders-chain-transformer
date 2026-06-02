@@ -33,7 +33,7 @@ TenuredSelectorMaker >> initialize [
         BlockClosure>>#valueNoContextSwitch. Semaphore>>#critical:. Mutex>>#critical:. Behavior>>#basicNewTenured. Behavior>>#basicNewTenured:. Behavior>>#newTenured. Behavior>>#newTenured: .
 BlockClosure >> #valueNoContextSwitch }.
 
-    doNotTransformSelectors := #( #newTenured #newTenured: #basicNewTenured #basicNewTenured: #initialize #value #value: #value:value: #shallowCopy #clone #valueNoContextSwitch )
+    doNotTransformSelectors := #( #newTenured #newTenured: #basicNewTenured #basicNewTenured: #initialize #value #value: #value:value: #shallowCopy #clone #valueNoContextSwitch #@ )
 ]
 
 { #category : 'api' }

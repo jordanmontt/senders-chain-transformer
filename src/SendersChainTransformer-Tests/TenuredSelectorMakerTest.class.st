@@ -85,7 +85,7 @@ TenuredSelectorMakerTest >> testMapStringToBinarySelectorIsInverse [
 { #category : 'tests' }
 TenuredSelectorMakerTest >> testUntenureSelectorBinaryRoundTrip [
 
-	#( #+ #- #* #/ #< #> #= #~ #& #| #@ #% #, #'->' #'==>' #'<=' #'>=' #'//' )
+	#( #+ #- #* #/ #< #> #= #~ #& #| "#@" #% #, #'->' #'==>' #'<=' #'>=' #'//' )
 		do: [ :binarySelector |
 			| tenuredSelector |
 			tenuredSelector := tenuredSelectorMaker makeSelectorForSelector: binarySelector.

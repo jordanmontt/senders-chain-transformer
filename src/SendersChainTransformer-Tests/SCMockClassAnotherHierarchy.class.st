@@ -1,19 +1,19 @@
 Class {
-	#name : 'SCMockClassSubSubclass',
-	#superclass : 'SCMockClassSubclass',
+	#name : 'SCMockClassAnotherHierarchy',
+	#superclass : 'Object',
 	#category : 'SendersChainTransformer-Tests-Utilities',
 	#package : 'SendersChainTransformer-Tests',
 	#tag : 'Utilities'
 }
 
 { #category : 'as yet unclassified' }
-SCMockClassSubSubclass >> , anObj [
+SCMockClassAnotherHierarchy >> <->,/>+@<-<>@>>-+,,/<@ anObject [
 
-   ^ 42
+   ^ 22
 ]
 
 { #category : 'as yet unclassified' }
-SCMockClassSubSubclass >> foo [
+SCMockClassAnotherHierarchy >> wEiRDFoo [
 
-   ^ 42
+   ^ 33
 ]

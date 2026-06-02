@@ -57,20 +57,16 @@ CallSiteTransformer >> installMethod: aCompiledMethod [
 ]
 
 { #category : 'method manipulation' }
-CallSiteTransformer >> installPretenuredMethod: aCompiledMethod [
+CallSiteTransformer >> installPretenuredMethod: aPretenuredCompiledMethod [
 
 		| oldSelector |
-	oldSelector := selectorMaker untenureSelector: aCompiledMethod selector.
-	self
-		assert: (aCompiledMethod methodClass includesSelector: oldSelector)
-		description: 'If we install a pretenured method in a class, the class should implemented the non pretenured version to keep the Behevior consistent.'.
+	oldSelector := selectorMaker untenureSelector: aPretenuredCompiledMethod selector.
 
 	"Install aliases to the new selector to keep behavior"
-	aCompiledMethod methodClass allSubclassesDo: [ :s |
-			(s includesLocalSelector: oldSelector) ifTrue: [
-				s methodDict at: aCompiledMethod selector put: s >> oldSelector ] ].
-		
-	self installMethod: aCompiledMethod
+	oldSelector implementors do: [ :implementor |
+		implementor methodClass methodDict at: aPretenuredCompiledMethod selector put: implementor ].
+
+	self installMethod: aPretenuredCompiledMethod
 ]
 
 { #category : 'method manipulation' }

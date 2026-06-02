@@ -105,6 +105,8 @@ TenuredSelectorMaker >> mapStringToBinarySelector: aString [
 TenuredSelectorMaker >> untenureSelector: aSymbol [
 
    | core |
+	(doNotTransformSelectors includes: aSymbol) ifTrue: [ ^ aSymbol ].
+
    (self isTenuredSelector: aSymbol) ifFalse: [ self error: 'The selector #' , aSymbol , ' is not tenured.' ].
 
    core := aSymbol allButFirst: #_pretenured_ size.

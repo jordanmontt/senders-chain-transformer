@@ -36,20 +36,20 @@ CallSiteTransformerTest >> testExtensionMethods [
 ]
 
 { #category : 'tests' }
-CallSiteTransformerTest >> testInstallBinaryPretenuredMethodCopiesDownToAllSubclasses [
+CallSiteTransformerTest >> testInstallBinaryPretenuredMethodCopiesDownToImplementors [
 
 	| pretenuredSelector compiledMethod nonPretenuredSelector |
-	nonPretenuredSelector := #,.
+	nonPretenuredSelector := #<->,/>+@<-<>@>>-+,,/<@. "weird selector to make sure that there is only one implementor"
 	pretenuredSelector := TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
 	
 	self deny: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
 	self assert: (SCMockClassWithDumbMethods includesSelector: nonPretenuredSelector).
 	
-	self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
-	self deny: (SCMockClassSubclass includesSelector: nonPretenuredSelector).
+	self deny: (SCMockClassAnotherHierarchy includesSelector: pretenuredSelector).
+	self assert: (SCMockClassAnotherHierarchy includesSelector: nonPretenuredSelector).
 	
-	self deny: (SCMockClassSubSubclass includesSelector: pretenuredSelector).
-	self assert: (SCMockClassSubSubclass includesSelector: nonPretenuredSelector).
+	self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
+	self assert: (SCMockClassSubclass includesSelector: nonPretenuredSelector).
 
 	compiledMethod := OpalCompiler new
 		source: (pretenuredSelector , ' anObj');
@@ -60,48 +60,27 @@ CallSiteTransformerTest >> testInstallBinaryPretenuredMethodCopiesDownToAllSubcl
 		codeTransformer installPretenuredMethod: compiledMethod.
 
 		self assert: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
-		self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
-		self assert: (SCMockClassSubSubclass includesSelector: pretenuredSelector) ]
+		self assert: (SCMockClassSubclass includesSelector: pretenuredSelector).
+		self assert: (SCMockClassSubclass includesSelector: pretenuredSelector) ]
 	ensure: [ 
-		{ SCMockClassWithDumbMethods . SCMockClassSubSubclass }
+		{ SCMockClassWithDumbMethods . SCMockClassSubclass . SCMockClassAnotherHierarchy }
 				do: [ :aClass | aClass removeSelector: pretenuredSelector ] ]
 ]
 
 { #category : 'tests' }
-CallSiteTransformerTest >> testInstallBinaryPretenuredMethodWithoutNonPretenuredVersionImplemented [
-
-	| nonPretenuredSelector pretenuredSelector compiledMethod |
-	nonPretenuredSelector := #/.
-	pretenuredSelector := TenuredSelectorMaker new makeSelectorForSelector: nonPretenuredSelector.
-
-	(OrderedCollection withAll: SCMockClassWithDumbMethods allSubclasses)
-		add: SCMockClassWithDumbMethods;
-		do: [ :aClass | 
-			self deny: (aClass includesSelector: pretenuredSelector).
-			self deny: (aClass includesSelector: nonPretenuredSelector) ].
-
-	compiledMethod := OpalCompiler new
-		source: (pretenuredSelector, ' anObj');
-		class: SCMockClassWithDumbMethods;
-		compile.
-
-	self should: [ codeTransformer installPretenuredMethod: compiledMethod ] raise: AssertionFailure
-]
-
-{ #category : 'tests' }
-CallSiteTransformerTest >> testInstallPretenuredMethodCopiesDownToAllSubclasses [
+CallSiteTransformerTest >> testInstallPretenuredMethodCopiesDownToImplementors [
 
 	| pretenuredSelector compiledMethod nonPretenuredSelector |
-	pretenuredSelector :=  #_pretenured_foo.
-	nonPretenuredSelector := #foo.
+	pretenuredSelector :=  #_pretenured_wEiRDFoo.
+	nonPretenuredSelector := #wEiRDFoo.
 	self deny: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
 	self assert: (SCMockClassWithDumbMethods includesSelector: nonPretenuredSelector).
-	
+
+	self deny: (SCMockClassAnotherHierarchy includesSelector: pretenuredSelector).
+	self assert: (SCMockClassAnotherHierarchy includesSelector: nonPretenuredSelector).
+
 	self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
-	self deny: (SCMockClassSubclass includesSelector: nonPretenuredSelector).
-	
-	self deny: (SCMockClassSubSubclass includesSelector: pretenuredSelector).
-	self assert: (SCMockClassSubSubclass includesSelector: nonPretenuredSelector).
+	self assert: (SCMockClassSubclass includesSelector: nonPretenuredSelector).
 
 	compiledMethod := OpalCompiler new
 		source: pretenuredSelector;
@@ -112,42 +91,11 @@ CallSiteTransformerTest >> testInstallPretenuredMethodCopiesDownToAllSubclasses 
 		codeTransformer installPretenuredMethod: compiledMethod.
 
 		self assert: (SCMockClassWithDumbMethods includesSelector: pretenuredSelector).
-		self deny: (SCMockClassSubclass includesSelector: pretenuredSelector).
-		self assert: (SCMockClassSubSubclass includesSelector: pretenuredSelector) ]
+		self assert: (SCMockClassSubclass includesSelector: pretenuredSelector).
+		self assert: (SCMockClassSubclass includesSelector: pretenuredSelector) ]
 	ensure: [ 
-		{ SCMockClassWithDumbMethods . SCMockClassSubSubclass }
+		{ SCMockClassWithDumbMethods . SCMockClassSubclass . SCMockClassAnotherHierarchy }
 				do: [ :aClass | aClass removeSelector: pretenuredSelector ] ]
-]
-
-{ #category : 'tests' }
-CallSiteTransformerTest >> testInstallPretenuredMethodFailsIfSelectorIsNotPretenured [
-
-	| nonExistingSelector compiledMethod |
-	nonExistingSelector :=  #noNExisTingSELect0r.
-	compiledMethod := OpalCompiler new
-		source: nonExistingSelector;
-		class: SCMockClassWithDumbMethods;
-		compile.
-
-	self should: [ codeTransformer installPretenuredMethod: compiledMethod ] raise: Error
-]
-
-{ #category : 'tests' }
-CallSiteTransformerTest >> testInstallPretenuredMethodWithoutNonPretenuredVersionImplemented [
-
-	| pretenuredSelector compiledMethod |
-	pretenuredSelector :=  #_pretenured_noNExisTingSELect0r.
-	
-	(OrderedCollection withAll: SCMockClassWithDumbMethods allSubclasses)
-		add: SCMockClassWithDumbMethods;
-		do: [ :aClass |  self deny: (aClass includesSelector: pretenuredSelector) ].
-
-	compiledMethod := OpalCompiler new
-		source: pretenuredSelector;
-		class: SCMockClassWithDumbMethods;
-		compile.
-
-	self should: [ codeTransformer installPretenuredMethod: compiledMethod ] raise: AssertionFailure
 ]
 
 { #category : 'tests' }

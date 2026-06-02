@@ -56,10 +56,9 @@ SCMockClassWithDumbMethods class >> with: firstObject with: secondObject with: t
 ]
 
 { #category : 'api' }
-SCMockClassWithDumbMethods >> , anObject [
+SCMockClassWithDumbMethods >> <->,/>+@<-<>@>>-+,,/<@ anObject [
 
-	2 + 2.
-	self addOccupant: anObject
+   2 + 2
 ]
 
 { #category : 'api' }
@@ -172,4 +171,11 @@ SCMockClassWithDumbMethods >> uaua [
 
 	self toto.
 	self pepe
+]
+
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> wEiRDFoo [
+
+	anotherFakeClass := SCMockClassWithDumbMethods new.
+	anotherFakeClass bar
 ]

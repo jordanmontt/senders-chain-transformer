@@ -156,7 +156,8 @@ CallSiteTransformer >> transformCallSites: initialCallers senders: senders [
             self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
 	
     transformedCallSites := transformedCallSites collect: [ :aMethodWithOffset | 
-            self transformMessageSend: aMethodWithOffset ].
+            [ self transformMessageSend: aMethodWithOffset ] on: Error do: [ nil ] ].
+    transformedCallSites := transformedCallSites reject: #isNil.
 
     self renameSendersSelectors
 ]

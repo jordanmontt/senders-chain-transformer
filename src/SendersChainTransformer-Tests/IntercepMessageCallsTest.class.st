@@ -83,7 +83,7 @@ IntercepMessageCallsTest >> testInitialCallerActuallyCallsTransformedMethods [
 
 	codeTransformer
 		backupMethods: methodsToBackup;
-		transformCallSites: { initialCaller } senders: senders;
+		transformCallSite: initialCaller senders: senders;
 		installTransformations.
 
 	self installInstrumentation.

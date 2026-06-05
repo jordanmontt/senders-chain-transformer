@@ -5,9 +5,9 @@ Class {
 		'selectorMaker',
 		'methodProtocol',
 		'alreadyImplementedMethods',
-		'transformedCallSites',
 		'originalMethods',
-		'transformedCalleeChains'
+		'transformedCalleeChains',
+		'transformedCallSite'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -72,8 +72,8 @@ CallSiteTransformer >> installPretenuredMethod: aPretenuredCompiledMethod [
 { #category : 'method manipulation' }
 CallSiteTransformer >> installTransformations [
 
-	transformedCalleeChains do: [ :aMethodWithOffset | self installPretenuredMethod: aMethodWithOffset method ].
-	transformedCallSites do: [ :aMethodWithOffset | self installMethod: aMethodWithOffset method ]
+	transformedCalleeChains do: [ :compiledMethod | self installPretenuredMethod: compiledMethod ].
+	transformedCallSite ifNotNil: [ self installMethod: transformedCallSite ]
 ]
 
 { #category : 'method manipulation' }
@@ -86,14 +86,6 @@ CallSiteTransformer >> makeNewSelectorForMethod: aCompiledMethod [
 CallSiteTransformer >> makeNewSelectorForSelector: aSymbol [
 
     ^ selectorMaker makeSelectorForSelector: aSymbol
-]
-
-{ #category : 'method manipulation' }
-CallSiteTransformer >> mergeTransformations [
-
-    transformedCalleeChains := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCalleeChains.
-    transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites
-	
 ]
 
 { #category : 'accessing' }
@@ -147,17 +139,16 @@ CallSiteTransformer >> selectorMaker [
 ]
 
 { #category : 'api' }
-CallSiteTransformer >> transformCallSites: initialCallers senders: senders [
+CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 
-    transformedCallSites := self removeAlreadyImplemented: initialCallers.
     transformedCalleeChains := self removeAlreadyImplemented: senders.
-
     transformedCalleeChains := transformedCalleeChains collect: [ :aMethodWithOffset |
-            self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
+        self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
 	
-    transformedCallSites := transformedCallSites collect: [ :aMethodWithOffset | 
-            [ self transformMessageSend: aMethodWithOffset ] on: Error do: [ nil ] ].
-    transformedCallSites := transformedCallSites reject: #isNil.
+	 (self removeAlreadyImplemented: { initialCaller }) ifNotEmpty: [ :collection | 
+		  | methodWithOffset |
+		  methodWithOffset := collection first. 
+        transformedCallSite := self transformMessageSend: methodWithOffset ].
 
     self renameSendersSelectors
 ]
@@ -198,9 +189,9 @@ CallSiteTransformer >> transformMessageSend: methodWithOffset [
 ]
 
 { #category : 'accessing' }
-CallSiteTransformer >> transformedCallSites [
+CallSiteTransformer >> transformedCallSite [
 
-	^ transformedCallSites
+	^ transformedCallSite
 ]
 
 { #category : 'accessing' }

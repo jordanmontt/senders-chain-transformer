@@ -6,7 +6,7 @@ Class {
 		'pretenuredCompiledMethods',
 		'methodProtocol',
 		'transformedSenders',
-		'callSiteTransformer'
+		'callSiteTransformers'
 	],
 	#category : 'SendersChainTransformer-Code-Rewriter',
 	#package : 'SendersChainTransformer',
@@ -16,18 +16,28 @@ Class {
 { #category : 'api' }
 AllocationSitesPretenurer >> backupMethodsWithOffset: aListOfMethods [
 
-	callSiteTransformer backupMethods: (aListOfMethods collect: [ :m | m method method ])
+   callSiteTransformers do: [ :codeTransformer |
+		codeTransformer backupMethods: (aListOfMethods collect: [ :m | m method method ]) ]
 ]
 
 { #category : 'api' }
 AllocationSitesPretenurer >> compilePretenuredPathsFrom: toPretenurePaths [
 
-    | initialCallers senders |
-    initialCallers := toPretenurePaths collect: [ :stack |  stack last ].
-    senders := toPretenurePaths flatCollect: [ :stack | stack allButLast ].
+   callSiteTransformers := OrderedCollection new.
 
-    callSiteTransformer transformCallSites: initialCallers senders: senders.
-    self mergeTransformations
+   toPretenurePaths do: [ :stack |
+         | transformer initialCaller senders |
+         transformer := CallSiteTransformer new.
+         initialCaller := stack last.
+         senders := stack allButLast.
+         [
+            transformer transformCallSite: initialCaller senders: senders.
+            callSiteTransformers add: transformer
+			]
+            on: Error
+            do: [ :error | self logCompilationError: error senders: senders initialCaller: initialCaller ] ].
+
+   self mergeTransformations
 ]
 
 { #category : 'api' }
@@ -51,9 +61,8 @@ AllocationSitesPretenurer >> fetchPretenuredCompiledMethods [
 { #category : 'initialization' }
 AllocationSitesPretenurer >> initialize [
 
-	super initialize.
-	callSiteTransformer := CallSiteTransformer new.
-	methodProtocol := 'automatically-generated'
+   super initialize.
+   methodProtocol := 'automatically-generated'
 ]
 
 { #category : 'api' }
@@ -61,18 +70,30 @@ AllocationSitesPretenurer >> installPretenuredMethods [
 
     transformedSenders do: [ :aCompiledMethod |
             ('Installing method ' , aCompiledMethod name) traceCr.
-            callSiteTransformer installPretenuredMethod: aCompiledMethod ].
+            callSiteTransformers anyOne installPretenuredMethod: aCompiledMethod ].
     transformedCallSites do: [ :aCompiledMethod |
             ('Installing method ' , aCompiledMethod name) traceCr.
-            callSiteTransformer installMethod: aCompiledMethod ]
+            callSiteTransformers anyOne installMethod: aCompiledMethod ]
+]
+
+{ #category : 'api' }
+AllocationSitesPretenurer >> logCompilationError: error senders: senders initialCaller: initialCaller [
+
+   | senderNames |
+   senderNames := String streamContents: [ :stream |
+		senders do: [ :sender |
+			stream
+			nextPutAll: sender selector;
+			space ] ].
+   ('Error transforming: ' , initialCaller selector, ' with senders: ' , senderNames , ' - ' , error description) traceCr
 ]
 
 { #category : 'internals' }
 AllocationSitesPretenurer >> mergeTransformations [
     "It can happen that the same method was modified twice because it appeared in the senders stack twice with different bytecode offsets"
 
-    transformedCallSites := callSiteTransformer transformedCallSites reject: #isNil.
-    transformedSenders := callSiteTransformer transformedSenders reject: #isNil.
+    transformedCallSites := callSiteTransformers collect: #transformedCallSite thenReject: #isNil.
+    transformedSenders := (callSiteTransformers flatCollect: #transformedSenders) reject: #isNil.
 	
     transformedCallSites := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedCallSites.
     transformedSenders := CodeTransformationsMerger new mergeTransformedCompiledMethods: transformedSenders
@@ -87,7 +108,7 @@ AllocationSitesPretenurer >> methodProtocol: aString [
 { #category : 'api' }
 AllocationSitesPretenurer >> restoreOriginalState [
 
-	callSiteTransformer restoreOriginalState
+   callSiteTransformers do: #restoreOriginalState
 ]
 
 { #category : 'api' }

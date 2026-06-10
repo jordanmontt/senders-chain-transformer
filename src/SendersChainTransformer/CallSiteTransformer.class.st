@@ -152,13 +152,16 @@ CallSiteTransformer >> selectorMaker [
 { #category : 'api' }
 CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
 
-    (self includesMetaProgramingCalls: { initialCaller } , senders flattened)
+    | filteredMethods |
+    transformedCalleeChains := self removeAlreadyImplemented: senders.
+    
+    filteredMethods := (self removeAlreadyImplemented: { initialCaller }) , transformedCalleeChains.
+    (self includesMetaProgramingCalls: filteredMethods)
         ifTrue: [ SCTransformationException new signal ].
 
-    transformedCalleeChains := self removeAlreadyImplemented: senders.
     transformedCalleeChains := transformedCalleeChains collect: [ :aMethodWithOffset |
         self transformMessageSend: (self cloneCompiledCode: aMethodWithOffset) ].
-	
+
 	 (self removeAlreadyImplemented: { initialCaller }) ifNotEmpty: [ :collection | 
 		  | methodWithOffset |
 		  methodWithOffset := collection first. 

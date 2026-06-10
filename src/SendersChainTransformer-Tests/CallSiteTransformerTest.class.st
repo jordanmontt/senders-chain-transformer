@@ -29,6 +29,36 @@ CallSiteTransformerTest >> setUp [
 ]
 
 { #category : 'tests' }
+CallSiteTransformerTest >> testCannotTransformReflectivePaths [
+
+	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 42.
+	senders := { IllMethodWithOffset method: SCMockClassWithDumbMethods >> #methodWithPerform offset: 43 }.
+	
+	self should: [ codeTransformer transformCallSite: initialCaller senders: senders ] raise: SCTransformationException.
+
+	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #methodWithPerform offset: 43.
+	senders := { IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 42 }.
+	
+	self should: [ codeTransformer transformCallSite: initialCaller senders: senders ] raise: SCTransformationException.
+
+]
+
+{ #category : 'tests' }
+CallSiteTransformerTest >> testCannotTransformReflectivePathsSlots [
+
+	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 42.
+	senders := { IllMethodWithOffset method: SCMockClassWithDumbMethods >> #assigmentMethod offset: 34 }.
+	
+	self should: [ codeTransformer transformCallSite: initialCaller senders: senders ] raise: SCTransformationException.
+
+	initialCaller := IllMethodWithOffset method: SCMockClassWithDumbMethods >> #assigmentMethod offset: 34.
+	senders := { IllMethodWithOffset method: SCMockClassWithDumbMethods >> #foo offset: 42 }.
+	
+	self should: [ codeTransformer transformCallSite: initialCaller senders: senders ] raise: SCTransformationException.
+
+]
+
+{ #category : 'tests' }
 CallSiteTransformerTest >> testExtensionMethods [
 
     codeTransformer class package extensionMethods do: [ :e |

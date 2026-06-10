@@ -80,6 +80,12 @@ SCMockClassWithDumbMethods >> addOccupant: anObject [
 	(self theOccupants at: anObject class name ifAbsentPut: [ OrderedCollection new ]) add: anObject
 ]
 
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> assigmentMethod [
+
+   aDictionary := 3
+]
+
 { #category : 'api' }
 SCMockClassWithDumbMethods >> at: key ifAbsentPut: aBlock [
 
@@ -135,6 +141,12 @@ SCMockClassWithDumbMethods >> initialize [
 
 	super initialize.
 	aDictionary := SCMockDictionary new
+]
+
+{ #category : 'automatically-generated' }
+SCMockClassWithDumbMethods >> methodWithPerform [
+
+   self perform: #foo
 ]
 
 { #category : 'automatically-generated' }

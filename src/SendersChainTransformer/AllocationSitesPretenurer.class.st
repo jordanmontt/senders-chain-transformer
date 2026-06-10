@@ -34,7 +34,7 @@ AllocationSitesPretenurer >> compilePretenuredPathsFrom: toPretenurePaths [
             transformer transformCallSite: initialCaller senders: senders.
             callSiteTransformers add: transformer
 			]
-            on: Error
+            on: SCTransformationException
             do: [ :error | self logCompilationError: error senders: senders initialCaller: initialCaller ] ].
 
    self mergeTransformations

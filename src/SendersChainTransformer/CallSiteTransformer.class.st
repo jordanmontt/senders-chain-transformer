@@ -31,6 +31,17 @@ CallSiteTransformer >> cloneCompiledCode: anIllSender [
 		  ifFalse: [ IllMethodWithOffset method: anIllSender method copy offset: anIllSender offset ]
 ]
 
+{ #category : 'safety checks' }
+CallSiteTransformer >> includesMetaProgramingCalls: stack [
+
+   | reflectiveSelectors |
+   reflectiveSelectors := #( #perform: #perform:with: #perform:withArguments: #perform:withArguments:inSuperclass: ).
+   stack do: [ :methodWithOffset |
+		methodWithOffset sourceNodeAtOffset isAssignment ifTrue: [ ^ true ].
+		(reflectiveSelectors includes: methodWithOffset sourceNodeAtOffset selector) ifTrue: [ ^ true ] ].
+	^ false
+]
+
 { #category : 'initialization' }
 CallSiteTransformer >> initialize [
 
@@ -47,7 +58,7 @@ CallSiteTransformer >> initialize [
             (Behavior >> #basicNewTenured:) }
 ]
 
-{ #category : 'method manipulation' }
+{ #category : 'methods installation' }
 CallSiteTransformer >> installMethod: aCompiledMethod [
 
     aCompiledMethod methodClass
@@ -56,7 +67,7 @@ CallSiteTransformer >> installMethod: aCompiledMethod [
         inProtocol: methodProtocol
 ]
 
-{ #category : 'method manipulation' }
+{ #category : 'methods installation' }
 CallSiteTransformer >> installPretenuredMethod: aPretenuredCompiledMethod [
 
 		| oldSelector |
@@ -69,7 +80,7 @@ CallSiteTransformer >> installPretenuredMethod: aPretenuredCompiledMethod [
 	self installMethod: aPretenuredCompiledMethod
 ]
 
-{ #category : 'method manipulation' }
+{ #category : 'methods installation' }
 CallSiteTransformer >> installTransformations [
 
 	transformedCalleeChains do: [ :compiledMethod | self installPretenuredMethod: compiledMethod ].
@@ -94,7 +105,7 @@ CallSiteTransformer >> methodProtocol: aString [
 	methodProtocol := aString
 ]
 
-{ #category : 'method manipulation' }
+{ #category : 'safety checks' }
 CallSiteTransformer >> removeAlreadyImplemented: senders [
 	"Filter out methods that are already implemented or conflict with special-case implementations."
 
@@ -140,6 +151,9 @@ CallSiteTransformer >> selectorMaker [
 
 { #category : 'api' }
 CallSiteTransformer >> transformCallSite: initialCaller senders: senders [
+
+    (self includesMetaProgramingCalls: { initialCaller } , senders flattened)
+        ifTrue: [ SCTransformationException new signal ].
 
     transformedCalleeChains := self removeAlreadyImplemented: senders.
     transformedCalleeChains := transformedCalleeChains collect: [ :aMethodWithOffset |
